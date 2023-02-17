@@ -1,0 +1,6 @@
+package be.bhasher.shared
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity: FlutterActivity() {
+}
