@@ -61,4 +61,14 @@ class Project {
 
     return projects.map((e) => Project.fromJson(e)).toList();
   }
+
+  Future<bool> delete() async {
+    final db = await SharedDatabase.instance.database;
+    return await db.delete(
+          tableProjects,
+          where: '${ProjectFields.id} = ?',
+          whereArgs: [id],
+        ) >
+        0;
+  }
 }

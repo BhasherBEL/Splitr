@@ -113,9 +113,30 @@ class _ProjectsDrawerState extends State<ProjectsDrawer> {
             child: isLoading
                 ? const Text("loading ...")
                 : ListView.builder(
-                    itemBuilder: (context, index) => ListTile(
-                      title: Text(projects.elementAt(index).name),
-                    ),
+                    itemBuilder: (context, index) {
+                      Project project = projects.elementAt(index);
+                      return ListTile(
+                        title: Text(project.name),
+                        onLongPress: () async {
+                          final result = await showMenu(
+                            context: context,
+                            position: const RelativeRect.fromLTRB(0, 0, 0, 0),
+                            items: [
+                              const PopupMenuItem(
+                                value: 'delete',
+                                child: Text("delete"),
+                              ),
+                            ],
+                          );
+                          if (result == 'delete') {
+                            await project.delete();
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text("Project ${project.name} deleted"),
+                            ));
+                          }
+                        },
+                      );
+                    },
                     itemCount: projects.length,
                   ),
           ),
