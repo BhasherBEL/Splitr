@@ -1,4 +1,5 @@
 import 'package:shared/db/shared_database.dart';
+import 'package:shared/model/item.dart';
 
 const String tableProjects = 'projects';
 
@@ -70,5 +71,25 @@ class Project {
           whereArgs: [id],
         ) >
         0;
+  }
+
+  Future<List<Map<String, Object?>>> getItemsForList() async {
+    final db = await SharedDatabase.instance.database;
+    return await db.rawQuery(
+      '''SELECT
+          i.id,
+          i.title,
+          pai.pseudo AS emitter,
+          SUM(ip.amount) AS amount,
+          SUM(CASE WHEN ip.participant = 1 THEN ip.amount ELSE 0 END) AS participant_amount,
+          GROUP_CONCAT(pa.pseudo, ', ') AS participants
+      FROM items i
+      JOIN participants pai on pai.id = i.emitter
+      JOIN itemsParts ip on i.id = ip.item
+      JOIN participants pa on pa.id = ip.participant
+      WHERE i.project = ?
+      GROUP BY i.id; ''',
+      [id],
+    );
   }
 }
