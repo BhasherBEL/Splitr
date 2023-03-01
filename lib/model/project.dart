@@ -19,6 +19,8 @@ class Project {
     required this.name,
   });
 
+  static List<Project> projects = [];
+
   final int id;
   final String name;
 

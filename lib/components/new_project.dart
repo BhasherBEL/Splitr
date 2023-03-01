@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
 import '../model/project.dart';
 
-class NewProjectScreen extends StatelessWidget {
-  const NewProjectScreen({super.key});
+class NewProjectPage extends StatelessWidget {
+  const NewProjectPage({super.key});
 
   @override
   Widget build(BuildContext context) {

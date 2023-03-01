@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:shared/model/item.dart';
 import 'package:shared/model/project.dart';
 
-class ItemsScreen extends StatefulWidget {
-  const ItemsScreen(this.project, {super.key});
+class ItemsPage extends StatefulWidget {
+  const ItemsPage(this.project, {super.key});
 
   final Project project;
 
   @override
-  State<ItemsScreen> createState() => _ItemsScreenState();
+  State<ItemsPage> createState() => _ItemsPageState();
 }
 
-class _ItemsScreenState extends State<ItemsScreen> {
+class _ItemsPageState extends State<ItemsPage> {
   late List<Map<String, Object?>> items;
   bool isLoading = true;
 
