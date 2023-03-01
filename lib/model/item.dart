@@ -24,37 +24,37 @@ class ItemFields {
 class Item {
   const Item({
     this.id,
-    required this.project,
+    required this.projectId,
     required this.title,
-    required this.emitter,
+    required this.emitterId,
     required this.amount,
     required this.date,
   });
 
   final int? id;
-  final Project project;
+  final int projectId;
   final String title;
-  final Participant emitter;
+  final int emitterId;
   final double amount;
 
   final DateTime date;
   Map<String, Object?> toJson() => {
         ItemFields.id: id,
-        ItemFields.project: project.id,
+        ItemFields.project: projectId,
         ItemFields.title: title,
-        ItemFields.emitter: emitter.id,
+        ItemFields.emitter: emitterId,
         ItemFields.amount: amount,
         ItemFields.date: date.millisecondsSinceEpoch,
       };
 
-  // static Item fromJson(Map<String, Object?> json) {
-  //   return Item(
-  //     id: json[ItemFields.id] as int?,
-  //     project: Project.fromId(json[ItemFields.project] as int),
-  //     title: json[ItemFields.title] as String,
-  //     emitter: Participant.fromId(json[ItemFields.emitter] as int),
-  //     amount: json[ItemFields.amount] as double,
-  //     date: DateTime.fromMillisecondsSinceEpoch(json[ItemFields.date] as int),
-  //   );
-  // }
+  static Item fromJson(Map<String, Object?> json) {
+    return Item(
+      id: json[ItemFields.id] as int?,
+      projectId: json[ItemFields.project] as int,
+      title: json[ItemFields.title] as String,
+      emitterId: json[ItemFields.emitter] as int,
+      amount: json[ItemFields.amount] as double,
+      date: DateTime.fromMillisecondsSinceEpoch(json[ItemFields.date] as int),
+    );
+  }
 }

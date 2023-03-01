@@ -6,27 +6,17 @@ import '../new_project.dart';
 class ProjectsDrawer extends StatefulWidget {
   const ProjectsDrawer({
     Key? key,
+    this.onDrawerCallback,
   }) : super(key: key);
+
+  final Function()? onDrawerCallback;
 
   @override
   State<ProjectsDrawer> createState() => _ProjectsDrawerState();
 }
 
 class _ProjectsDrawerState extends State<ProjectsDrawer> {
-  late List<Project> projects;
-  bool isLoading = true;
-
-  Future refreshProjects() async {
-    setState(() => isLoading = true);
-    projects = await Project.getAllProjects();
-    setState(() => isLoading = false);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    refreshProjects();
-  }
+  List<Project> projects = Project.projects;
 
   @override
   Widget build(BuildContext context) {
@@ -36,35 +26,44 @@ class _ProjectsDrawerState extends State<ProjectsDrawer> {
       child: Column(
         children: [
           Expanded(
-            child: isLoading
-                ? const Text("loading ...")
-                : ListView.builder(
-                    itemBuilder: (context, index) {
-                      Project project = projects.elementAt(index);
-                      return ListTile(
-                        title: Text(project.name),
-                        onLongPress: () async {
-                          final result = await showMenu(
-                            context: context,
-                            position: const RelativeRect.fromLTRB(0, 0, 0, 0),
-                            items: [
-                              const PopupMenuItem(
-                                value: 'delete',
-                                child: Text("delete"),
-                              ),
-                            ],
-                          );
-                          if (result == 'delete') {
-                            await project.delete();
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text("Project ${project.name} deleted"),
-                            ));
-                          }
-                        },
-                      );
-                    },
-                    itemCount: projects.length,
-                  ),
+            child: ListView.builder(
+              itemBuilder: (context, index) {
+                Project project = projects.elementAt(index);
+                return ListTile(
+                  title: Text(project.name),
+                  onTap: () {
+                    Project.current = project;
+                    Navigator.pop(context);
+                    if (widget.onDrawerCallback != null) {
+                      widget.onDrawerCallback!();
+                    }
+                  },
+                  onLongPress: () async {
+                    final result = await showMenu(
+                      context: context,
+                      position: const RelativeRect.fromLTRB(0, 0, 0, 0),
+                      items: [
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Text("delete"),
+                        ),
+                      ],
+                    );
+                    if (result == 'delete') {
+                      await project.delete();
+                      if (mounted)
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text("Project ${project.name} deleted"),
+                        ));
+                      setState(() {
+                        if (mounted) projects = Project.projects;
+                      });
+                    }
+                  },
+                );
+              },
+              itemCount: projects.length,
+            ),
           ),
           Expanded(
             child: Align(
@@ -73,15 +72,19 @@ class _ProjectsDrawerState extends State<ProjectsDrawer> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   ListTile(
-                    leading: const Icon(Icons.add),
-                    title: const Text("Add new"),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const NewProjectPage(),
-                      ),
-                    ),
-                  ),
+                      leading: const Icon(Icons.add),
+                      title: const Text("Add new"),
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const NewProjectPage(),
+                          ),
+                        );
+                        setState(() {
+                          if (mounted) projects = Project.projects;
+                        });
+                      }),
                 ],
               ),
             ),
