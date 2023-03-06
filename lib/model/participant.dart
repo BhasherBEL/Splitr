@@ -1,3 +1,7 @@
+import 'package:shared/model/project.dart';
+
+import '../db/shared_database.dart';
+
 const String tableParticipants = 'participants';
 
 class ParticipantFields {
@@ -26,6 +30,22 @@ class Participant {
   final String pseudo;
   final String? lastname;
   final String? firstname;
+
+  static Future<Participant> fromValues(
+    String pseudo,
+    String? lastname,
+    String? firstname,
+  ) async {
+    final db = await SharedDatabase.instance.database;
+    final id = await db.insert(tableParticipants, {
+      ParticipantFields.pseudo: pseudo,
+      ParticipantFields.lastname: lastname,
+      ParticipantFields.firstname: firstname,
+    });
+    Participant participant =
+        Participant(id: id, pseudo: pseudo, lastname: lastname);
+    return participant;
+  }
 
   Map<String, Object?> toJson() => {
         ParticipantFields.id: id,

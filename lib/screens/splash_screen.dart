@@ -10,7 +10,7 @@ class SplashScreen extends StatelessWidget {
       theme: mainThemeData,
       home: const Scaffold(
         body: Center(
-          child: Text("loading your projects"),
+          child: Text("Starting up Shared ..."),
         ),
       ),
     );

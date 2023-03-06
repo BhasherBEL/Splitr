@@ -3,8 +3,14 @@ import 'package:shared/screens/main_screen.dart';
 import 'package:shared/screens/splash_screen.dart';
 import 'package:shared/model/project.dart';
 
+import 'screens/setup_screen.dart';
+
 void main() async {
   runApp(const SplashScreen());
   Project.projects = await Project.getAllProjects();
-  runApp(const MainScreen());
+  if (Project.projects.isEmpty) {
+    runApp(const SetupScreen());
+  } else {
+    runApp(const MainScreen());
+  }
 }

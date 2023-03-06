@@ -38,6 +38,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   sqflite: ^2.2.4+1
   path: ^1.8.2
+  flow_builder: ^0.0.9
 
 dev_dependencies:
   flutter_test:
