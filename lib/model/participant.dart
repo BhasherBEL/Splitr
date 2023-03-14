@@ -26,10 +26,31 @@ class Participant {
     this.firstname,
   });
 
+  static Participant? me;
+
   final int? id;
   final String pseudo;
   final String? lastname;
   final String? firstname;
+
+  static Future<Participant?> getMe() async {
+    final db = await SharedDatabase.instance.database;
+    final res = await db.query(
+      tableParticipants,
+      where: '${ParticipantFields.id} = ?',
+      whereArgs: [1],
+    );
+    if (res.isNotEmpty) return fromJson(res.first);
+    return null;
+  }
+
+  static Future<List<Participant>> getAll() async {
+    final db = await SharedDatabase.instance.database;
+    final res = await db.query(
+      tableParticipants,
+    );
+    return res.map((e) => fromJson(e)).toList();
+  }
 
   static Future<Participant> fromValues(
     String pseudo,

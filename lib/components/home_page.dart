@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared/components/new_entry.dart';
 import 'package:shared/components/project/item_list.dart';
 import 'package:shared/model/project.dart';
 import 'package:shared/model/project_data.dart';
@@ -69,10 +70,15 @@ class _HomePageState extends State<HomePage> {
       ),
       drawer: ProjectsDrawer(onDrawerCallback: back),
       floatingActionButton: hasProject
-          ? const FloatingActionButton(
-              onPressed: null,
+          ? FloatingActionButton(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NewEntryPage(projectData!),
+                ),
+              ),
               tooltip: 'Add new entry',
-              child: Icon(Icons.add),
+              child: const Icon(Icons.add),
             )
           : null,
     );

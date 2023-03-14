@@ -86,9 +86,9 @@ class _SetupScreenState extends State<_SetupScreen> {
                                 if (formKey.currentState != null &&
                                     formKey.currentState!.validate()) {
                                   if (currentPage == pages.length - 1) {
-                                    Project project = await Project.fromValues(
+                                    await Project.fromValues(
                                         setupData.projectName!);
-                                    Participant participant =
+                                    Participant.me =
                                         await Participant.fromValues(
                                       setupData.pseudo!,
                                       setupData.lastname,

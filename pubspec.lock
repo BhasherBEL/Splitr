@@ -131,6 +131,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.8.2"
+  select_form_field:
+    dependency: "direct main"
+    description:
+      name: select_form_field
+      sha256: "11b2ab3842b9da2a49a7933239c3d428e0cd2d0aa6a70b7e70f370dbf263a751"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.0"
   sky_engine:
     dependency: transitive
     description: flutter

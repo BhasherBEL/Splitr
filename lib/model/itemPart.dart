@@ -1,20 +1,21 @@
 import 'package:shared/model/item.dart';
-import 'package:shared/model/participant.dart';
+
+import '../db/shared_database.dart';
 
 const String tableItemParts = 'itemParts';
 
 class ItemPartFields {
   static const values = [
     id,
-    item,
-    participant,
+    itemId,
+    participantId,
     rate,
     amount,
   ];
 
   static const String id = '_id';
-  static const String item = 'item';
-  static const String participant = 'participant';
+  static const String itemId = 'item';
+  static const String participantId = 'participant';
   static const String rate = 'rate';
   static const String amount = 'amount';
 }
@@ -22,33 +23,60 @@ class ItemPartFields {
 class ItemPart {
   const ItemPart({
     this.id,
-    required this.item,
-    required this.participant,
-    this.rate,
-    this.amount,
+    required this.itemId,
+    required this.participantId,
+    required this.rate,
+    // this.amount,
   });
 
   final int? id;
-  final Item item;
-  final Participant participant;
-  final double? rate;
-  final double? amount;
+  final int itemId;
+  final int participantId;
+  final double rate;
+  // final double? amount;
 
   Map<String, Object?> toJson() => {
         ItemPartFields.id: id,
-        ItemPartFields.item: item.id,
-        ItemPartFields.participant: participant.id,
+        ItemPartFields.itemId: itemId,
+        ItemPartFields.participantId: participantId,
         ItemPartFields.rate: rate,
-        ItemPartFields.amount: amount,
       };
 
-  // static ItemPart fromJson(Map<String, Object?> json) {
-  //   return ItemPart(
-  //     id: json[ItemPartFields.id] as int?,
-  //     item: Item.fromId(json[ItemPartFields.item as int]),
-  //     participant: Participant.fromId(json[ItemPartFields.participant as int]),
-  //     rate: json[ItemPartFields.rate] as double?,
-  //     amount: json[ItemPartFields.amount] as double?,
-  //   );
-  // }
+  ItemPart copyWith({
+    final int? id,
+    final int? itemId,
+    final int? participantId,
+    final double? rate,
+  }) {
+    return ItemPart(
+      id: id ?? this.id,
+      itemId: itemId ?? this.itemId,
+      participantId: participantId ?? this.participantId,
+      rate: rate ?? this.rate,
+    );
+  }
+
+  static Future<ItemPart> fromValues(
+    int itemId,
+    int participantId,
+    int rate,
+  ) async {
+    final db = await SharedDatabase.instance.database;
+    ItemPart itemPart = ItemPart(
+        itemId: itemId, participantId: participantId, rate: rate.toDouble());
+    final id = await db.insert(
+      tableItemParts,
+      itemPart.toJson(),
+    );
+    return itemPart.copyWith(id: id);
+  }
+
+  static ItemPart fromJson(Map<String, Object?> json) {
+    return ItemPart(
+      id: json[ItemPartFields.id] as int?,
+      itemId: json[ItemPartFields.itemId] as int,
+      participantId: json[ItemPartFields.participantId] as int,
+      rate: json[ItemPartFields.rate] as double,
+    );
+  }
 }

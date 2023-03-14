@@ -57,8 +57,8 @@ CREATE TABLE $tableItems (
     await db.execute('''
 CREATE TABLE $tableItemParts (
   ${ItemPartFields.id} INTEGER PRIMARY KEY AUTOINCREMENT,
-  ${ItemPartFields.item} INTEGER NOT NULL,
-  ${ItemPartFields.participant} INTEGER NOT NULL,
+  ${ItemPartFields.itemId} INTEGER NOT NULL,
+  ${ItemPartFields.participantId} INTEGER NOT NULL,
   ${ItemPartFields.rate} REAL,
   ${ItemPartFields.amount} REAL
 )

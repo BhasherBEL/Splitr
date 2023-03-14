@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:shared/model/project_data.dart';
 
 import '../../model/item.dart';
@@ -12,21 +10,26 @@ class ItemList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return projectData.items.length > 0
+    return projectData.items.isNotEmpty
         ? ListView.builder(
             itemBuilder: (context, index) {
               Item item = projectData.items.elementAt(index);
               return ListTile(
                 title: Row(children: [
                   Expanded(child: Text(item.title)),
-                  Expanded(child: Text('${item.amount} €')),
+                  Text('${item.amount} €'),
                 ]),
+                subtitle: Row(
+                  children: [
+                    Text(item.date.millisecondsSinceEpoch.toString()),
+                  ],
+                ),
               );
             },
             itemCount: projectData.items.length,
           )
-        : Center(
-            child: Text("Add an item !"),
+        : const Center(
+            child: Text("Add your first item!"),
           );
   }
 }
