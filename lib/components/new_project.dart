@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:shared/model/app_data.dart';
 
+import '../model/participant.dart';
 import '../model/project.dart';
 
 class NewProjectPage extends StatelessWidget {
-  const NewProjectPage({super.key});
+  NewProjectPage({super.key, this.project});
+
+  Project? project;
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController projectTitleController = TextEditingController();
+    TextEditingController projectTitleController =
+        TextEditingController(text: project != null ? project!.name : "");
 
     return Scaffold(
       appBar: AppBar(),
@@ -30,11 +35,18 @@ class NewProjectPage extends StatelessWidget {
             decoration: const InputDecoration(border: OutlineInputBorder()),
           ),
           ElevatedButton(
-            onPressed: () {
-              Project(name: projectTitleController.text).db.save();
+            onPressed: () async {
+              if (project == null) {
+                project = Project(name: projectTitleController.text);
+                project!.addParticipant(AppData.me);
+                await project!.db.saveParticipants();
+              } else {
+                project!.name = projectTitleController.text;
+              }
+              await project!.db.save();
               Navigator.pop(context, true);
             },
-            child: const Text('Create'),
+            child: Text(project == null ? 'Create' : 'Update'),
           ),
         ],
       ),

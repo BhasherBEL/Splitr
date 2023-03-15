@@ -65,7 +65,7 @@ class Item {
         totalRate += ip.rate;
       }
     }
-    return rate * amount / totalRate;
+    return (emitter == participant ? amount : 0) - rate * amount / totalRate;
   }
 
   static Item fromJson(Map<String, Object?> json, {Project? project}) {

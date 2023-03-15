@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared/components/new_project.dart';
+import 'package:shared/components/projects_list.dart';
 import 'package:shared/model/app_data.dart';
 
 import '../model/project.dart';
@@ -43,6 +45,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    project = AppData.current;
     bool hasProject = project != null;
     return Scaffold(
       appBar: AppBar(
@@ -73,26 +76,24 @@ class _HomePageState extends State<HomePage> {
             ? isLoaded
                 ? ItemList(project!)
                 : const Text("Loading entries ...")
-            : const Text(
-                'Select a project to start adding entries',
-              ),
+            : ProjectsList(() => setState(back)),
       ),
-      drawer: ProjectsDrawer(onDrawerCallback: back),
-      floatingActionButton: hasProject
-          ? FloatingActionButton(
-              onPressed: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => NewEntryPage(project!),
-                  ),
-                );
-                setState(() {});
-              },
-              tooltip: 'Add new entry',
-              child: const Icon(Icons.add),
-            )
-          : null,
+      drawer:
+          hasProject ? ProjectsDrawer(project!, onDrawerCallback: back) : null,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  hasProject ? NewEntryPage(project!) : NewProjectPage(),
+            ),
+          );
+          setState(() {});
+        },
+        tooltip: 'Add new entry',
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }

@@ -244,7 +244,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
                 await item.db.saveRecursively();
                 Navigator.pop(context, true);
               },
-              child: const Text('Create'),
+              child: Text(widget.item == null ? 'Create' : 'Update'),
             ),
           ],
         ),

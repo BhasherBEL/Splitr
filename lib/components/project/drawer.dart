@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:shared/model/app_data.dart';
+import 'package:shared/model/participant.dart';
 
 import '../../model/project.dart';
 import '../new_participant.dart';
 import '../new_project.dart';
 
 class ProjectsDrawer extends StatefulWidget {
-  const ProjectsDrawer({
+  const ProjectsDrawer(
+    this.project, {
     Key? key,
     this.onDrawerCallback,
   }) : super(key: key);
 
+  final Project project;
   final Function()? onDrawerCallback;
 
   @override
@@ -28,41 +31,26 @@ class _ProjectsDrawerState extends State<ProjectsDrawer> {
           Expanded(
             child: ListView.builder(
               itemBuilder: (context, index) {
-                Project project = AppData.projects.elementAt(index);
+                Participant participant =
+                    widget.project.participants.elementAt(index);
                 return ListTile(
-                  title: Text(project.name),
-                  onTap: () {
-                    AppData.current = project;
-                    Navigator.pop(context);
-                    if (widget.onDrawerCallback != null) {
-                      widget.onDrawerCallback!();
-                    }
-                  },
-                  onLongPress: () async {
-                    final result = await showMenu(
-                      context: context,
-                      position: const RelativeRect.fromLTRB(0, 0, 0, 0),
-                      items: [
-                        const PopupMenuItem(
-                          value: 'delete',
-                          child: Text("delete"),
-                        ),
-                      ],
-                    );
-                    if (result == 'delete') {
-                      AppData.projects.remove(project);
-                      project.db.delete();
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text("Project ${project.name} deleted"),
-                        ));
-                        setState(() {});
-                      }
-                    }
-                  },
+                  title: Row(
+                    children: [
+                      Expanded(child: Text(participant.pseudo)),
+                      Text(
+                        '${(([
+                              0.0
+                            ] + widget.project.items.map((e) => e.shareOf(participant)).toList()).reduce((a, b) => a + b) * 100).roundToDouble() / 100} €',
+                      ),
+                    ],
+                  ),
+                  subtitle: (participant.firstname != null ||
+                          participant.lastname != null)
+                      ? Text("${participant.firstname} ${participant.lastname}")
+                      : null,
                 );
               },
-              itemCount: AppData.projects.length,
+              itemCount: widget.project.participants.length,
             ),
           ),
           Expanded(
@@ -87,16 +75,14 @@ class _ProjectsDrawerState extends State<ProjectsDrawer> {
                       },
                     ),
                   ListTile(
-                    leading: const Icon(Icons.add),
-                    title: const Text("Add new project"),
+                    leading: const Icon(Icons.close),
+                    title: const Text("Exit project"),
                     onTap: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const NewProjectPage(),
-                        ),
-                      );
-                      setState(() {});
+                      AppData.current = null;
+                      Navigator.pop(context);
+                      if (widget.onDrawerCallback != null) {
+                        widget.onDrawerCallback!();
+                      }
                     },
                   ),
                 ],

@@ -49,22 +49,23 @@ shares: ${shares.entries.map((e) => "${e.key.pseudo}:${e.value}").join(",")}""";
         project: project,
         title: title,
       );
+      project.addItem(item!);
     } else {
       item!.amount = amount;
       item!.date = date;
       item!.emitter = emitter;
       item!.title = title;
+      for (var element in item!.itemParts) {
+        element.db.delete();
+      }
       item!.itemParts = [];
     }
-
     shares.forEach((p, s) {
       if (s > 0) {
         item!.itemParts
             .add(ItemPart(item: item!, participant: p, rate: s.toDouble()));
       }
     });
-
-    project.addItem(item!);
 
     return item!;
   }

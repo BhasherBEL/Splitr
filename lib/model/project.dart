@@ -122,14 +122,14 @@ WHERE ${ProjectParticipantFields.projectId} = ${project.id};
     if (project.id != null) {
       final results = await AppData.db.query(
         tableProjects,
-        where: 'id = ?',
+        where: '${ProjectFields.id} = ?',
         whereArgs: [project.id],
       );
       if (results.isNotEmpty) {
         await AppData.db.update(
           tableProjects,
           project.toJson(),
-          where: 'id = ?',
+          where: '${ProjectFields.id} = ?',
           whereArgs: [project.id],
         );
         return;
