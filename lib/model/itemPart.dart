@@ -82,4 +82,12 @@ class _ItemPartDB {
     }
     itemPart.id = await AppData.db.insert(tableItemParts, itemPart.toJson());
   }
+
+  Future delete() async {
+    await AppData.db.delete(
+      tableItemParts,
+      where: '${ItemPartFields.id} = ?',
+      whereArgs: [itemPart.id],
+    );
+  }
 }

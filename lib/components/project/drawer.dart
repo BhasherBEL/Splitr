@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared/model/app_data.dart';
 
 import '../../model/project.dart';
+import '../new_participant.dart';
 import '../new_project.dart';
 
 class ProjectsDrawer extends StatefulWidget {
@@ -70,18 +71,34 @@ class _ProjectsDrawerState extends State<ProjectsDrawer> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  ListTile(
+                  if (AppData.current != null)
+                    ListTile(
                       leading: const Icon(Icons.add),
-                      title: const Text("Add new"),
+                      title: const Text("Add new participant"),
                       onTap: () async {
                         await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const NewProjectPage(),
+                            builder: (context) =>
+                                NewParticipantPage(AppData.current!),
                           ),
                         );
                         setState(() {});
-                      }),
+                      },
+                    ),
+                  ListTile(
+                    leading: const Icon(Icons.add),
+                    title: const Text("Add new project"),
+                    onTap: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NewProjectPage(),
+                        ),
+                      );
+                      setState(() {});
+                    },
+                  ),
                 ],
               ),
             ),

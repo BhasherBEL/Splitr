@@ -1,10 +1,26 @@
 import 'package:shared/model/app_data.dart';
+import 'package:shared/model/itemPart.dart';
 import 'package:shared/model/participant.dart';
 import 'package:shared/model/project.dart';
 
 import 'item.dart';
 
 class BillData {
+  BillData({this.item}) {
+    title = item?.title ?? "";
+    date = item?.date ?? DateTime.now();
+    emitter = item?.emitter ?? AppData.me;
+    amount = item?.amount ?? 0;
+    if (item != null) {
+      for (ItemPart ip in item!.itemParts) {
+        shares[ip.participant] = ip.rate.toInt();
+      }
+    }
+    print(shares);
+  }
+
+  Item? item;
+
   String title = "";
   DateTime date = DateTime.now();
   Participant emitter = AppData.me;
@@ -25,16 +41,31 @@ shares: ${shares.entries.map((e) => "${e.key.pseudo}:${e.value}").join(",")}""";
   }
 
   Item toItemOf(Project project) {
-    Item item = Item(
-      amount: amount,
-      date: date,
-      emitter: emitter,
-      project: project,
-      title: title,
-    );
+    if (item == null) {
+      item = Item(
+        amount: amount,
+        date: date,
+        emitter: emitter,
+        project: project,
+        title: title,
+      );
+    } else {
+      item!.amount = amount;
+      item!.date = date;
+      item!.emitter = emitter;
+      item!.title = title;
+      item!.itemParts = [];
+    }
 
-    project.addItem(item);
+    shares.forEach((p, s) {
+      if (s > 0) {
+        item!.itemParts
+            .add(ItemPart(item: item!, participant: p, rate: s.toDouble()));
+      }
+    });
 
-    return item;
+    project.addItem(item!);
+
+    return item!;
   }
 }

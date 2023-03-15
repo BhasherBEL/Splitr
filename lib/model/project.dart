@@ -72,6 +72,10 @@ class Project {
     items.add(item);
   }
 
+  void deleteItem(Item item) {
+    items.remove(item);
+  }
+
   static Project? fromName(String s) {
     return AppData.projects.isEmpty
         ? null
@@ -94,7 +98,9 @@ class _ProjectDB {
     project.items.clear();
 
     for (Map<String, Object?> e in rawItems) {
-      project.items.add(Item.fromJson(e, project: project));
+      Item item = Item.fromJson(e, project: project);
+      project.items.add(item);
+      await item.db.loadParts();
     }
   }
 
@@ -163,11 +169,9 @@ WHERE ${ProjectParticipantFields.projectId} = ${project.id};
         ) >
         0;
     if (res) {
-      await AppData.db.delete(
-        tableProjectParticipants,
-        where: '${ProjectParticipantFields.projectId} = ?',
-        whereArgs: [project.id],
-      );
+      for (Item item in project.items) {
+        await item.db.delete();
+      }
     }
     return res;
   }

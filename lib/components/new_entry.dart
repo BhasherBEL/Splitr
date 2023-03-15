@@ -8,22 +8,21 @@ import '../model/project.dart';
 import '../utils/time.dart';
 
 class NewEntryPage extends StatefulWidget {
-  const NewEntryPage(this.project, {super.key});
+  const NewEntryPage(this.project, {super.key, this.item});
 
   final Project project;
+  final Item? item;
 
   @override
   State<NewEntryPage> createState() => _NewEntryPageState();
 }
 
 class _NewEntryPageState extends State<NewEntryPage> {
-  final BillData bill = BillData();
+  late BillData bill;
   final dateController = TextEditingController();
   final titleController = TextEditingController();
   final emitterController = TextEditingController();
   final amountController = TextEditingController();
-
-  final Map<Participant, int> participants = {};
 
   @override
   void dispose() {
@@ -35,13 +34,18 @@ class _NewEntryPageState extends State<NewEntryPage> {
   @override
   void initState() {
     super.initState();
+    bill = BillData(item: widget.item);
     titleController.text = bill.title;
     dateController.text = getFullDate(bill.date);
     emitterController.text = bill.emitter.pseudo;
     amountController.text = bill.amount.toString();
 
     for (Participant participant in widget.project.participants) {
-      participants[participant] = 1;
+      if (widget.item == null) {
+        bill.shares[participant] = 1;
+      } else if (bill.shares[participant] == null) {
+        bill.shares[participant] = 0;
+      }
     }
   }
 
@@ -130,7 +134,8 @@ class _NewEntryPageState extends State<NewEntryPage> {
                   .toList(),
               controller: emitterController,
               onChanged: (value) {
-                bill.emitter = Participant(pseudo: value);
+                bill.emitter = widget.project.participants
+                    .firstWhere((element) => element.pseudo == value);
               },
             ),
             const Padding(
@@ -230,13 +235,13 @@ class _NewEntryPageState extends State<NewEntryPage> {
                         ],
                       ),
                     ] +
-                    getRows(bill, participants),
+                    getRows(bill),
               ),
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 Item item = bill.toItemOf(widget.project);
-                item.db.saveRecursively();
+                await item.db.saveRecursively();
                 Navigator.pop(context, true);
               },
               child: const Text('Create'),
@@ -247,14 +252,14 @@ class _NewEntryPageState extends State<NewEntryPage> {
     );
   }
 
-  List<TableRow> getRows(BillData bill, Map<Participant, int> participants) {
+  List<TableRow> getRows(BillData bill) {
     final List<TableRow> rows = [];
 
-    int total = participants.values.reduce((a, b) => a + b);
+    int total = bill.totalShares;
 
     if (total <= 0) total = 1;
 
-    participants.forEach((participant, amount) {
+    bill.shares.forEach((participant, amount) {
       TextEditingController controller =
           TextEditingController(text: amount.toString());
 
@@ -269,9 +274,9 @@ class _NewEntryPageState extends State<NewEntryPage> {
               onChanged: (value) {
                 setState(() {
                   if (amount > 0) {
-                    participants[participant] = 0;
+                    bill.shares[participant] = 0;
                   } else {
-                    participants[participant] = 1;
+                    bill.shares[participant] = 1;
                   }
                 });
               },
@@ -288,6 +293,13 @@ class _NewEntryPageState extends State<NewEntryPage> {
             child: Center(
               child: TextFormField(
                 controller: controller,
+                onChanged: (value) {
+                  try {
+                    setState(() {
+                      bill.shares[participant] = int.parse(value);
+                    });
+                  } catch (e) {}
+                },
                 textAlign: TextAlign.center,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(
@@ -302,7 +314,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
           TableCell(
             verticalAlignment: TableCellVerticalAlignment.middle,
             child: Center(
-              child: Text("$price €"),
+              child: Text("${(price * 100).roundToDouble() / 100} €"),
             ),
           ),
         ],

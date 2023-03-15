@@ -56,6 +56,18 @@ class Item {
         ItemFields.date: date.millisecondsSinceEpoch,
       };
 
+  double shareOf(Participant participant) {
+    double rate = 0;
+    double totalRate = 0;
+    if (itemParts.isNotEmpty) {
+      for (ItemPart ip in itemParts) {
+        if (ip.participant == participant) rate = ip.rate;
+        totalRate += ip.rate;
+      }
+    }
+    return rate * amount / totalRate;
+  }
+
   static Item fromJson(Map<String, Object?> json, {Project? project}) {
     Project p;
     if (project != null) {
@@ -96,14 +108,14 @@ class _ItemDB {
     if (item.id != null) {
       final results = await AppData.db.query(
         tableItems,
-        where: 'id = ?',
+        where: '${ItemFields.id} = ?',
         whereArgs: [item.id],
       );
       if (results.isNotEmpty) {
         await AppData.db.update(
           tableItems,
           item.toJson(),
-          where: 'id = ?',
+          where: '${ItemFields.id} = ?',
           whereArgs: [item.id],
         );
         return;
@@ -116,6 +128,18 @@ class _ItemDB {
     await save();
     for (final ItemPart ip in item.itemParts) {
       await ip.db.save();
+    }
+  }
+
+  Future delete() async {
+    await AppData.db.delete(
+      tableItems,
+      where: '${ItemFields.id} = ?',
+      whereArgs: [item.id],
+    );
+
+    for (final ItemPart ip in item.itemParts) {
+      await ip.db.delete();
     }
   }
 }
