@@ -31,7 +31,7 @@ class NewProjectPage extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              Project.fromValues(projectTitleController.text);
+              Project(name: projectTitleController.text).db.save();
               Navigator.pop(context, true);
             },
             child: const Text('Create'),

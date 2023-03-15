@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:shared/model/participant.dart';
-import 'package:shared/screens/main_screen.dart';
-import 'package:shared/screens/splash_screen.dart';
-import 'package:shared/model/project.dart';
 
+import 'model/app_data.dart';
+import 'screens/main_screen.dart';
 import 'screens/setup_screen.dart';
+import 'screens/splash_screen.dart';
 
 void main() async {
   runApp(const SplashScreen());
-  Project.projects = await Project.getAllProjects();
-  Participant.me = await Participant.getMe();
-  if (Project.projects.isEmpty) {
+  await AppData.init();
+  if (AppData.firstRun) {
     runApp(const SetupScreen());
   } else {
     runApp(const MainScreen());

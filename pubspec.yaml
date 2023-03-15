@@ -40,6 +40,7 @@ dependencies:
   path: ^1.8.2
   flow_builder: ^0.0.9
   select_form_field: ^2.2.0
+  shared_preferences: ^2.0.18
 
 dev_dependencies:
   flutter_test:

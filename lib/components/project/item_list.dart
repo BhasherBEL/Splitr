@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:shared/model/project_data.dart';
 
 import '../../model/item.dart';
+import '../../model/project.dart';
 
 class ItemList extends StatelessWidget {
-  const ItemList(this.projectData, {super.key});
+  const ItemList(this.project, {super.key});
 
-  final ProjectData projectData;
+  final Project project;
 
   @override
   Widget build(BuildContext context) {
-    return projectData.items.isNotEmpty
+    return project.items.isNotEmpty
         ? ListView.builder(
             itemBuilder: (context, index) {
-              Item item = projectData.items.elementAt(index);
+              Item item = project.items.elementAt(index);
               return ListTile(
                 title: Row(children: [
                   Expanded(child: Text(item.title)),
@@ -26,7 +26,7 @@ class ItemList extends StatelessWidget {
                 ),
               );
             },
-            itemCount: projectData.items.length,
+            itemCount: project.items.length,
           )
         : const Center(
             child: Text("Add your first item!"),

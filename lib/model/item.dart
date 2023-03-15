@@ -1,6 +1,7 @@
 import 'package:shared/model/bill_data.dart';
 import 'package:shared/model/itemPart.dart';
 import 'package:shared/model/participant.dart';
+import 'package:shared/model/app_data.dart';
 import 'package:shared/model/project.dart';
 
 import '../db/shared_database.dart';
@@ -26,98 +27,95 @@ class ItemFields {
 }
 
 class Item {
-  const Item({
+  Item({
     this.id,
-    required this.projectId,
+    required this.project,
     required this.title,
-    required this.emitterId,
+    required this.emitter,
     required this.amount,
     required this.date,
-  });
+  }) {
+    db = _ItemDB(this);
+  }
 
-  final int? id;
-  final int projectId;
-  final String title;
-  final int emitterId;
-  final double amount;
-
-  final DateTime date;
+  int? id;
+  Project project;
+  String title;
+  Participant emitter;
+  double amount;
+  DateTime date;
+  List<ItemPart> itemParts = [];
+  late _ItemDB db;
 
   Map<String, Object?> toJson() => {
         ItemFields.id: id,
-        ItemFields.project: projectId,
+        ItemFields.project: project.id,
         ItemFields.title: title,
-        ItemFields.emitter: emitterId,
+        ItemFields.emitter: emitter.id,
         ItemFields.amount: amount,
         ItemFields.date: date.millisecondsSinceEpoch,
       };
 
-  Map<String, Object?> toTempJson() => {
-        ItemFields.project: projectId,
-        ItemFields.title: title,
-        ItemFields.emitter: emitterId,
-        ItemFields.amount: amount,
-        ItemFields.date: date.millisecondsSinceEpoch,
-      };
+  static Item fromJson(Map<String, Object?> json, {Project? project}) {
+    Project p;
+    if (project != null) {
+      p = project;
+    } else {
+      p = Project.fromId(json[ItemFields.project] as int)!;
+    }
 
-  Item copyWith({
-    final int? id,
-    final int? projectId,
-    final String? title,
-    final int? emitterId,
-    final double? amount,
-    final DateTime? date,
-  }) {
-    return Item(
-      amount: amount ?? this.amount,
-      date: date ?? this.date,
-      emitterId: emitterId ?? this.emitterId,
-      projectId: projectId ?? this.projectId,
-      title: title ?? this.title,
-      id: id ?? this.id,
-    );
-  }
-
-  static Item fromJson(Map<String, Object?> json) {
     return Item(
       id: json[ItemFields.id] as int?,
-      projectId: json[ItemFields.project] as int,
+      project: p,
       title: json[ItemFields.title] as String,
-      emitterId: json[ItemFields.emitter] as int,
+      emitter: p.participants.firstWhere(
+          (participant) => participant.id == json[ItemFields.emitter] as int),
       amount: json[ItemFields.amount] as double,
       date: DateTime.fromMillisecondsSinceEpoch(json[ItemFields.date] as int),
     );
   }
+}
 
-  static Future<Item> fromBill(BillData bill) async {
-    final db = await SharedDatabase.instance.database;
+class _ItemDB {
+  _ItemDB(this.item);
 
-    Item item = Item(
-      amount: bill.amount,
-      date: bill.date,
-      emitterId: bill.emitter.id!,
-      projectId: Project.current!.id,
-      title: bill.title,
-    );
+  Item item;
 
-    final id = await db.insert(tableItems, item.toTempJson());
-
-    bill.shares.forEach((participant, share) {
-      ItemPart.fromValues(id, participant.id!, share);
-    });
-
-    return item.copyWith(id: id);
-  }
-
-  Future<List<ItemPart>> getParts() async {
-    final db = await SharedDatabase.instance.database;
-    return (await db.query(
+  Future loadParts() async {
+    item.itemParts = (await AppData.db.query(
       tableItemParts,
       columns: ItemPartFields.values,
       where: "${ItemPartFields.itemId} = ?",
-      whereArgs: [id],
+      whereArgs: [item.id],
     ))
-        .map((e) => ItemPart.fromJson(e))
+        .map((e) => ItemPart.fromJson(e, item))
         .toList();
+  }
+
+  Future save() async {
+    if (item.id != null) {
+      final results = await AppData.db.query(
+        tableItems,
+        where: 'id = ?',
+        whereArgs: [item.id],
+      );
+      if (results.isNotEmpty) {
+        await AppData.db.update(
+          tableItems,
+          item.toJson(),
+          where: 'id = ?',
+          whereArgs: [item.id],
+        );
+        return;
+      }
+    }
+    item.id = await AppData.db.insert(tableItems, item.toJson());
+  }
+
+  Future saveRecursively() async {
+    await save();
+    for (final ItemPart ip in item.itemParts) {
+      await ip.db.save();
+    }
   }
 }

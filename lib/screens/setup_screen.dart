@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared/components/setup/user_setup_page.dart';
+import 'package:shared/model/app_data.dart';
 import 'package:shared/model/participant.dart';
 import 'package:shared/model/project.dart';
 import 'package:shared/model/setup_data.dart';
@@ -86,14 +87,20 @@ class _SetupScreenState extends State<_SetupScreen> {
                                 if (formKey.currentState != null &&
                                     formKey.currentState!.validate()) {
                                   if (currentPage == pages.length - 1) {
-                                    await Project.fromValues(
-                                        setupData.projectName!);
-                                    Participant.me =
-                                        await Participant.fromValues(
-                                      setupData.pseudo!,
-                                      setupData.lastname,
-                                      setupData.firstname,
+                                    AppData.current =
+                                        Project(name: setupData.projectName!);
+                                    AppData.me = Participant(
+                                      pseudo: setupData.pseudo!,
+                                      lastname: setupData.lastname,
+                                      firstname: setupData.firstname,
                                     );
+                                    AppData.current!.addParticipant(AppData.me);
+
+                                    await AppData.current!.db.save();
+                                    await AppData.me.db.save();
+                                    await AppData.current!.db
+                                        .saveParticipants();
+                                    AppData.firstRun = false;
                                     runApp(const MainScreen());
                                   } else {
                                     setState(() {

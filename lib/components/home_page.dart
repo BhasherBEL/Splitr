@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:shared/components/new_entry.dart';
-import 'package:shared/components/project/item_list.dart';
-import 'package:shared/model/project.dart';
-import 'package:shared/model/project_data.dart';
+import 'package:shared/model/app_data.dart';
 
+import '../model/project.dart';
+import 'new_entry.dart';
 import 'project/drawer.dart';
+import 'project/item_list.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,21 +14,30 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Project? project = Project.current;
-  ProjectData? projectData;
+  Project? project = AppData.current;
+  bool isLoaded = false;
 
   void back() {
     setState(() {
-      project = Project.current;
+      project = AppData.current;
+    });
+    if (project != null) _loadProjectData();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      project = AppData.current;
     });
     if (project != null) _loadProjectData();
   }
 
   Future<void> _loadProjectData() async {
-    projectData = ProjectData(project!);
-    await projectData!.load();
+    await project!.db.loadParticipants();
+    await project!.db.loadEntries();
     setState(() {
-      projectData!.isLoaded = true;
+      isLoaded = true;
     });
   }
 
@@ -61,8 +70,8 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Center(
         child: hasProject
-            ? projectData!.isLoaded
-                ? ItemList(projectData!)
+            ? isLoaded
+                ? ItemList(project!)
                 : const Text("Loading entries ...")
             : const Text(
                 'Select a project to start adding entries',
@@ -71,12 +80,15 @@ class _HomePageState extends State<HomePage> {
       drawer: ProjectsDrawer(onDrawerCallback: back),
       floatingActionButton: hasProject
           ? FloatingActionButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => NewEntryPage(projectData!),
-                ),
-              ),
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NewEntryPage(project!),
+                  ),
+                );
+                setState(() {});
+              },
               tooltip: 'Add new entry',
               child: const Icon(Icons.add),
             )

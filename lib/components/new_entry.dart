@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:select_form_field/select_form_field.dart';
-import 'package:shared/model/bill_data.dart';
-import 'package:shared/model/item.dart';
-import 'package:shared/model/participant.dart';
-import 'package:shared/model/project_data.dart';
-import 'package:shared/utils/time.dart';
 
+import '../model/bill_data.dart';
+import '../model/item.dart';
+import '../model/participant.dart';
 import '../model/project.dart';
+import '../utils/time.dart';
 
 class NewEntryPage extends StatefulWidget {
-  const NewEntryPage(this.projectData, {super.key});
+  const NewEntryPage(this.project, {super.key});
 
-  final ProjectData projectData;
+  final Project project;
 
   @override
   State<NewEntryPage> createState() => _NewEntryPageState();
@@ -41,7 +40,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
     emitterController.text = bill.emitter.pseudo;
     amountController.text = bill.amount.toString();
 
-    for (Participant participant in widget.projectData.participants) {
+    for (Participant participant in widget.project.participants) {
       participants[participant] = 1;
     }
   }
@@ -61,7 +60,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
               ),
             ),
             Text(
-              Project.current!.name,
+              widget.project.name,
               style: const TextStyle(
                 fontSize: 14,
                 fontStyle: FontStyle.italic,
@@ -123,7 +122,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
             ),
             SelectFormField(
               type: SelectFormFieldType.dropdown,
-              items: widget.projectData.participants
+              items: widget.project.participants
                   .map((p) => <String, dynamic>{
                         'value': p.pseudo,
                         'label': p.pseudo,
@@ -236,7 +235,8 @@ class _NewEntryPageState extends State<NewEntryPage> {
             ),
             ElevatedButton(
               onPressed: () {
-                Item.fromBill(bill);
+                Item item = bill.toItemOf(widget.project);
+                item.db.saveRecursively();
                 Navigator.pop(context, true);
               },
               child: const Text('Create'),

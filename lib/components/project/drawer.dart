@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared/model/app_data.dart';
 
 import '../../model/project.dart';
 import '../new_project.dart';
@@ -16,8 +17,6 @@ class ProjectsDrawer extends StatefulWidget {
 }
 
 class _ProjectsDrawerState extends State<ProjectsDrawer> {
-  List<Project> projects = Project.projects;
-
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -28,11 +27,11 @@ class _ProjectsDrawerState extends State<ProjectsDrawer> {
           Expanded(
             child: ListView.builder(
               itemBuilder: (context, index) {
-                Project project = projects.elementAt(index);
+                Project project = AppData.projects.elementAt(index);
                 return ListTile(
                   title: Text(project.name),
                   onTap: () {
-                    Project.current = project;
+                    AppData.current = project;
                     Navigator.pop(context);
                     if (widget.onDrawerCallback != null) {
                       widget.onDrawerCallback!();
@@ -50,19 +49,19 @@ class _ProjectsDrawerState extends State<ProjectsDrawer> {
                       ],
                     );
                     if (result == 'delete') {
-                      await project.delete();
-                      if (mounted)
+                      AppData.projects.remove(project);
+                      project.db.delete();
+                      if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text("Project ${project.name} deleted"),
                         ));
-                      setState(() {
-                        if (mounted) projects = Project.projects;
-                      });
+                        setState(() {});
+                      }
                     }
                   },
                 );
               },
-              itemCount: projects.length,
+              itemCount: AppData.projects.length,
             ),
           ),
           Expanded(
@@ -81,9 +80,7 @@ class _ProjectsDrawerState extends State<ProjectsDrawer> {
                             builder: (context) => const NewProjectPage(),
                           ),
                         );
-                        setState(() {
-                          if (mounted) projects = Project.projects;
-                        });
+                        setState(() {});
                       }),
                 ],
               ),

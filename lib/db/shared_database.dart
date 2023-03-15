@@ -3,6 +3,7 @@ import 'package:shared/model/item.dart';
 import 'package:shared/model/itemPart.dart';
 import 'package:shared/model/participant.dart';
 import 'package:shared/model/project.dart';
+import 'package:shared/model/project_participant.dart';
 import 'package:sqflite/sqflite.dart';
 
 class SharedDatabase {
@@ -40,6 +41,13 @@ CREATE TABLE $tableParticipants (
   ${ParticipantFields.pseudo} TEXT NOT NULL,
   ${ParticipantFields.lastname} TEXT,
   ${ParticipantFields.firstname} TEXT
+)
+''');
+
+    await db.execute('''
+CREATE TABLE $tableProjectParticipants (
+  ${ProjectParticipantFields.projectId} INTEGER NOT NULL,
+  ${ProjectParticipantFields.participantId} INTEGER NOT NULL
 )
 ''');
 

@@ -1,6 +1,8 @@
+import 'package:shared/model/participant.dart';
 import 'package:shared/model/item.dart';
 
 import '../db/shared_database.dart';
+import 'app_data.dart';
 
 const String tableItemParts = 'itemParts';
 
@@ -21,62 +23,63 @@ class ItemPartFields {
 }
 
 class ItemPart {
-  const ItemPart({
+  ItemPart({
     this.id,
-    required this.itemId,
-    required this.participantId,
+    required this.item,
+    required this.participant,
     required this.rate,
-    // this.amount,
-  });
+    // TODO this.amount,
+  }) {
+    db = _ItemPartDB(this);
+  }
 
-  final int? id;
-  final int itemId;
-  final int participantId;
-  final double rate;
-  // final double? amount;
+  int? id;
+  Item item;
+  Participant participant;
+  double rate;
+  // TODO double? amount;
+  late _ItemPartDB db;
 
   Map<String, Object?> toJson() => {
         ItemPartFields.id: id,
-        ItemPartFields.itemId: itemId,
-        ItemPartFields.participantId: participantId,
+        ItemPartFields.itemId: item.id,
+        ItemPartFields.participantId: participant.id,
         ItemPartFields.rate: rate,
       };
 
-  ItemPart copyWith({
-    final int? id,
-    final int? itemId,
-    final int? participantId,
-    final double? rate,
-  }) {
-    return ItemPart(
-      id: id ?? this.id,
-      itemId: itemId ?? this.itemId,
-      participantId: participantId ?? this.participantId,
-      rate: rate ?? this.rate,
-    );
-  }
-
-  static Future<ItemPart> fromValues(
-    int itemId,
-    int participantId,
-    int rate,
-  ) async {
-    final db = await SharedDatabase.instance.database;
-    ItemPart itemPart = ItemPart(
-        itemId: itemId, participantId: participantId, rate: rate.toDouble());
-    final id = await db.insert(
-      tableItemParts,
-      itemPart.toJson(),
-    );
-    return itemPart.copyWith(id: id);
-  }
-
-  static ItemPart fromJson(Map<String, Object?> json) {
+  static ItemPart fromJson(Map<String, Object?> json, Item item) {
     return ItemPart(
       id: json[ItemPartFields.id] as int?,
-      itemId: json[ItemPartFields.itemId] as int,
-      participantId: json[ItemPartFields.participantId] as int,
+      item: item,
+      participant: item.project.participants
+          .firstWhere((e) => e.id == json[ItemPartFields.participantId] as int),
       rate: json[ItemPartFields.rate] as double,
     );
+  }
+}
+
+class _ItemPartDB {
+  _ItemPartDB(this.itemPart);
+
+  final ItemPart itemPart;
+
+  Future save() async {
+    if (itemPart.id != null) {
+      final results = await AppData.db.query(
+        tableItemParts,
+        where: 'id = ?',
+        whereArgs: [itemPart.id],
+      );
+      if (results.isNotEmpty) {
+        await AppData.db.update(
+          tableItemParts,
+          itemPart.toJson(),
+          where: 'id = ?',
+          whereArgs: [itemPart.id],
+        );
+        return;
+      }
+    }
+    itemPart.id = await AppData.db.insert(tableItemParts, itemPart.toJson());
   }
 }

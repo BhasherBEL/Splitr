@@ -1,5 +1,7 @@
-import 'package:shared/db/shared_database.dart';
+import 'package:shared/model/participant.dart';
 import 'package:shared/model/item.dart';
+import 'package:shared/model/app_data.dart';
+import 'package:shared/model/project_participant.dart';
 
 const String tableProjects = 'projects';
 
@@ -14,100 +16,159 @@ class ProjectFields {
 }
 
 class Project {
-  const Project({
-    required this.id,
+  Project({
+    this.id,
     required this.name,
-  });
+  }) {
+    db = _ProjectDB(this);
+    AppData.projects.add(this);
+  }
 
-  static List<Project> projects = [];
-  static Project? current;
-
-  final int id;
-  final String name;
+  int? id;
+  String name;
+  late _ProjectDB db;
+  final List<Item> items = [];
+  final List<Participant> participants = [];
 
   Map<String, Object?> toJson() => {
         ProjectFields.id: id,
         ProjectFields.name: name,
       };
 
+  void addParticipant(Participant participant) {
+    participants.add(participant);
+  }
+
   static Project fromJson(Map<String, Object?> json) {
     return Project(
-      id: json[ProjectFields.id] as int,
+      id: json[ProjectFields.id] as int?,
       name: json[ProjectFields.name] as String,
     );
   }
 
-  static Future<Project> fromValues(String name) async {
-    final db = await SharedDatabase.instance.database;
-    final id = await db.insert(tableProjects, {ProjectFields.name: name});
-    Project project = Project(id: id, name: name);
-    projects.add(project);
-    return project;
+  static Project? fromId(int id) {
+    return AppData.projects.firstWhere((element) => element.id == id);
   }
 
-  static Future<Project?> fromId(int id) async {
-    final db = await SharedDatabase.instance.database;
-    final projects = await db.query(
-      tableProjects,
-      columns: ProjectFields.values,
-      where: '${ProjectFields.id} = ?',
-      whereArgs: [id],
-    );
-
-    if (projects.isNotEmpty) return Project.fromJson(projects.first);
-    return null;
-  }
-
-  static Future<List<Project>> getAllProjects() async {
-    final db = await SharedDatabase.instance.database;
-    final projects = await db.query(
+  static Future<Set<Project>> getAllProjects() async {
+    final res = await AppData.db.query(
       tableProjects,
       columns: ProjectFields.values,
     );
+    return res.map((e) => fromJson(e)).toSet();
+  }
 
-    return projects.map((e) => Project.fromJson(e)).toList();
+  @override
+  bool operator ==(Object other) {
+    return other is Project && name == other.name;
+  }
+
+  @override
+  int get hashCode {
+    return name.hashCode;
+  }
+
+  void addItem(Item item) {
+    items.add(item);
+  }
+
+  static Project? fromName(String s) {
+    return AppData.projects.isEmpty
+        ? null
+        : AppData.projects.firstWhere((element) => element.name == s);
+  }
+}
+
+class _ProjectDB {
+  _ProjectDB(this.project);
+
+  Project project;
+
+  Future loadEntries() async {
+    final rawItems = await AppData.db.query(
+      tableItems,
+      where: '${ItemFields.project} = ?',
+      whereArgs: [project.id],
+    );
+
+    project.items.clear();
+
+    for (Map<String, Object?> e in rawItems) {
+      project.items.add(Item.fromJson(e, project: project));
+    }
+  }
+
+  Future loadParticipants() async {
+    final rawParticipants = await AppData.db.rawQuery('''
+SELECT * FROM $tableProjectParticipants 
+LEFT JOIN $tableParticipants ON $tableParticipants.${ParticipantFields.id} = ${ProjectParticipantFields.participantId}
+WHERE ${ProjectParticipantFields.projectId} = ${project.id};
+''');
+
+    project.participants.clear();
+
+    for (Map<String, Object?> e in rawParticipants) {
+      project.participants.add(Participant.fromJson(e));
+    }
+  }
+
+  Future save() async {
+    if (project.id != null) {
+      final results = await AppData.db.query(
+        tableProjects,
+        where: 'id = ?',
+        whereArgs: [project.id],
+      );
+      if (results.isNotEmpty) {
+        await AppData.db.update(
+          tableProjects,
+          project.toJson(),
+          where: 'id = ?',
+          whereArgs: [project.id],
+        );
+        return;
+      }
+    }
+
+    project.id = await AppData.db.insert(tableProjects, project.toJson());
+  }
+
+  Future saveParticipants() async {
+    if (project.id == null) await save();
+    for (Participant participant in project.participants) {
+      if (participant.id == null) await participant.db.save();
+      final results = await AppData.db.query(
+        tableProjectParticipants,
+        where:
+            '${ProjectParticipantFields.participantId} = ? AND ${ProjectParticipantFields.projectId} = ?',
+        whereArgs: [participant.id, project.id],
+      );
+      if (results.isEmpty) {
+        await AppData.db.insert(
+          tableProjectParticipants,
+          {
+            ProjectParticipantFields.participantId: participant.id,
+            ProjectParticipantFields.projectId: project.id,
+          },
+        );
+      }
+    }
   }
 
   Future<bool> delete() async {
-    final db = await SharedDatabase.instance.database;
-    bool res = await db.delete(
+    bool res = await AppData.db.delete(
           tableProjects,
           where: '${ProjectFields.id} = ?',
-          whereArgs: [id],
+          whereArgs: [project.id],
         ) >
         0;
-    if (res) projects.remove(this);
+    if (res) {
+      await AppData.db.delete(
+        tableProjectParticipants,
+        where: '${ProjectParticipantFields.projectId} = ?',
+        whereArgs: [project.id],
+      );
+    }
     return res;
   }
-
-  Future<List<Item>> getItems() async {
-    final db = await SharedDatabase.instance.database;
-    final rawItems = await db.query(
-      tableItems,
-      where: '${ItemFields.project} = ?',
-      whereArgs: [id],
-    );
-
-    return rawItems.map((e) => Item.fromJson(e)).toList();
-  }
-
-  // Future<List<Map<String, Object?>>> getItemsForList() async {
-  //   final db = await SharedDatabase.instance.database;
-  //   return await db.rawQuery(
-  //     '''SELECT
-  //         i.id,
-  //         i.title,
-  //         pai.pseudo AS emitter,
-  //         SUM(ip.amount) AS amount,
-  //         SUM(CASE WHEN ip.participant = 1 THEN ip.amount ELSE 0 END) AS participant_amount,
-  //         GROUP_CONCAT(pa.pseudo, ', ') AS participants
-  //     FROM items i
-  //     JOIN participants pai on pai.id = i.emitter
-  //     JOIN itemsParts ip on i.id = ip.item
-  //     JOIN participants pa on pa.id = ip.participant
-  //     WHERE i.project = ?
-  //     GROUP BY i.id; ''',
-  //     [id],
-  //   );
-  // }
 }
