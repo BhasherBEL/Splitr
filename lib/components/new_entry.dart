@@ -104,7 +104,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
               controller: dateController,
               decoration: const InputDecoration(hintText: 'Pick your Date'),
               onTap: () async {
-                var date = await showDatePicker(
+                DateTime? date = await showDatePicker(
                   context: context,
                   initialDate: bill.date,
                   firstDate: DateTime(1900),

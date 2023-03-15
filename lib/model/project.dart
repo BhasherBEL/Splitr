@@ -93,6 +93,7 @@ class _ProjectDB {
       tableItems,
       where: '${ItemFields.project} = ?',
       whereArgs: [project.id],
+      orderBy: '${ItemFields.date} DESC',
     );
 
     project.items.clear();
