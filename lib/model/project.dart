@@ -70,6 +70,7 @@ class Project {
 
   void addItem(Item item) {
     items.add(item);
+    items.sort((a, b) => -a.date.compareTo(b.date));
   }
 
   void deleteItem(Item item) {

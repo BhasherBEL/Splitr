@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:shared/utils/time.dart';
+import 'package:shared/utils/string.dart';
 
 import '../../model/app_data.dart';
 import '../../model/item.dart';
 import '../../model/project.dart';
+import '../../utils/time.dart';
 import '../new_entry.dart';
 
 class ItemList extends StatefulWidget {
@@ -86,14 +87,14 @@ class _ItemListState extends State<ItemList> {
                     ),
                     child: ListTile(
                       title: Row(children: [
-                        Expanded(child: Text(item.title)),
+                        Expanded(child: Text(item.title.capitalize())),
                         Text('${item.amount} €'),
                       ]),
                       subtitle: Row(
                         children: [
                           Expanded(
                             child: Text(
-                              "${item.emitter.pseudo} -> ${item.itemParts.map((e) => e.participant.pseudo).join(", ")}",
+                              "${item.emitter.pseudo} ➝ ${item.itemParts.map((e) => e.participant.pseudo).join(", ")}",
                               style:
                                   const TextStyle(fontStyle: FontStyle.italic),
                             ),

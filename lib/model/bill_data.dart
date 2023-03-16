@@ -16,7 +16,6 @@ class BillData {
         shares[ip.participant] = ip.rate.toInt();
       }
     }
-    print(shares);
   }
 
   Item? item;
@@ -47,14 +46,14 @@ shares: ${shares.entries.map((e) => "${e.key.pseudo}:${e.value}").join(",")}""";
         date: date,
         emitter: emitter,
         project: project,
-        title: title,
+        title: title.isEmpty ? 'No title' : title,
       );
       project.addItem(item!);
     } else {
       item!.amount = amount;
       item!.date = date;
       item!.emitter = emitter;
-      item!.title = title;
+      item!.title = title.isEmpty ? 'No title' : title;
       for (var element in item!.itemParts) {
         element.db.delete();
       }

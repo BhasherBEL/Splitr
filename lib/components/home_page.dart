@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
             ),
             if (hasProject)
               Text(
-                project!.name,
+                project!.participants.map((e) => e.pseudo).join(', '),
                 style: const TextStyle(
                   fontSize: 14,
                   fontStyle: FontStyle.italic,
