@@ -1,16 +1,25 @@
-# shared
+# Shared
 
-A new Flutter project.
+:warning: This is an beta version. Don't use it yet for something else than testing!
 
-## Getting Started
+Shared is a free and open-source app that lets you create multiple projects, add and track expenses, split expenses unevenly between members, and settle up balances between group members. It's a great alternative to other expense tracking apps, especially for groups who need to manage expenses together.
 
-This project is a starting point for a Flutter application.
+## Installation
 
-A few resources to get you started if this is your first Flutter project:
+This is currently a beta version. To get the app, you have to build it yourself with flutter or download the beta version [here]().
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Features
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Create multiple projects and track expenses within each one
+- Split expenses unevenly between group members
+- Settle up balances between group members
+- Keep track of who paid what, and when
+
+## Planned features
+
+- Track expenses across different currencies
+- Online real time project sharing
+
+## License
+
+Shared is licensed under the [MIT License]().

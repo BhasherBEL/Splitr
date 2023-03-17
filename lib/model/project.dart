@@ -39,6 +39,11 @@ class Project {
     participants.add(participant);
   }
 
+  double shareOf(Participant participant) {
+    return ([0.0] + items.map((e) => e.shareOf(participant)).toList())
+        .reduce((a, b) => a + b);
+  }
+
   static Project fromJson(Map<String, Object?> json) {
     return Project(
       id: json[ProjectFields.id] as int?,

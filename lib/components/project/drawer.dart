@@ -64,7 +64,7 @@ class _ProjectsDrawerState extends State<ProjectsDrawer> {
                                 context: context,
                                 builder: (context) {
                                   return SimpleDialog(
-                                    title: Text("How to refund ?"),
+                                    title: const Text("How to refund ?"),
                                     children: [
                                       Container(
                                         width: double.maxFinite,
@@ -78,13 +78,7 @@ class _ProjectsDrawerState extends State<ProjectsDrawer> {
                       }
                       Participant participant =
                           widget.project.participants.elementAt(index);
-                      double share = (([0.0] +
-                                          widget.project.items
-                                              .map(
-                                                  (e) => e.shareOf(participant))
-                                              .toList())
-                                      .reduce((a, b) => a + b) *
-                                  100)
+                      double share = (widget.project.shareOf(participant) * 100)
                               .roundToDouble() /
                           100;
                       return ListTile(
@@ -96,9 +90,9 @@ class _ProjectsDrawerState extends State<ProjectsDrawer> {
                               '$share €',
                               style: TextStyle(
                                 color: share > 0
-                                    ? Color.fromARGB(255, 76, 175, 80)
+                                    ? const Color.fromARGB(255, 76, 175, 80)
                                     : share < 0
-                                        ? Color.fromARGB(255, 250, 68, 55)
+                                        ? const Color.fromARGB(255, 250, 68, 55)
                                         : Colors.grey,
                               ),
                             ),
@@ -117,25 +111,23 @@ class _ProjectsDrawerState extends State<ProjectsDrawer> {
               ],
             ),
           ),
-          Expanded(
-            child: Align(
-              alignment: Alignment.bottomLeft,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.close),
-                    title: const Text("Exit project"),
-                    onTap: () async {
-                      AppData.current = null;
-                      Navigator.pop(context);
-                      if (widget.onDrawerCallback != null) {
-                        widget.onDrawerCallback!();
-                      }
-                    },
-                  ),
-                ],
-              ),
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.close),
+                  title: const Text("Exit project"),
+                  onTap: () async {
+                    AppData.current = null;
+                    Navigator.pop(context);
+                    if (widget.onDrawerCallback != null) {
+                      widget.onDrawerCallback!();
+                    }
+                  },
+                ),
+              ],
             ),
           ),
         ],
@@ -159,9 +151,7 @@ class Refund extends StatelessWidget {
     double remaining = 0;
 
     for (Participant participant in project.participants) {
-      double share =
-          ([0.0] + project.items.map((e) => e.shareOf(participant)).toList())
-              .reduce((a, b) => a + b);
+      double share = project.shareOf(participant);
 
       if (participant == AppData.me) remaining = -share;
 
@@ -183,27 +173,35 @@ class Refund extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Pair<Participant, double>> toRefund = refundForMe();
+    if (project.shareOf(AppData.me) < 0) {
+      List<Pair<Participant, double>> toRefund = refundForMe();
 
-    return ListView.builder(
-      shrinkWrap: true,
-      itemBuilder: (context, index) {
-        Pair<Participant, double> refundItem = toRefund.elementAt(index);
-        return ListTile(
-          title: Row(
-            children: [
-              Expanded(
-                child: Text(refundItem.a.pseudo),
-              ),
-              Expanded(
-                child: Text('${(refundItem.b * 100).roundToDouble() / 100} €'),
-              )
-            ],
-          ),
-        );
-      },
-      itemCount: toRefund.length,
-    );
+      return ListView.builder(
+        shrinkWrap: true,
+        itemBuilder: (context, index) {
+          Pair<Participant, double> refundItem = toRefund.elementAt(index);
+          return ListTile(
+            title: Row(
+              children: [
+                Expanded(
+                  child: Text(refundItem.a.pseudo),
+                ),
+                Expanded(
+                  child:
+                      Text('${(refundItem.b * 100).roundToDouble() / 100} €'),
+                )
+              ],
+            ),
+          );
+        },
+        itemCount: toRefund.length,
+      );
+    } else {
+      return const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 25),
+        child: Text("No need to refund!"),
+      );
+    }
   }
 }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:shared/utils/colors.dart';
 import 'package:shared/utils/string.dart';
 
 import '../../model/app_data.dart';
@@ -61,7 +62,7 @@ class _ItemListState extends State<ItemList> {
                             setState(() {});
                           },
                           icon: Icons.delete,
-                          backgroundColor: const Color(0xFFFE4A49),
+                          backgroundColor: ColorModel.red,
                           foregroundColor: Colors.white,
                           label: 'Delete',
                         ),
@@ -79,7 +80,7 @@ class _ItemListState extends State<ItemList> {
                             setState(() {});
                           },
                           icon: Icons.edit,
-                          backgroundColor: const Color(0xFFF9A602),
+                          backgroundColor: ColorModel.orange,
                           foregroundColor: Colors.white,
                           label: 'Edit',
                         ),
@@ -94,7 +95,7 @@ class _ItemListState extends State<ItemList> {
                         children: [
                           Expanded(
                             child: Text(
-                              "${item.emitter.pseudo} ➝ ${item.itemParts.map((e) => e.participant.pseudo).join(", ")}",
+                              "${item.emitter.pseudo} ➝ ${item.toParticipantsString()}",
                               style:
                                   const TextStyle(fontStyle: FontStyle.italic),
                             ),

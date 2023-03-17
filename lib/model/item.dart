@@ -68,6 +68,25 @@ class Item {
     return (emitter == participant ? amount : 0) - rate * amount / totalRate;
   }
 
+  String toParticipantsString() {
+    List<Participant> participants =
+        itemParts.map((e) => e.participant).toList();
+
+    if (itemParts.length < 4) {
+      return itemParts.map((e) => e.participant.pseudo).join(", ");
+    }
+    if (itemParts.length == project.participants.length) return 'All';
+
+    List<String> possibilites = [
+      itemParts.map((e) => e.participant.pseudo).join(", "),
+      'All except ${project.participants.where((element) => !participants.contains(element)).map((e) => e.pseudo).join(', ')}',
+    ];
+
+    possibilites.sort();
+
+    return possibilites.first;
+  }
+
   static Item fromJson(Map<String, Object?> json, {Project? project}) {
     Project p;
     if (project != null) {
