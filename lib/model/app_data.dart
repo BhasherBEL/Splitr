@@ -13,7 +13,7 @@ class AppData {
   static Set<Participant> participants = {};
   static late Participant me;
   static late Database db;
-  static late Project? _current;
+  static Project? _current;
 
   static bool get firstRun {
     return _firstRun;
@@ -29,7 +29,9 @@ class AppData {
   }
 
   static set current(Project? project) {
-    if (project != null) {
+    if (project == null) {
+      sharedPreferences.remove("lastProject");
+    } else {
       sharedPreferences.setString(
         "lastProject",
         project.name,
@@ -58,10 +60,10 @@ class AppData {
       firstRun = sharedPreferences.getBool("firstRun")!;
     }
 
+    AppData.projects = await Project.getAllProjects();
+
     if (sharedPreferences.containsKey("lastProject")) {
       _current = Project.fromName(sharedPreferences.getString("lastProject")!);
     }
-
-    AppData.projects = await Project.getAllProjects();
   }
 }

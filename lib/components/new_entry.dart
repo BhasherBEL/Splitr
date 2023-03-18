@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:select_form_field/select_form_field.dart';
 import 'package:shared/utils/colors.dart';
 
@@ -429,6 +430,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
                     });
                   },
                   child: TextField(
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     controller: sharesController[participant],
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
@@ -471,6 +473,9 @@ class _NewEntryPageState extends State<NewEntryPage> {
                   decoration: const InputDecoration(
                     suffixText: '€',
                   ),
+                  inputFormatters: [
+                    DecimalTextInputFormatter(2),
+                  ],
                   onChanged: (value) {
                     try {
                       setState(() {
