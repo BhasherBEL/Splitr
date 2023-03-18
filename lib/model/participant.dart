@@ -1,9 +1,9 @@
-import 'package:shared/model/project.dart';
+import 'package:shared/model/connectors/participant.dart';
 
 import '../db/shared_database.dart';
 import 'app_data.dart';
-
-const String tableParticipants = 'participants';
+import 'connectors/local/item_part.dart';
+import 'connectors/local/participant.dart';
 
 class ParticipantFields {
   static const values = [
@@ -26,7 +26,7 @@ class Participant {
     this.lastname,
     this.firstname,
   }) {
-    db = _ParticipantDB(this);
+    db = LocalParticipant(this);
     AppData.participants.add(this);
   }
 
@@ -34,21 +34,12 @@ class Participant {
   String pseudo;
   String? lastname;
   String? firstname;
-  late _ParticipantDB db;
+  late ParticipantConnector db;
 
   static Participant? fromId(int id) {
     return AppData.participants.isEmpty
         ? null
         : AppData.participants.firstWhere((element) => element.id == id);
-  }
-
-  static Future<Set<Participant>> getAll() async {
-    final db = await SharedDatabase.instance.database;
-    final res = await db.query(
-      tableParticipants,
-    );
-
-    return res.map((e) => fromJson(e)).toSet();
   }
 
   Map<String, Object?> toJson() => {
@@ -75,33 +66,5 @@ class Participant {
   @override
   int get hashCode {
     return pseudo.hashCode;
-  }
-}
-
-class _ParticipantDB {
-  _ParticipantDB(this.participant);
-
-  Participant participant;
-
-  Future save() async {
-    if (participant.id != null) {
-      final results = await AppData.db.query(
-        tableParticipants,
-        where: 'id = ?',
-        whereArgs: [participant.id],
-      );
-      if (results.isNotEmpty) {
-        await AppData.db.update(
-          tableParticipants,
-          participant.toJson(),
-          where: 'id = ?',
-          whereArgs: [participant.id],
-        );
-        return;
-      }
-    }
-
-    participant.id =
-        await AppData.db.insert(tableParticipants, participant.toJson());
   }
 }

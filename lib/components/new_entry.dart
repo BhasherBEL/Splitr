@@ -310,7 +310,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
                   child: ElevatedButton(
                     onPressed: () async {
                       Item item = bill.toItemOf(widget.project);
-                      await item.db.saveRecursively();
+                      await item.conn.saveRecursively();
                       Navigator.pop(context, true);
                     },
                     child: Text(widget.item == null ? 'Create' : 'Update'),

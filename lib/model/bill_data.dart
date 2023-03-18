@@ -1,5 +1,5 @@
 import 'package:shared/model/app_data.dart';
-import 'package:shared/model/itemPart.dart';
+import 'package:shared/model/item_part.dart';
 import 'package:shared/model/participant.dart';
 import 'package:shared/model/project.dart';
 
@@ -69,7 +69,7 @@ shares: ${shares.entries.map((e) => "${e.key.pseudo}:${e.value}").join(",")}""";
       item!.emitter = emitter;
       item!.title = title.isEmpty ? 'No title' : title;
       for (var element in item!.itemParts) {
-        element.db.delete();
+        element.conn.delete();
       }
       item!.itemParts = [];
     }

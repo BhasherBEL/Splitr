@@ -1,10 +1,15 @@
 import 'package:path/path.dart';
-import 'package:shared/model/item.dart';
-import 'package:shared/model/itemPart.dart';
-import 'package:shared/model/participant.dart';
-import 'package:shared/model/project.dart';
-import 'package:shared/model/project_participant.dart';
 import 'package:sqflite/sqflite.dart';
+
+import '../model/connectors/local/item.dart';
+import '../model/connectors/local/item_part.dart';
+import '../model/connectors/local/participant.dart';
+import '../model/connectors/local/project.dart';
+import '../model/item.dart';
+import '../model/item_part.dart';
+import '../model/participant.dart';
+import '../model/project.dart';
+import '../model/project_participant.dart';
 
 class SharedDatabase {
   static final SharedDatabase instance = SharedDatabase._init();
@@ -24,7 +29,7 @@ class SharedDatabase {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+    return await openDatabase(path, version: 2, onCreate: _createDB);
   }
 
   Future _createDB(Database db, int version) async {

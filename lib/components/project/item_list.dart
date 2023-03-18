@@ -58,7 +58,7 @@ class _ItemListState extends State<ItemList> {
                         SlidableAction(
                           onPressed: (BuildContext? context) {
                             widget.project.deleteItem(item);
-                            item.db.delete();
+                            item.conn.delete();
                             setState(() {});
                           },
                           icon: Icons.delete,

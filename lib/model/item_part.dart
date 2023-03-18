@@ -1,10 +1,8 @@
 import 'package:shared/model/participant.dart';
 import 'package:shared/model/item.dart';
 
-import '../db/shared_database.dart';
-import 'app_data.dart';
-
-const String tableItemParts = 'itemParts';
+import 'connectors/itempart_connector.dart';
+import 'connectors/local/item_part.dart';
 
 class ItemPartFields {
   static const values = [
@@ -30,7 +28,7 @@ class ItemPart {
     this.rate,
     this.amount,
   }) {
-    db = _ItemPartDB(this);
+    conn = LocalItemPart(this);
   }
 
   int? id;
@@ -38,7 +36,7 @@ class ItemPart {
   Participant participant;
   double? rate;
   double? amount;
-  late _ItemPartDB db;
+  late ItemPartConnector conn;
 
   Map<String, Object?> toJson() => {
         ItemPartFields.id: id,
@@ -56,40 +54,6 @@ class ItemPart {
           .firstWhere((e) => e.id == json[ItemPartFields.participantId] as int),
       rate: json[ItemPartFields.rate] as double?,
       amount: json[ItemPartFields.amount] as double?,
-    );
-  }
-}
-
-class _ItemPartDB {
-  _ItemPartDB(this.itemPart);
-
-  final ItemPart itemPart;
-
-  Future save() async {
-    if (itemPart.id != null) {
-      final results = await AppData.db.query(
-        tableItemParts,
-        where: 'id = ?',
-        whereArgs: [itemPart.id],
-      );
-      if (results.isNotEmpty) {
-        await AppData.db.update(
-          tableItemParts,
-          itemPart.toJson(),
-          where: 'id = ?',
-          whereArgs: [itemPart.id],
-        );
-        return;
-      }
-    }
-    itemPart.id = await AppData.db.insert(tableItemParts, itemPart.toJson());
-  }
-
-  Future delete() async {
-    await AppData.db.delete(
-      tableItemParts,
-      where: '${ItemPartFields.id} = ?',
-      whereArgs: [itemPart.id],
     );
   }
 }

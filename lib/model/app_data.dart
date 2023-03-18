@@ -2,6 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../db/shared_database.dart';
+import 'connectors/local/participant.dart';
 import 'participant.dart';
 import 'project.dart';
 
@@ -41,7 +42,7 @@ class AppData {
     sharedPreferences = await SharedPreferences.getInstance();
     db = await SharedDatabase.instance.database;
 
-    participants = await Participant.getAll();
+    participants = await LocalParticipant.getAll();
 
     Participant? maybeMe = Participant.fromId(1);
 

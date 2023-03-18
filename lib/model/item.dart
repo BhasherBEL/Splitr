@@ -1,12 +1,9 @@
-import 'package:shared/model/bill_data.dart';
-import 'package:shared/model/itemPart.dart';
+import 'package:shared/model/item_part.dart';
 import 'package:shared/model/participant.dart';
-import 'package:shared/model/app_data.dart';
 import 'package:shared/model/project.dart';
 
-import '../db/shared_database.dart';
-
-const String tableItems = 'items';
+import 'connectors/item_connector.dart';
+import 'connectors/local/item.dart';
 
 class ItemFields {
   static const values = [
@@ -35,7 +32,7 @@ class Item {
     required this.amount,
     required this.date,
   }) {
-    db = _ItemDB(this);
+    conn = LocalItem(this);
   }
 
   int? id;
@@ -45,7 +42,7 @@ class Item {
   double amount;
   DateTime date;
   List<ItemPart> itemParts = [];
-  late _ItemDB db;
+  late ItemConnector conn;
 
   Map<String, Object?> toJson() => {
         ItemFields.id: id,
@@ -110,61 +107,5 @@ class Item {
       amount: json[ItemFields.amount] as double,
       date: DateTime.fromMillisecondsSinceEpoch(json[ItemFields.date] as int),
     );
-  }
-}
-
-class _ItemDB {
-  _ItemDB(this.item);
-
-  Item item;
-
-  Future loadParts() async {
-    item.itemParts = (await AppData.db.query(
-      tableItemParts,
-      columns: ItemPartFields.values,
-      where: "${ItemPartFields.itemId} = ?",
-      whereArgs: [item.id],
-    ))
-        .map((e) => ItemPart.fromJson(e, item))
-        .toList();
-  }
-
-  Future save() async {
-    if (item.id != null) {
-      final results = await AppData.db.query(
-        tableItems,
-        where: '${ItemFields.id} = ?',
-        whereArgs: [item.id],
-      );
-      if (results.isNotEmpty) {
-        await AppData.db.update(
-          tableItems,
-          item.toJson(),
-          where: '${ItemFields.id} = ?',
-          whereArgs: [item.id],
-        );
-        return;
-      }
-    }
-    item.id = await AppData.db.insert(tableItems, item.toJson());
-  }
-
-  Future saveRecursively() async {
-    await save();
-    for (final ItemPart ip in item.itemParts) {
-      await ip.db.save();
-    }
-  }
-
-  Future delete() async {
-    await AppData.db.delete(
-      tableItems,
-      where: '${ItemFields.id} = ?',
-      whereArgs: [item.id],
-    );
-
-    for (final ItemPart ip in item.itemParts) {
-      await ip.db.delete();
-    }
   }
 }
