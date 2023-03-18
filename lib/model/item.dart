@@ -57,15 +57,21 @@ class Item {
       };
 
   double shareOf(Participant participant) {
-    double rate = 0;
     double totalRate = 0;
+    ItemPart? pip;
     if (itemParts.isNotEmpty) {
       for (ItemPart ip in itemParts) {
-        if (ip.participant == participant) rate = ip.rate;
-        totalRate += ip.rate;
+        if (ip.participant == participant) pip = ip;
+        totalRate += ip.rate ?? 0;
       }
     }
-    return (emitter == participant ? amount : 0) - rate * amount / totalRate;
+
+    if (pip == null || pip.amount == null && pip.rate == null) {
+      return emitter == participant ? amount : 0;
+    }
+    // return (emitter == participant ? amount : 0) - rate * amount / totalRate;
+    return (emitter == participant ? amount : 0) -
+        (pip.amount ?? pip.rate! * amount / totalRate);
   }
 
   String toParticipantsString() {

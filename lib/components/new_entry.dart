@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:select_form_field/select_form_field.dart';
 import 'package:shared/utils/colors.dart';
@@ -24,6 +26,8 @@ class _NewEntryPageState extends State<NewEntryPage> {
   final titleController = TextEditingController();
   final emitterController = TextEditingController();
   final amountController = TextEditingController();
+  final Map<Participant, TextEditingController> sharesController = {};
+  final Map<Participant, TextEditingController> fixedsController = {};
 
   @override
   void dispose() {
@@ -43,9 +47,16 @@ class _NewEntryPageState extends State<NewEntryPage> {
 
     for (Participant participant in widget.project.participants) {
       if (widget.item == null) {
-        bill.shares[participant] = 1;
+        bill.shares[participant] = BillPart(share: 1);
+        sharesController[participant] = TextEditingController(text: "1");
+        fixedsController[participant] = TextEditingController();
       } else if (bill.shares[participant] == null) {
-        bill.shares[participant] = 0;
+        bill.shares[participant] = BillPart();
+        sharesController[participant] = TextEditingController(text: "0");
+        fixedsController[participant] = TextEditingController(text: "0.00");
+      } else {
+        sharesController[participant] = TextEditingController();
+        fixedsController[participant] = TextEditingController();
       }
     }
   }
@@ -54,8 +65,6 @@ class _NewEntryPageState extends State<NewEntryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-// resizeToAvoidBottomPadding: false,
-
       appBar: AppBar(
         centerTitle: true,
         title: Column(
@@ -220,26 +229,34 @@ class _NewEntryPageState extends State<NewEntryPage> {
                                   verticalAlignment:
                                       TableCellVerticalAlignment.middle,
                                   child: Checkbox(
-                                    value: bill.shares.values.contains(0)
-                                        ? bill.shares.values.contains(1)
+                                    value: bill.shares.values
+                                                .where((e) =>
+                                                    e.fixed != null ||
+                                                    e.share != null)
+                                                .length !=
+                                            bill.shares.length
+                                        ? bill.shares.values
+                                                .where((e) =>
+                                                    e.fixed != null ||
+                                                    e.share != null)
+                                                .isNotEmpty
                                             ? null
                                             : false
                                         : true,
                                     tristate: true,
                                     onChanged: (value) {
-                                      print(bill.shares);
                                       value ??= false;
                                       setState(() {
                                         bill.shares.updateAll(
-                                          (k, v) => value! ? 1 : 0,
+                                          (k, v) => BillPart(
+                                              share: value! ? 1 : null),
                                         );
                                       });
-                                      print(bill.shares);
                                     },
                                     side: BorderSide(
-                                      color: ColorModel.red,
+                                      color: ColorModel.primary,
                                     ),
-                                    activeColor: ColorModel.green,
+                                    activeColor: ColorModel.primary,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(3),
                                     ),
@@ -281,7 +298,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
                               ],
                             ),
                           ] +
-                          getRows(bill),
+                          getRows(bill, sharesController, fixedsController),
                     ),
                   ),
                 ],
@@ -307,38 +324,62 @@ class _NewEntryPageState extends State<NewEntryPage> {
     );
   }
 
-  List<TableRow> getRows(BillData bill) {
+  List<TableRow> getRows(
+    BillData bill,
+    Map<Participant, TextEditingController> sharesController,
+    Map<Participant, TextEditingController> fixedsController,
+  ) {
     final List<TableRow> rows = [];
 
-    int total = bill.totalShares;
+    double total = max(bill.totalShares, 1);
 
-    if (total <= 0) total = 1;
+    double fixedBonus = bill.totalFixed /
+        bill.shares.values.where((e) => e.share != null).length;
 
     bill.shares.forEach((participant, amount) {
-      TextEditingController controller =
-          TextEditingController(text: amount.toString());
+      final newShareValue = amount.share == null
+          ? amount.fixed == null
+              ? "0"
+              : ""
+          : amount.share!.toInt().toString();
 
-      double price = bill.amount * amount / total;
+      if (newShareValue != sharesController[participant]!.text) {
+        sharesController[participant]!.text = newShareValue;
+      }
+
+      double price = max(
+          amount.fixed ??
+              bill.amount * (amount.share ?? 0) / (total != 0 ? total : 1) -
+                  fixedBonus,
+          0);
+
+      try {
+        if (fixedsController[participant]!.text == "" ||
+            double.parse(fixedsController[participant]!.text) != price) {
+          fixedsController[participant]!.text = price.toStringAsFixed(2);
+        }
+      } catch (e) {}
 
       rows.add(TableRow(
         children: [
           TableCell(
             verticalAlignment: TableCellVerticalAlignment.middle,
             child: Checkbox(
-              value: amount > 0,
+              value: bill.shares[participant]!.fixed != null ||
+                  bill.shares[participant]!.share != null,
               onChanged: (value) {
                 setState(() {
-                  if (amount > 0) {
-                    bill.shares[participant] = 0;
+                  if (value != null && value) {
+                    bill.shares[participant] = BillPart(share: 1);
                   } else {
-                    bill.shares[participant] = 1;
+                    bill.shares[participant] = BillPart();
                   }
                 });
               },
               side: BorderSide(
-                color: ColorModel.red,
+                color: ColorModel.primary,
               ),
-              activeColor: ColorModel.green,
+              activeColor: ColorModel.primary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(3),
               ),
@@ -353,31 +394,75 @@ class _NewEntryPageState extends State<NewEntryPage> {
           TableCell(
             verticalAlignment: TableCellVerticalAlignment.middle,
             child: Center(
-              child: TextFormField(
-                controller: controller,
-                onChanged: (value) {
-                  try {
+              child: Padding(
+                padding: const EdgeInsets.only(right: 4.0),
+                child: Focus(
+                  onFocusChange: (value) {
                     setState(() {
-                      bill.shares[participant] = int.parse(value);
+                      if (bill.shares[participant]!.share != null) {
+                        bill.shares[participant]!.share =
+                            bill.shares[participant]!.share! + 0.00001;
+                      }
                     });
-                  } catch (e) {}
-                },
-                textAlign: TextAlign.center,
-                // decoration: const InputDecoration(
-                //   border: OutlineInputBorder(
-                //       borderSide: BorderSide(
-                //     width: 0,
-                //     style: BorderStyle.none,
-                //   )),
-                // ),
+                  },
+                  child: TextField(
+                    controller: sharesController[participant],
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) {
+                      try {
+                        setState(() {
+                          bill.shares[participant] = BillPart(
+                              share: double.parse(value) > 0
+                                  ? double.parse(value)
+                                  : null);
+                        });
+                      } catch (e) {}
+                    },
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ),
             ),
           ),
           TableCell(
             verticalAlignment: TableCellVerticalAlignment.middle,
-            child: Center(
-              child: Text("${price.toStringAsFixed(2)} €"),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 4.0),
+              child: Focus(
+                onFocusChange: (value) {
+                  if (value) return;
+                  setState(() {
+                    if (fixedsController[participant]!.text.isEmpty &&
+                        bill.shares[participant]!.share == null) {
+                      bill.shares[participant] = BillPart();
+                    }
+                    if (bill.shares[participant]!.fixed != null) {
+                      bill.shares[participant]!.fixed =
+                          bill.shares[participant]!.fixed! + 0.00001;
+                    }
+                  });
+                },
+                child: TextField(
+                  controller: fixedsController[participant],
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    suffixText: '€',
+                  ),
+                  onChanged: (value) {
+                    try {
+                      setState(() {
+                        bill.shares[participant] =
+                            BillPart(fixed: double.parse(value));
+                      });
+                    } catch (e) {}
+                  },
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
+            // child: Center(
+            //   child: Text("${price.toStringAsFixed(2)} €"),
+            // ),
           ),
         ],
       ));

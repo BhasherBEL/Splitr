@@ -13,7 +13,7 @@ class BillData {
     amount = item?.amount ?? 0;
     if (item != null) {
       for (ItemPart ip in item!.itemParts) {
-        shares[ip.participant] = ip.rate.toInt();
+        shares[ip.participant] = BillPart(share: ip.rate, fixed: ip.amount);
       }
     }
   }
@@ -24,11 +24,7 @@ class BillData {
   DateTime date = DateTime.now();
   Participant emitter = AppData.me;
   double amount = 0;
-  Map<Participant, int> shares = {};
-
-  int get totalShares {
-    return shares.values.reduce((value, element) => value + element);
-  }
+  Map<Participant, BillPart> shares = {};
 
   @override
   String toString() {
@@ -37,6 +33,24 @@ date: ${date.day}/${date.month}/${date.year}
 emitter: ${emitter.pseudo}
 amount: $amount
 shares: ${shares.entries.map((e) => "${e.key.pseudo}:${e.value}").join(",")}""";
+  }
+
+  double get totalShares {
+    return (shares.values
+                .where((element) => element.share != null)
+                .map((e) => e.share)
+                .toList() +
+            [0])
+        .reduce((a, b) => a! + b!)!;
+  }
+
+  double get totalFixed {
+    return (shares.values
+                .where((element) => element.fixed != null)
+                .map((e) => e.fixed)
+                .toList() +
+            [0])
+        .reduce((a, b) => a! + b!)!;
   }
 
   Item toItemOf(Project project) {
@@ -60,12 +74,19 @@ shares: ${shares.entries.map((e) => "${e.key.pseudo}:${e.value}").join(",")}""";
       item!.itemParts = [];
     }
     shares.forEach((p, s) {
-      if (s > 0) {
-        item!.itemParts
-            .add(ItemPart(item: item!, participant: p, rate: s.toDouble()));
+      if (s.fixed != null || s.share != null) {
+        item!.itemParts.add(ItemPart(
+            item: item!, participant: p, rate: s.share, amount: s.fixed));
       }
     });
 
     return item!;
   }
+}
+
+class BillPart {
+  BillPart({this.share, this.fixed});
+
+  double? share;
+  double? fixed;
 }

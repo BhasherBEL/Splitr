@@ -27,8 +27,8 @@ class ItemPart {
     this.id,
     required this.item,
     required this.participant,
-    required this.rate,
-    // TODO this.amount,
+    this.rate,
+    this.amount,
   }) {
     db = _ItemPartDB(this);
   }
@@ -36,8 +36,8 @@ class ItemPart {
   int? id;
   Item item;
   Participant participant;
-  double rate;
-  // TODO double? amount;
+  double? rate;
+  double? amount;
   late _ItemPartDB db;
 
   Map<String, Object?> toJson() => {
@@ -45,6 +45,7 @@ class ItemPart {
         ItemPartFields.itemId: item.id,
         ItemPartFields.participantId: participant.id,
         ItemPartFields.rate: rate,
+        ItemPartFields.amount: amount,
       };
 
   static ItemPart fromJson(Map<String, Object?> json, Item item) {
@@ -53,7 +54,8 @@ class ItemPart {
       item: item,
       participant: item.project.participants
           .firstWhere((e) => e.id == json[ItemPartFields.participantId] as int),
-      rate: json[ItemPartFields.rate] as double,
+      rate: json[ItemPartFields.rate] as double?,
+      amount: json[ItemPartFields.amount] as double?,
     );
   }
 }
