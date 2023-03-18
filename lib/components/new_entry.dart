@@ -8,6 +8,7 @@ import '../model/bill_data.dart';
 import '../model/item.dart';
 import '../model/participant.dart';
 import '../model/project.dart';
+import '../utils/formatter/decimal.dart';
 import '../utils/time.dart';
 
 class NewEntryPage extends StatefulWidget {
@@ -28,6 +29,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
   final amountController = TextEditingController();
   final Map<Participant, TextEditingController> sharesController = {};
   final Map<Participant, TextEditingController> fixedsController = {};
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -89,235 +91,256 @@ class _NewEntryPageState extends State<NewEntryPage> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Column(
-                children: [
-                  const TitleField("What ?"),
-                  TextField(
-                    controller: titleController,
-                    autocorrect: true,
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                    ),
-                    onChanged: (value) => bill.title = value,
-                  ),
-                  const TitleField('How much ?'),
-                  TextField(
-                    autocorrect: false,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      suffixText: ' €',
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                    ),
-                    controller: amountController,
-                    onChanged: (value) {
-                      try {
-                        double parsed = double.parse(value);
-                        setState(() {
-                          bill.amount = parsed;
-                        });
-                      } catch (e) {}
-                    },
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
-                          child: Column(
-                            children: [
-                              const TitleField("Who paid ?"),
-                              SelectFormField(
-                                type: SelectFormFieldType.dropdown,
-                                decoration: const InputDecoration(
-                                  contentPadding:
-                                      EdgeInsets.symmetric(horizontal: 10),
-                                ),
-                                items: widget.project.participants
-                                    .map((p) => <String, dynamic>{
-                                          'value': p.pseudo,
-                                          'label': p.pseudo,
-                                        })
-                                    .toList(),
-                                controller: emitterController,
-                                onChanged: (value) {
-                                  bill.emitter = widget.project.participants
-                                      .firstWhere(
-                                          (element) => element.pseudo == value);
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
+          child: Form(
+            key: _formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Column(
+                  children: [
+                    const TitleField("What ?"),
+                    TextFormField(
+                      controller: titleController,
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Title can\'t be empty'
+                          : null,
+                      autocorrect: true,
+                      decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
                       ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Column(
-                            children: [
-                              const TitleField("When ?"),
-                              TextField(
-                                readOnly: true,
-                                controller: dateController,
-                                decoration: const InputDecoration(
-                                  contentPadding:
-                                      EdgeInsets.symmetric(horizontal: 10),
-                                  hintText: 'Pick your Date',
-                                ),
-                                onTap: () async {
-                                  DateTime? date = await showDatePicker(
-                                    context: context,
-                                    initialDate: bill.date,
-                                    firstDate: DateTime(1900),
-                                    lastDate: DateTime(2100),
-                                  );
-                                  if (date != null) {
-                                    dateController.text = daysElapsed(date);
-                                    bill.date = date;
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  // const TitleField('For whom ?'),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 25),
-                    child: Table(
-                      // border: const TableBorder(
-                      //   horizontalInside: BorderSide(
-                      //     width: 1,
-                      //     color: Colors.blue,
-                      //   ),
-                      //   verticalInside: BorderSide(
-                      //     width: 1,
-                      //     color: Colors.blue,
-                      //   ),
-                      //   bottom: BorderSide(
-                      //     width: 1,
-                      //     color: Colors.blue,
-                      //   ),
-                      //   left: BorderSide(
-                      //     width: 1,
-                      //     color: Colors.blue,
-                      //   ),
-                      //   right: BorderSide(
-                      //     width: 1,
-                      //     color: Colors.blue,
-                      //   ),
-                      //   top: BorderSide(
-                      //     width: 1,
-                      //     color: Colors.blue,
-                      //   ),
-                      // ),
-                      columnWidths: const {
-                        0: FixedColumnWidth(50),
-                        1: FlexColumnWidth(5),
-                        2: FlexColumnWidth(2),
-                        3: FlexColumnWidth(2),
+                      onChanged: (value) => bill.title = value,
+                    ),
+                    const TitleField('How much ?'),
+                    TextFormField(
+                      autocorrect: false,
+                      validator: (value) {
+                        try {
+                          if (double.parse(value!) > 0) return null;
+                          return 'Amount can\'t be null';
+                        } catch (e) {
+                          return 'Amount must be a valid value';
+                        }
                       },
-                      children: <TableRow>[
-                            TableRow(
+                      inputFormatters: [
+                        DecimalTextInputFormatter(2),
+                      ],
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      decoration: const InputDecoration(
+                        suffixText: ' €',
+                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                      ),
+                      controller: amountController,
+                      onChanged: (value) {
+                        try {
+                          double parsed = double.parse(value);
+                          setState(() {
+                            bill.amount = parsed;
+                          });
+                        } catch (e) {}
+                      },
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: Column(
                               children: [
-                                TableCell(
-                                  verticalAlignment:
-                                      TableCellVerticalAlignment.middle,
-                                  child: Checkbox(
-                                    value: bill.shares.values
-                                                .where((e) =>
-                                                    e.fixed != null ||
-                                                    e.share != null)
-                                                .length !=
-                                            bill.shares.length
-                                        ? bill.shares.values
-                                                .where((e) =>
-                                                    e.fixed != null ||
-                                                    e.share != null)
-                                                .isNotEmpty
-                                            ? null
-                                            : false
-                                        : true,
-                                    tristate: true,
-                                    onChanged: (value) {
-                                      value ??= false;
-                                      setState(() {
-                                        bill.shares.updateAll(
-                                          (k, v) => BillPart(
-                                              share: value! ? 1 : null),
-                                        );
-                                      });
-                                    },
-                                    side: BorderSide(
-                                      color: ColorModel.primary,
-                                    ),
-                                    activeColor: ColorModel.primary,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(3),
-                                    ),
+                                const TitleField("Who paid ?"),
+                                SelectFormField(
+                                  type: SelectFormFieldType.dropdown,
+                                  decoration: const InputDecoration(
+                                    contentPadding:
+                                        EdgeInsets.symmetric(horizontal: 10),
                                   ),
-                                ),
-                                const TableCell(
-                                  verticalAlignment:
-                                      TableCellVerticalAlignment.middle,
-                                  child: Text(
-                                    "For whom ?",
-                                    textAlign: TextAlign.left,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                const TableCell(
-                                  verticalAlignment:
-                                      TableCellVerticalAlignment.middle,
-                                  child: Text(
-                                    "Rate",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                const TableCell(
-                                  verticalAlignment:
-                                      TableCellVerticalAlignment.middle,
-                                  child: Text(
-                                    "Total",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                                  items: widget.project.participants
+                                      .map((p) => <String, dynamic>{
+                                            'value': p.pseudo,
+                                            'label': p.pseudo,
+                                          })
+                                      .toList(),
+                                  controller: emitterController,
+                                  onChanged: (value) {
+                                    bill.emitter = widget.project.participants
+                                        .firstWhere((element) =>
+                                            element.pseudo == value);
+                                  },
                                 ),
                               ],
                             ),
-                          ] +
-                          getRows(bill, sharesController, fixedsController),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Column(
+                              children: [
+                                const TitleField("When ?"),
+                                TextField(
+                                  readOnly: true,
+                                  controller: dateController,
+                                  decoration: const InputDecoration(
+                                    contentPadding:
+                                        EdgeInsets.symmetric(horizontal: 10),
+                                    hintText: 'Pick your Date',
+                                  ),
+                                  onTap: () async {
+                                    DateTime? date = await showDatePicker(
+                                      context: context,
+                                      initialDate: bill.date,
+                                      firstDate: DateTime(1900),
+                                      lastDate: DateTime(2100),
+                                    );
+                                    if (date != null) {
+                                      dateController.text = daysElapsed(date);
+                                      bill.date = date;
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    // const TitleField('For whom ?'),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 25),
+                      child: Table(
+                        // border: const TableBorder(
+                        //   horizontalInside: BorderSide(
+                        //     width: 1,
+                        //     color: Colors.blue,
+                        //   ),
+                        //   verticalInside: BorderSide(
+                        //     width: 1,
+                        //     color: Colors.blue,
+                        //   ),
+                        //   bottom: BorderSide(
+                        //     width: 1,
+                        //     color: Colors.blue,
+                        //   ),
+                        //   left: BorderSide(
+                        //     width: 1,
+                        //     color: Colors.blue,
+                        //   ),
+                        //   right: BorderSide(
+                        //     width: 1,
+                        //     color: Colors.blue,
+                        //   ),
+                        //   top: BorderSide(
+                        //     width: 1,
+                        //     color: Colors.blue,
+                        //   ),
+                        // ),
+                        columnWidths: const {
+                          0: FixedColumnWidth(50),
+                          1: FlexColumnWidth(5),
+                          2: FlexColumnWidth(2),
+                          3: FlexColumnWidth(2),
+                        },
+                        children: <TableRow>[
+                              TableRow(
+                                children: [
+                                  TableCell(
+                                    verticalAlignment:
+                                        TableCellVerticalAlignment.middle,
+                                    child: Checkbox(
+                                      value: bill.shares.values
+                                                  .where((e) =>
+                                                      e.fixed != null ||
+                                                      e.share != null)
+                                                  .length !=
+                                              bill.shares.length
+                                          ? bill.shares.values
+                                                  .where((e) =>
+                                                      e.fixed != null ||
+                                                      e.share != null)
+                                                  .isNotEmpty
+                                              ? null
+                                              : false
+                                          : true,
+                                      tristate: true,
+                                      onChanged: (value) {
+                                        value ??= false;
+                                        setState(() {
+                                          bill.shares.updateAll(
+                                            (k, v) => BillPart(
+                                                share: value! ? 1 : null),
+                                          );
+                                        });
+                                      },
+                                      side: BorderSide(
+                                        color: ColorModel.primary,
+                                      ),
+                                      activeColor: ColorModel.primary,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(3),
+                                      ),
+                                    ),
+                                  ),
+                                  const TableCell(
+                                    verticalAlignment:
+                                        TableCellVerticalAlignment.middle,
+                                    child: Text(
+                                      "For whom ?",
+                                      textAlign: TextAlign.left,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  const TableCell(
+                                    verticalAlignment:
+                                        TableCellVerticalAlignment.middle,
+                                    child: Text(
+                                      "Rate",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  const TableCell(
+                                    verticalAlignment:
+                                        TableCellVerticalAlignment.middle,
+                                    child: Text(
+                                      "Total",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ] +
+                            getRows(bill, sharesController, fixedsController),
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          Item item = bill.toItemOf(widget.project);
+                          await item.conn.saveRecursively();
+                          Navigator.pop(context, true);
+                        }
+                      },
+                      child: Text(widget.item == null ? 'Create' : 'Update'),
                     ),
                   ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      Item item = bill.toItemOf(widget.project);
-                      await item.conn.saveRecursively();
-                      Navigator.pop(context, true);
-                    },
-                    child: Text(widget.item == null ? 'Create' : 'Update'),
-                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

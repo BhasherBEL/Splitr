@@ -41,6 +41,17 @@ String daysElapsed(DateTime dateTime) {
   }
 }
 
+extension DateExtension on DateTime {
+  static DateTime now = DateTime.now();
+  String toDate() {
+    if (year != now.year) {
+      return '$day${day == 1 ? 'st' : 'th'} ${monthText(month)} $year';
+    } else {
+      return '$day${day == 1 ? 'st' : 'th'} ${monthText(month)}';
+    }
+  }
+}
+
 // https://stackoverflow.com/questions/52713115/flutter-find-the-number-of-days-between-two-dates
 int daysBetween(DateTime from, DateTime to) {
   from = DateTime(from.year, from.month, from.day);

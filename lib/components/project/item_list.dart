@@ -35,8 +35,25 @@ class _ItemListState extends State<ItemList> {
                 header = ListTile(
                   title: Padding(
                     padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      daysElapsed(lastDate!).toUpperCase(),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            daysElapsed(lastDate!).toUpperCase(),
+                          ),
+                        ),
+                        // Expanded(
+                        //   child: Text(
+                        //     lastDate!.toDate(),
+                        //     textAlign: TextAlign.right,
+                        //     style: const TextStyle(
+                        //       fontSize: 11,
+                        //       // color: Color(0xFF333333),
+                        //       fontStyle: FontStyle.italic,
+                        //     ),
+                        //   ),
+                        // ),
+                      ],
                     ),
                   ),
                   tileColor: Color(0xFF444444),
