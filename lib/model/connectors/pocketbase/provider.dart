@@ -28,12 +28,17 @@ class PocketBaseProvider extends Provider {
   @override
   Future<bool> sync() async {
     PocketBaseProject(project, pb).sync();
+    print(project.lastSync);
+    project.lastSync = DateTime(1970);
     for (Participant participant in project.participants) {
+      print('LOCAL: ${participant.pseudo}');
       PocketBaseParticipant(project.lastSync, participant, pb).sync();
     }
     for (Participant participant
         in await PocketBaseParticipant.pullNewFrom(pb, project)) {
       project.addParticipant(participant);
+      participant.conn.save();
+      print('DIST: ${participant.pseudo}');
     }
 
     project.lastSync = DateTime.now();

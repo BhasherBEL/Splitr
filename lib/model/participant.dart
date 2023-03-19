@@ -49,6 +49,7 @@ class Participant {
   Map<String, Object?> toJson() => {
         ParticipantFields.localId: localId,
         ParticipantFields.remoteId: remoteId,
+        ParticipantFields.projectId: project.localId,
         ParticipantFields.pseudo: pseudo,
         ParticipantFields.lastname: lastname,
         ParticipantFields.firstname: firstname,

@@ -31,10 +31,11 @@ class LocalProject extends ProjectConnector {
 
   @override
   Future loadParticipants() async {
-    final rawParticipants = await AppData.db.rawQuery('''
-SELECT * FROM $tableParticipants 
-WHERE ${ParticipantFields.projectId} = ${project.localId};
-''');
+    final rawParticipants = await AppData.db.query(
+      tableParticipants,
+      columns: ParticipantFields.values,
+      where: '${ParticipantFields.projectId} = ${project.localId}',
+    );
 
     project.participants.clear();
 
