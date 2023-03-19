@@ -2,16 +2,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../db/shared_database.dart';
-import 'connectors/local/participant.dart';
-import 'participant.dart';
 import 'project.dart';
 
 class AppData {
   static late SharedPreferences sharedPreferences;
   static late bool _firstRun;
   static Set<Project> projects = {};
-  static Set<Participant> participants = {};
-  static late Participant me;
   static late Database db;
   static Project? _current;
 
@@ -43,16 +39,6 @@ class AppData {
   static init() async {
     sharedPreferences = await SharedPreferences.getInstance();
     db = await SharedDatabase.instance.database;
-
-    participants = await LocalParticipant.getAll();
-
-    Participant? maybeMe = Participant.fromId(1);
-
-    if (maybeMe == null) {
-      firstRun = true;
-    } else {
-      me = maybeMe;
-    }
 
     if (!sharedPreferences.containsKey("firstRun")) {
       firstRun = true;

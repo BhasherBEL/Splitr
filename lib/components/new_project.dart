@@ -98,8 +98,6 @@ class _NewProjectPageState extends State<NewProjectPage> {
                   providerId: providerId!,
                   providerData: providerData,
                 );
-                widget.project!.addParticipant(AppData.me);
-                await widget.project!.conn.saveParticipants();
                 await widget.project!.provider.connect();
               } else {
                 widget.project!.name = projectTitleController.text;

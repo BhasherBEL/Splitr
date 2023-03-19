@@ -9,7 +9,6 @@ import '../model/item.dart';
 import '../model/item_part.dart';
 import '../model/participant.dart';
 import '../model/project.dart';
-import '../model/project_participant.dart';
 
 class SharedDatabase {
   static final SharedDatabase instance = SharedDatabase._init();
@@ -37,6 +36,7 @@ class SharedDatabase {
 CREATE TABLE $tableProjects (
   ${ProjectFields.localId} INTEGER PRIMARY KEY AUTOINCREMENT,
   ${ProjectFields.remoteId} TEXT,
+  ${ProjectFields.currentParticipant} INTEGER,
   ${ProjectFields.name} TEXT NOT NULL,
   ${ProjectFields.providerId} INTEGER NOT NULL,
   ${ProjectFields.providerData} TEXT,
@@ -49,18 +49,11 @@ CREATE TABLE $tableProjects (
 CREATE TABLE $tableParticipants (
   ${ParticipantFields.localId} INTEGER PRIMARY KEY AUTOINCREMENT,
   ${ParticipantFields.remoteId} TEXT,
+  ${ParticipantFields.projectId} INTEGER,
   ${ParticipantFields.pseudo} TEXT NOT NULL,
   ${ParticipantFields.lastname} TEXT,
   ${ParticipantFields.firstname} TEXT,
   ${ParticipantFields.lastUpdate} INTEGER
-)
-''');
-
-    await db.execute('''
-CREATE TABLE $tableProjectParticipants (
-  ${ProjectParticipantFields.projectId} INTEGER NOT NULL,
-  ${ProjectParticipantFields.participantId} INTEGER NOT NULL,
-  ${ProjectParticipantFields.lastUpdate} INTEGER
 )
 ''');
 

@@ -2,7 +2,6 @@ import '../../app_data.dart';
 import '../../item.dart';
 import '../../participant.dart';
 import '../../project.dart';
-import '../../project_participant.dart';
 import '../project.dart';
 import 'item.dart';
 import 'participant.dart';
@@ -33,15 +32,14 @@ class LocalProject extends ProjectConnector {
   @override
   Future loadParticipants() async {
     final rawParticipants = await AppData.db.rawQuery('''
-SELECT * FROM $tableProjectParticipants 
-LEFT JOIN $tableParticipants ON $tableParticipants.${ParticipantFields.localId} = ${ProjectParticipantFields.participantId}
-WHERE ${ProjectParticipantFields.projectId} = ${project.localId};
+SELECT * FROM $tableParticipants 
+WHERE ${ParticipantFields.projectId} = ${project.localId};
 ''');
 
     project.participants.clear();
 
     for (Map<String, Object?> e in rawParticipants) {
-      project.participants.add(Participant.fromJson(e));
+      project.participants.add(Participant.fromJson(project, e));
     }
   }
 
@@ -69,32 +67,7 @@ WHERE ${ProjectParticipantFields.projectId} = ${project.localId};
   }
 
   @override
-  Future saveParticipants() async {
-    if (project.localId == null) await save();
-    for (Participant participant in project.participants) {
-      if (participant.localId == null) await participant.conn.save();
-      final results = await AppData.db.query(
-        tableProjectParticipants,
-        where:
-            '${ProjectParticipantFields.participantId} = ? AND ${ProjectParticipantFields.projectId} = ?',
-        whereArgs: [participant.localId, project.localId],
-      );
-      if (results.isEmpty) {
-        await AppData.db.insert(
-          tableProjectParticipants,
-          {
-            ProjectParticipantFields.participantId: participant.localId,
-            ProjectParticipantFields.projectId: project.localId,
-            ProjectParticipantFields.lastUpdate:
-                DateTime.now().millisecondsSinceEpoch,
-          },
-        );
-      }
-    }
-  }
-
-  @override
-  Future<bool> delete() async {
+  Future delete() async {
     bool res = await AppData.db.delete(
           tableProjects,
           where: '${ProjectFields.localId} = ?',

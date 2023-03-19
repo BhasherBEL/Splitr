@@ -7,7 +7,6 @@ import 'package:shared/utils/string.dart';
 
 import '../../model/project.dart';
 import '../new_participant.dart';
-import '../new_project.dart';
 
 class ProjectsDrawer extends StatefulWidget {
   const ProjectsDrawer(
@@ -144,7 +143,7 @@ class Refund extends StatelessWidget {
 
   Project project;
 
-  List<Pair<Participant, double>> refundForMe() {
+  List<Pair<Participant, double>> refundFor(Participant p) {
     List<Pair<Participant, double>> toRefund = [];
 
     List<Pair<Participant, double>> balances = [];
@@ -153,7 +152,7 @@ class Refund extends StatelessWidget {
     for (Participant participant in project.participants) {
       double share = project.shareOf(participant);
 
-      if (participant == AppData.me) remaining = -share;
+      if (participant == p) remaining = -share;
 
       balances.add(Pair(participant, share));
     }
@@ -162,7 +161,7 @@ class Refund extends StatelessWidget {
 
     for (Pair<Participant, double> balance in balances) {
       if (remaining <= 0) break;
-      if (balance.a == AppData.me) continue;
+      if (balance.a == p) continue;
       double v = min(balance.b, remaining);
       remaining -= v;
       toRefund.add(Pair(balance.a, v));
@@ -173,33 +172,41 @@ class Refund extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (project.shareOf(AppData.me) < 0) {
-      List<Pair<Participant, double>> toRefund = refundForMe();
+    if (project.currentParticipant != null) {
+      Participant participant = project.currentParticipant!;
+      if (project.shareOf(participant) < 0) {
+        List<Pair<Participant, double>> toRefund = refundFor(participant);
 
-      return ListView.builder(
-        shrinkWrap: true,
-        itemBuilder: (context, index) {
-          Pair<Participant, double> refundItem = toRefund.elementAt(index);
-          return ListTile(
-            title: Row(
-              children: [
-                Expanded(
-                  child: Text(refundItem.a.pseudo),
-                ),
-                Expanded(
-                  child:
-                      Text('${(refundItem.b * 100).roundToDouble() / 100} €'),
-                )
-              ],
-            ),
-          );
-        },
-        itemCount: toRefund.length,
-      );
+        return ListView.builder(
+          shrinkWrap: true,
+          itemBuilder: (context, index) {
+            Pair<Participant, double> refundItem = toRefund.elementAt(index);
+            return ListTile(
+              title: Row(
+                children: [
+                  Expanded(
+                    child: Text(refundItem.a.pseudo),
+                  ),
+                  Expanded(
+                    child:
+                        Text('${(refundItem.b * 100).roundToDouble() / 100} €'),
+                  )
+                ],
+              ),
+            );
+          },
+          itemCount: toRefund.length,
+        );
+      } else {
+        return const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 25),
+          child: Text("No need to refund!"),
+        );
+      }
     } else {
       return const Padding(
         padding: EdgeInsets.symmetric(horizontal: 25),
-        child: Text("No need to refund!"),
+        child: Text("Please select a participant to see how to refund !"),
       );
     }
   }

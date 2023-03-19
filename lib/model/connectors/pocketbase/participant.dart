@@ -1,5 +1,6 @@
 import 'package:pocketbase/pocketbase.dart';
 import 'package:shared/model/project.dart';
+import 'package:shared/utils/time.dart';
 
 import '../../participant.dart';
 
@@ -83,8 +84,23 @@ class PocketBaseParticipant {
     await participant.conn.save();
   }
 
-  @override
-  Future saveParticipants() {
-    throw UnimplementedError();
+  static Future<List<Participant>> pullNewFrom(
+      PocketBase pb, Project project) async {
+    print(project.lastSync.toPocketTime());
+    List<RecordModel> records = await pb.collection("participants").getFullList(
+          filter: 'updated > "${project.lastSync}"',
+        );
+
+    return records
+        .map(
+          (e) => Participant(
+            project: project,
+            pseudo: e.getStringValue(PocketBaseParticipantFields.pseudo),
+            firstname: e.getStringValue(PocketBaseParticipantFields.firstname),
+            lastname: e.getStringValue(PocketBaseParticipantFields.lastname),
+            remoteId: e.id,
+          ),
+        )
+        .toList();
   }
 }

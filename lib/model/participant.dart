@@ -1,12 +1,13 @@
 import 'package:shared/model/connectors/participant.dart';
+import 'package:shared/model/project.dart';
 
-import 'app_data.dart';
 import 'connectors/local/participant.dart';
 
 class ParticipantFields {
   static const values = [
     localId,
     remoteId,
+    projectId,
     pseudo,
     lastname,
     firstname,
@@ -15,6 +16,7 @@ class ParticipantFields {
 
   static const String localId = 'local_id';
   static const String remoteId = 'remote_id';
+  static const String projectId = 'project_id';
   static const String pseudo = 'pseudo';
   static const String lastname = 'lastname';
   static const String firstname = 'firstname';
@@ -25,30 +27,24 @@ class Participant {
   Participant({
     this.localId,
     this.remoteId,
+    required this.project,
     required this.pseudo,
     this.lastname,
     this.firstname,
     DateTime? lastUpdate,
   }) {
     conn = LocalParticipant(this);
-    AppData.participants.add(this);
     this.lastUpdate = lastUpdate ?? DateTime.now();
   }
 
   int? localId;
   String? remoteId;
+  Project project;
   String pseudo;
   String? lastname;
   String? firstname;
   late ParticipantConnector conn;
   late DateTime lastUpdate;
-
-  static Participant? fromId(int localId) {
-    return AppData.participants.isEmpty
-        ? null
-        : AppData.participants
-            .firstWhere((element) => element.localId == localId);
-  }
 
   Map<String, Object?> toJson() => {
         ParticipantFields.localId: localId,
@@ -59,10 +55,11 @@ class Participant {
         ParticipantFields.lastUpdate: DateTime.now().millisecondsSinceEpoch,
       };
 
-  static Participant fromJson(Map<String, Object?> json) {
+  static Participant fromJson(Project p, Map<String, Object?> json) {
     return Participant(
       localId: json[ParticipantFields.localId] as int?,
       remoteId: json[ParticipantFields.remoteId] as String?,
+      project: p,
       pseudo: json[ParticipantFields.pseudo] as String,
       lastname: json[ParticipantFields.lastname] as String?,
       firstname: json[ParticipantFields.firstname] as String?,

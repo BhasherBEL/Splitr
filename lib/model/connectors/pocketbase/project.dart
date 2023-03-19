@@ -59,7 +59,7 @@ class PocketBaseProject {
     DateTime updated = DateTime.parse(record.updated);
     if (updated.millisecondsSinceEpoch >
         project.lastUpdate.millisecondsSinceEpoch) {
-      project.setName(record.getStringValue(PocketBaseProjectFields.name));
+      project.name = record.getStringValue(PocketBaseProjectFields.name);
       project.lastUpdate = updated;
     }
     await project.conn.save();

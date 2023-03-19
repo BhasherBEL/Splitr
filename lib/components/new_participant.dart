@@ -34,11 +34,12 @@ class NewParticipantPage extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () async {
-              Participant participant =
-                  Participant(pseudo: pseudoController.text);
+              Participant participant = Participant(
+                project: project,
+                pseudo: pseudoController.text,
+              );
               await participant.conn.save();
               project.addParticipant(participant);
-              project.conn.saveParticipants();
               Navigator.pop(context, true);
             },
             child: const Text('Create'),

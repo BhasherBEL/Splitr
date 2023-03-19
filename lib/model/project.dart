@@ -10,6 +10,7 @@ class ProjectFields {
     localId,
     remoteId,
     name,
+    currentParticipant,
     providerId,
     providerData,
     lastSync,
@@ -19,6 +20,7 @@ class ProjectFields {
   static const String localId = 'local_id';
   static const String remoteId = 'remote_id';
   static const String name = 'name';
+  static const String currentParticipant = 'current_participant';
   static const String providerId = 'provider_id';
   static const String providerData = 'provider_data';
   static const String lastSync = 'last_sync';
@@ -29,6 +31,7 @@ class Project {
   Project({
     this.localId,
     this.remoteId,
+    this.currentParticipant,
     required this.name,
     required int providerId,
     String providerData = '',
@@ -49,21 +52,13 @@ class Project {
   int? localId;
   String? remoteId;
   String name;
+  Participant? currentParticipant;
   late Provider provider;
   late LocalProject conn;
   final List<Item> items = [];
   final List<Participant> participants = [];
   late DateTime lastSync;
   late DateTime lastUpdate;
-
-  void setName(String s) {
-    String old = name;
-    name = s;
-    if (AppData.current != null && AppData.current!.name == old) {
-      AppData.current = this;
-    }
-    lastUpdate = DateTime.now();
-  }
 
   void addParticipant(Participant participant) {
     participants.add(participant);
@@ -78,6 +73,7 @@ class Project {
         ProjectFields.localId: localId,
         ProjectFields.remoteId: remoteId,
         ProjectFields.name: name,
+        ProjectFields.currentParticipant: currentParticipant?.localId,
         ProjectFields.providerId: provider.id,
         ProjectFields.providerData: provider.data,
         ProjectFields.lastSync: lastSync.millisecondsSinceEpoch,

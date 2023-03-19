@@ -9,7 +9,7 @@ class BillData {
   BillData({this.item}) {
     title = item?.title ?? "";
     date = item?.date ?? DateTime.now();
-    emitter = item?.emitter ?? AppData.me;
+    emitter = item?.emitter ?? item!.project.participants.first;
     amount = item?.amount ?? 0;
     if (item != null) {
       for (ItemPart ip in item!.itemParts) {
@@ -22,7 +22,7 @@ class BillData {
 
   String title = "";
   DateTime date = DateTime.now();
-  Participant emitter = AppData.me;
+  late Participant emitter;
   double amount = 0;
   Map<Participant, BillPart> shares = {};
 

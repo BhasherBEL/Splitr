@@ -89,20 +89,23 @@ class _SetupScreenState extends State<_SetupScreen> {
                                   if (currentPage == pages.length - 1) {
                                     AppData.current = Project(
                                       name: setupData.projectName!,
-                                      providerId: setupData.providerId!,
+                                      providerId: setupData.providerId,
                                       providerData: setupData.providerData,
                                     );
-                                    AppData.me = Participant(
+                                    AppData.current!.currentParticipant =
+                                        Participant(
+                                      project: AppData.current!,
                                       pseudo: setupData.pseudo!,
                                       lastname: setupData.lastname,
                                       firstname: setupData.firstname,
                                     );
-                                    AppData.current!.addParticipant(AppData.me);
+                                    AppData.current!.addParticipant(
+                                        AppData.current!.currentParticipant!);
 
                                     await AppData.current!.conn.save();
-                                    await AppData.me.conn.save();
-                                    await AppData.current!.conn
-                                        .saveParticipants();
+                                    await AppData
+                                        .current!.currentParticipant!.conn
+                                        .save();
                                     AppData.firstRun = false;
                                     runApp(const MainScreen());
                                   } else {

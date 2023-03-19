@@ -31,7 +31,13 @@ class PocketBaseProvider extends Provider {
     for (Participant participant in project.participants) {
       PocketBaseParticipant(project.lastSync, participant, pb).sync();
     }
+    for (Participant participant
+        in await PocketBaseParticipant.pullNewFrom(pb, project)) {
+      project.addParticipant(participant);
+    }
+
     project.lastSync = DateTime.now();
+    await project.conn.save();
     return true;
   }
 

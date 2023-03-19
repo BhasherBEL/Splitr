@@ -9,8 +9,6 @@ abstract class ProjectConnector {
 
   Future delete();
 
-  Future saveParticipants();
-
   Future loadParticipants();
 
   Future loadEntries();

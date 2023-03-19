@@ -9,14 +9,6 @@ class LocalParticipant extends ParticipantConnector {
   LocalParticipant(super.participant);
 
   @override
-  static Future<Set<Participant>> getAll() async {
-    final res = await AppData.db.query(
-      tableParticipants,
-    );
-
-    return res.map((e) => Participant.fromJson(e)).toSet();
-  }
-
   Future save() async {
     if (participant.localId != null) {
       final results = await AppData.db.query(

@@ -61,8 +61,11 @@ class _ItemListState extends State<ItemList> {
                 );
               }
 
-              double share =
-                  (item.shareOf(AppData.me) * 100).roundToDouble() / 100;
+              double share = widget.project.currentParticipant == null
+                  ? 0
+                  : (item.shareOf(widget.project.currentParticipant!) * 100)
+                          .roundToDouble() /
+                      100;
 
               return Column(
                 children: [
