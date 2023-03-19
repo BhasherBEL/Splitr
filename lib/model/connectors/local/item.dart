@@ -15,7 +15,7 @@ class LocalItem extends ItemConnector {
       tableItemParts,
       columns: ItemPartFields.values,
       where: "${ItemPartFields.itemId} = ?",
-      whereArgs: [item.id],
+      whereArgs: [item.localId],
     ))
         .map((e) => ItemPart.fromJson(e, item))
         .toList();
@@ -23,31 +23,31 @@ class LocalItem extends ItemConnector {
 
   @override
   Future save() async {
-    if (item.id != null) {
+    if (item.localId != null) {
       final results = await AppData.db.query(
         tableItems,
-        where: '${ItemFields.id} = ?',
-        whereArgs: [item.id],
+        where: '${ItemFields.localId} = ?',
+        whereArgs: [item.localId],
       );
       if (results.isNotEmpty) {
         await AppData.db.update(
           tableItems,
           item.toJson(),
-          where: '${ItemFields.id} = ?',
-          whereArgs: [item.id],
+          where: '${ItemFields.localId} = ?',
+          whereArgs: [item.localId],
         );
         return;
       }
     }
-    item.id = await AppData.db.insert(tableItems, item.toJson());
+    item.localId = await AppData.db.insert(tableItems, item.toJson());
   }
 
   @override
   Future delete() async {
     await AppData.db.delete(
       tableItems,
-      where: '${ItemFields.id} = ?',
-      whereArgs: [item.id],
+      where: '${ItemFields.localId} = ?',
+      whereArgs: [item.localId],
     );
 
     for (final ItemPart ip in item.itemParts) {

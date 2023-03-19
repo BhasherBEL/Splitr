@@ -4,24 +4,23 @@ class SetupData {
     this.firstname,
     this.lastname,
     this.projectName,
+    this.providerId = 0,
   });
 
   String? pseudo;
   String? firstname;
   String? lastname;
   String? projectName;
+  int providerId;
+  Map<int, String> providerDataMap = {};
 
-  SetupData copyWith({
-    String? pseudo,
-    String? firstname,
-    String? lastname,
-    String? projectName,
-  }) {
-    return SetupData(
-      pseudo: pseudo ?? this.pseudo,
-      firstname: firstname ?? this.firstname,
-      lastname: lastname ?? this.lastname,
-      projectName: projectName ?? this.projectName,
-    );
+  String get providerData {
+    int i = 0;
+    List<String> res = [];
+    while (providerDataMap.containsKey(i)) {
+      res.add(providerDataMap[i]!);
+      i++;
+    }
+    return res.join(';');
   }
 }

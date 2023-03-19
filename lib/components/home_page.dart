@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared/components/new_project.dart';
 import 'package:shared/components/projects_list.dart';
 import 'package:shared/model/app_data.dart';
+import 'package:shared/model/connectors/local/provider.dart';
 
 import '../model/project.dart';
 import 'new_entry.dart';
@@ -36,8 +37,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadProjectData() async {
-    await project!.db.loadParticipants();
-    await project!.db.loadEntries();
+    await project!.conn.loadParticipants();
+    await project!.conn.loadEntries();
     setState(() {
       isLoaded = true;
     });
@@ -50,6 +51,19 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
+        actions: <Widget>[
+          if (hasProject && project!.provider.id != LocalProvider.pid)
+            IconButton(
+              icon: Icon(
+                Icons.sync,
+              ),
+              onPressed: () async {
+                await project!.sync();
+                setState(() {});
+                print('Synced');
+              },
+            )
+        ],
         title: Column(
           children: [
             Text(
@@ -57,7 +71,6 @@ class _HomePageState extends State<HomePage> {
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                // fontFeatures: [FontFeature.enable('smcp')],
               ),
             ),
             if (hasProject)

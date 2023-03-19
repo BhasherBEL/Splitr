@@ -36,9 +36,9 @@ class NewParticipantPage extends StatelessWidget {
             onPressed: () async {
               Participant participant =
                   Participant(pseudo: pseudoController.text);
-              await participant.db.save();
+              await participant.conn.save();
               project.addParticipant(participant);
-              project.db.saveParticipants();
+              project.conn.saveParticipants();
               Navigator.pop(context, true);
             },
             child: const Text('Create'),

@@ -35,45 +35,57 @@ class SharedDatabase {
   Future _createDB(Database db, int version) async {
     await db.execute('''
 CREATE TABLE $tableProjects (
-  ${ProjectFields.id} INTEGER PRIMARY KEY AUTOINCREMENT,
-  ${ProjectFields.name} TEXT NOT NULL
+  ${ProjectFields.localId} INTEGER PRIMARY KEY AUTOINCREMENT,
+  ${ProjectFields.remoteId} TEXT,
+  ${ProjectFields.name} TEXT NOT NULL,
+  ${ProjectFields.providerId} INTEGER NOT NULL,
+  ${ProjectFields.providerData} TEXT,
+  ${ProjectFields.lastSync} INTEGER,
+  ${ProjectFields.lastUpdate} INTEGER
 )
 ''');
 
     await db.execute('''
 CREATE TABLE $tableParticipants (
-  ${ParticipantFields.id} INTEGER PRIMARY KEY AUTOINCREMENT,
+  ${ParticipantFields.localId} INTEGER PRIMARY KEY AUTOINCREMENT,
+  ${ParticipantFields.remoteId} TEXT,
   ${ParticipantFields.pseudo} TEXT NOT NULL,
   ${ParticipantFields.lastname} TEXT,
-  ${ParticipantFields.firstname} TEXT
+  ${ParticipantFields.firstname} TEXT,
+  ${ParticipantFields.lastUpdate} INTEGER
 )
 ''');
 
     await db.execute('''
 CREATE TABLE $tableProjectParticipants (
   ${ProjectParticipantFields.projectId} INTEGER NOT NULL,
-  ${ProjectParticipantFields.participantId} INTEGER NOT NULL
+  ${ProjectParticipantFields.participantId} INTEGER NOT NULL,
+  ${ProjectParticipantFields.lastUpdate} INTEGER
 )
 ''');
 
     await db.execute('''
 CREATE TABLE $tableItems (
-  ${ItemFields.id} INTEGER PRIMARY KEY AUTOINCREMENT,
+  ${ItemFields.localId} INTEGER PRIMARY KEY AUTOINCREMENT,
+  ${ItemFields.remoteId} TEXT,
   ${ItemFields.project} INTEGER NOT NULL,
   ${ItemFields.title} TEXT NOT NULL,
   ${ItemFields.emitter} INTEGER NOT NULL,
   ${ItemFields.amount} REAL NOT NULL,
-  ${ItemFields.date} INTEGER NOT NULL
+  ${ItemFields.date} INTEGER NOT NULL,
+  ${ItemFields.lastUpdate} INTEGER
 )
 ''');
 
     await db.execute('''
 CREATE TABLE $tableItemParts (
-  ${ItemPartFields.id} INTEGER PRIMARY KEY AUTOINCREMENT,
+  ${ItemPartFields.localId} INTEGER PRIMARY KEY AUTOINCREMENT,
+  ${ItemPartFields.remoteId} TEXT,
   ${ItemPartFields.itemId} INTEGER NOT NULL,
   ${ItemPartFields.participantId} INTEGER NOT NULL,
   ${ItemPartFields.rate} REAL,
-  ${ItemPartFields.amount} REAL
+  ${ItemPartFields.amount} REAL,
+  ${ItemPartFields.lastUpdate} INTEGER
 )
 ''');
   }

@@ -87,8 +87,11 @@ class _SetupScreenState extends State<_SetupScreen> {
                                 if (formKey.currentState != null &&
                                     formKey.currentState!.validate()) {
                                   if (currentPage == pages.length - 1) {
-                                    AppData.current =
-                                        Project(name: setupData.projectName!);
+                                    AppData.current = Project(
+                                      name: setupData.projectName!,
+                                      providerId: setupData.providerId!,
+                                      providerData: setupData.providerData,
+                                    );
                                     AppData.me = Participant(
                                       pseudo: setupData.pseudo!,
                                       lastname: setupData.lastname,
@@ -96,9 +99,9 @@ class _SetupScreenState extends State<_SetupScreen> {
                                     );
                                     AppData.current!.addParticipant(AppData.me);
 
-                                    await AppData.current!.db.save();
-                                    await AppData.me.db.save();
-                                    await AppData.current!.db
+                                    await AppData.current!.conn.save();
+                                    await AppData.me.conn.save();
+                                    await AppData.current!.conn
                                         .saveParticipants();
                                     AppData.firstRun = false;
                                     runApp(const MainScreen());

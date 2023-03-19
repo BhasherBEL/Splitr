@@ -63,7 +63,10 @@ class AppData {
     AppData.projects = await Project.getAllProjects();
 
     if (sharedPreferences.containsKey("lastProject")) {
-      _current = Project.fromName(sharedPreferences.getString("lastProject")!);
+      try {
+        _current =
+            Project.fromName(sharedPreferences.getString("lastProject")!);
+      } catch (e) {}
     }
   }
 }

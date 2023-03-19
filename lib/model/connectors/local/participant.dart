@@ -18,24 +18,24 @@ class LocalParticipant extends ParticipantConnector {
   }
 
   Future save() async {
-    if (participant.id != null) {
+    if (participant.localId != null) {
       final results = await AppData.db.query(
         tableParticipants,
-        where: 'id = ?',
-        whereArgs: [participant.id],
+        where: '${ParticipantFields.localId} = ?',
+        whereArgs: [participant.localId],
       );
       if (results.isNotEmpty) {
         await AppData.db.update(
           tableParticipants,
           participant.toJson(),
-          where: 'id = ?',
-          whereArgs: [participant.id],
+          where: '${ParticipantFields.localId} = ?',
+          whereArgs: [participant.localId],
         );
         return;
       }
     }
 
-    participant.id =
+    participant.localId =
         await AppData.db.insert(tableParticipants, participant.toJson());
   }
 

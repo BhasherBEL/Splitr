@@ -29,7 +29,7 @@ class _ProjectsListState extends State<ProjectsList> {
                     SlidableAction(
                       onPressed: (BuildContext? context) {
                         AppData.projects.remove(project);
-                        project.db.delete();
+                        project.conn.delete();
                         setState(() {});
                       },
                       icon: Icons.delete,

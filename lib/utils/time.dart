@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 String monthText(int month) {
   return [
     '',
@@ -50,6 +52,15 @@ extension DateExtension on DateTime {
       return '$day${day == 1 ? 'st' : 'th'} ${monthText(month)}';
     }
   }
+
+  String toPocketTime() {
+    return DateFormat('yyyy-MM-dd hh:mm:ss').format(this);
+  }
+}
+
+DateTime fromPocketTime(String s) {
+  // return DateFormat("yyyy-MM-dd hh:mm:ss").parse(s, true);
+  return DateTime.parse(s);
 }
 
 // https://stackoverflow.com/questions/52713115/flutter-find-the-number-of-days-between-two-dates
