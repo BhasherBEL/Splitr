@@ -9,17 +9,16 @@ class PocketBaseParticipantFields {
   static const String pseudo = "pseudo";
   static const String firstname = "firstname";
   static const String lastname = "lastname";
-  static const String projectId = "project_id";
 }
 
 class PocketBaseParticipant implements ExternalConnector {
-  PocketBaseParticipant(this.project, this.participant, this.pb) {
+  PocketBaseParticipant(this.lastSync, this.participant, this.pb) {
     collection = pb.collection("participants");
   }
 
   final PocketBase pb;
   final Participant participant;
-  final Project project;
+  final DateTime lastSync;
   late final RecordService collection;
 
   @override
@@ -33,8 +32,7 @@ class PocketBaseParticipant implements ExternalConnector {
   @override
   Future<bool> sync() async {
     if (participant.remoteId == null ||
-        participant.lastUpdate.difference(project.lastSync).inMilliseconds >
-            0) {
+        participant.lastUpdate.difference(lastSync).inMilliseconds > 0) {
       await push();
     } else {
       await checkUpdate();
@@ -56,7 +54,6 @@ class PocketBaseParticipant implements ExternalConnector {
   Future<bool> create() async {
     RecordModel recordModel = await collection.create(
       body: <String, dynamic>{
-        PocketBaseParticipantFields.projectId: project.remoteId,
         PocketBaseParticipantFields.pseudo: participant.pseudo,
         PocketBaseParticipantFields.lastname: participant.lastname,
         PocketBaseParticipantFields.firstname: participant.firstname,
@@ -72,7 +69,6 @@ class PocketBaseParticipant implements ExternalConnector {
     await collection.update(
       participant.remoteId!,
       body: <String, dynamic>{
-        PocketBaseParticipantFields.projectId: project.remoteId,
         PocketBaseParticipantFields.pseudo: participant.pseudo,
         PocketBaseParticipantFields.lastname: participant.lastname,
         PocketBaseParticipantFields.firstname: participant.firstname,
@@ -83,10 +79,8 @@ class PocketBaseParticipant implements ExternalConnector {
 
   static Future<List<Participant>> checkNews(
       PocketBase pb, Project project) async {
-    print(project.lastSync.toUtc());
     List<RecordModel> records = await pb.collection("participants").getFullList(
-          filter:
-              'updated > "${project.lastSync.toUtc()}" && ${PocketBaseParticipantFields.projectId} = "${project.remoteId}"',
+          filter: 'updated > "${project.lastSync}"',
         );
 
     return records
@@ -108,7 +102,6 @@ class PocketBaseParticipant implements ExternalConnector {
     DateTime updated = DateTime.parse(record.updated);
     if (updated.millisecondsSinceEpoch >
         participant.lastUpdate.millisecondsSinceEpoch) {
-      // participant.project
       participant.pseudo =
           record.getStringValue(PocketBaseParticipantFields.pseudo);
       participant.firstname =

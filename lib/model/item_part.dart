@@ -1,7 +1,6 @@
 import 'package:shared/model/participant.dart';
 import 'package:shared/model/item.dart';
 
-import 'connectors/itempart_connector.dart';
 import 'connectors/local/item_part.dart';
 
 class ItemPartFields {
@@ -44,7 +43,7 @@ class ItemPart {
   Participant participant;
   double? rate;
   double? amount;
-  late ItemPartConnector conn;
+  late LocalItemPart conn;
   late DateTime lastUpdate;
 
   Map<String, Object?> toJson() => {

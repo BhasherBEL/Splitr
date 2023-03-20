@@ -1,4 +1,3 @@
-import 'package:shared/model/app_data.dart';
 import 'package:shared/model/item_part.dart';
 import 'package:shared/model/participant.dart';
 import 'package:shared/model/project.dart';
@@ -6,10 +5,15 @@ import 'package:shared/model/project.dart';
 import 'item.dart';
 
 class BillData {
-  BillData({this.item}) {
+  BillData({
+    this.item,
+    required this.project,
+  }) {
     title = item?.title ?? "";
     date = item?.date ?? DateTime.now();
-    emitter = item?.emitter ?? item!.project.participants.first;
+    emitter = item?.emitter ??
+        project.currentParticipant ??
+        project.participants.first;
     amount = item?.amount ?? 0;
     if (item != null) {
       for (ItemPart ip in item!.itemParts) {
@@ -19,6 +23,7 @@ class BillData {
   }
 
   Item? item;
+  Project project;
 
   String title = "";
   DateTime date = DateTime.now();

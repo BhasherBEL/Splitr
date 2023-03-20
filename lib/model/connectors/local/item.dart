@@ -1,15 +1,15 @@
 import '../../app_data.dart';
 import '../../item.dart';
 import '../../item_part.dart';
-import '../item_connector.dart';
 import 'item_part.dart';
 
 const String tableItems = 'items';
 
-class LocalItem extends ItemConnector {
-  LocalItem(super.item);
+class LocalItem {
+  LocalItem(this.item);
 
-  @override
+  final Item item;
+
   Future loadParts() async {
     item.itemParts = (await AppData.db.query(
       tableItemParts,
@@ -21,7 +21,6 @@ class LocalItem extends ItemConnector {
         .toList();
   }
 
-  @override
   Future save() async {
     if (item.localId != null) {
       final results = await AppData.db.query(
@@ -42,7 +41,6 @@ class LocalItem extends ItemConnector {
     item.localId = await AppData.db.insert(tableItems, item.toJson());
   }
 
-  @override
   Future delete() async {
     await AppData.db.delete(
       tableItems,
@@ -52,6 +50,13 @@ class LocalItem extends ItemConnector {
 
     for (final ItemPart ip in item.itemParts) {
       await ip.conn.delete();
+    }
+  }
+
+  Future saveRecursively() async {
+    await save();
+    for (final ItemPart ip in item.itemParts) {
+      await ip.conn.save();
     }
   }
 }

@@ -60,7 +60,6 @@ class _HomePageState extends State<HomePage> {
               onPressed: () async {
                 await project!.sync();
                 setState(() {});
-                print('Synced');
               },
             )
         ],

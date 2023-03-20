@@ -2,16 +2,16 @@ import '../../app_data.dart';
 import '../../item.dart';
 import '../../participant.dart';
 import '../../project.dart';
-import '../project.dart';
 import 'item.dart';
 import 'participant.dart';
 
 const String tableProjects = 'projects';
 
-class LocalProject extends ProjectConnector {
-  LocalProject(super.project);
+class LocalProject {
+  LocalProject(this.project);
 
-  @override
+  final Project project;
+
   Future loadEntries() async {
     final rawItems = await AppData.db.query(
       tableItems,
@@ -29,7 +29,6 @@ class LocalProject extends ProjectConnector {
     }
   }
 
-  @override
   Future loadParticipants() async {
     final rawParticipants = await AppData.db.query(
       tableParticipants,
@@ -44,7 +43,6 @@ class LocalProject extends ProjectConnector {
     }
   }
 
-  @override
   Future save() async {
     project.lastUpdate = DateTime.now();
     if (project.localId != null) {
@@ -67,7 +65,6 @@ class LocalProject extends ProjectConnector {
     project.localId = await AppData.db.insert(tableProjects, project.toJson());
   }
 
-  @override
   Future delete() async {
     bool res = await AppData.db.delete(
           tableProjects,

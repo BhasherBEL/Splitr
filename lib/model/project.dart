@@ -134,10 +134,9 @@ class Project {
   }
 
   Future<bool> sync() async {
-    try {
-      return await provider.sync();
-    } catch (e) {
-      return false;
-    }
+    DateTime st = DateTime.now();
+    bool res = await provider.sync();
+    print('Synced in ${DateTime.now().difference(st).inMilliseconds / 1000}s');
+    return res;
   }
 }

@@ -1,4 +1,3 @@
-import 'package:shared/model/connectors/participant.dart';
 import 'package:shared/model/project.dart';
 
 import 'connectors/local/participant.dart';
@@ -43,7 +42,7 @@ class Participant {
   String pseudo;
   String? lastname;
   String? firstname;
-  late ParticipantConnector conn;
+  late LocalParticipant conn;
   late DateTime lastUpdate;
 
   Map<String, Object?> toJson() => {

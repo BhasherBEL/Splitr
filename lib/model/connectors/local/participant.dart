@@ -1,14 +1,14 @@
 import 'package:shared/model/app_data.dart';
 
 import '../../participant.dart';
-import '../participant.dart';
 
 const String tableParticipants = 'participants';
 
-class LocalParticipant extends ParticipantConnector {
-  LocalParticipant(super.participant);
+class LocalParticipant {
+  LocalParticipant(this.participant);
 
-  @override
+  final Participant participant;
+
   Future save() async {
     if (participant.localId != null) {
       final results = await AppData.db.query(
@@ -31,9 +31,7 @@ class LocalParticipant extends ParticipantConnector {
         await AppData.db.insert(tableParticipants, participant.toJson());
   }
 
-  @override
   Future delete() {
-    // TODO: implement delete
     throw UnimplementedError();
   }
 }

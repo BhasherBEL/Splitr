@@ -27,18 +27,15 @@ class PocketBaseProvider extends Provider {
 
   @override
   Future<bool> sync() async {
-    PocketBaseProject(project, pb).sync();
-    print(project.lastSync);
-    project.lastSync = DateTime(1970);
+    await PocketBaseProject(project, pb).sync();
+    // TODO getFullList of updated participants rather than ask for each
     for (Participant participant in project.participants) {
-      print('LOCAL: ${participant.pseudo}');
-      PocketBaseParticipant(project.lastSync, participant, pb).sync();
+      await PocketBaseParticipant(project, participant, pb).sync();
     }
     for (Participant participant
-        in await PocketBaseParticipant.pullNewFrom(pb, project)) {
+        in await PocketBaseParticipant.checkNews(pb, project)) {
       project.addParticipant(participant);
-      participant.conn.save();
-      print('DIST: ${participant.pseudo}');
+      await participant.conn.save();
     }
 
     project.lastSync = DateTime.now();

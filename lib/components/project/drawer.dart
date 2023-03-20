@@ -102,6 +102,10 @@ class _ProjectsDrawerState extends State<ProjectsDrawer> {
                             ? Text(
                                 "${participant.firstname} ${participant.lastname}")
                             : null,
+                        onTap: () async {
+                          widget.project.currentParticipant = participant;
+                          widget.project.conn.save();
+                        },
                       );
                     },
                     itemCount: widget.project.participants.length + 2,

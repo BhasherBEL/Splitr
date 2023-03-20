@@ -1,12 +1,4 @@
-import '../../item.dart';
-import '../../item_part.dart';
-import '../../participant.dart';
-import '../../project.dart';
 import '../provider.dart';
-import 'item.dart';
-import 'item_part.dart';
-import 'participant.dart';
-import 'project.dart';
 
 class LocalProvider extends Provider {
   LocalProvider(project) : super(project, 0, "local", "");

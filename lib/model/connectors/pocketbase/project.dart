@@ -1,4 +1,5 @@
 import 'package:pocketbase/pocketbase.dart';
+import 'package:shared/model/connectors/external_connector.dart';
 
 import '../../project.dart';
 
@@ -7,7 +8,7 @@ class PocketBaseProjectFields {
   static const String name = "name";
 }
 
-class PocketBaseProject {
+class PocketBaseProject extends ExternalConnector<Project> {
   PocketBaseProject(this.project, this.pb) {
     collection = pb.collection("projects");
   }
@@ -16,29 +17,39 @@ class PocketBaseProject {
   final Project project;
   late final RecordService collection;
 
-  Future delete() async {
-    if (project.remoteId != null) await collection.delete(project.remoteId!);
+  @override
+  Future<bool> delete() async {
+    if (project.remoteId != null) {
+      await collection.delete(project.remoteId!);
+      return true;
+    }
+    return false;
   }
 
+  @override
   Future<bool> sync() async {
     if (project.remoteId == null ||
         project.lastUpdate.difference(project.lastSync).inMilliseconds > 0) {
       await push();
     } else {
-      await pullIf();
+      await checkUpdate();
     }
     return true;
   }
 
-  Future push() async {
+  @override
+  Future<bool> push() async {
     if (project.remoteId == null) {
       await create();
     } else {
       await update();
     }
+    return true;
   }
 
-  Future create() async {
+  @override
+  Future<bool> create() async {
+    print('CREATE');
     RecordModel recordModel = await collection.create(
       body: <String, dynamic>{
         PocketBaseProjectFields.name: project.name,
@@ -46,15 +57,20 @@ class PocketBaseProject {
     );
     project.remoteId = recordModel.id;
     await project.conn.save();
+    print(project.remoteId);
+    return true;
   }
 
-  Future update() async {
+  @override
+  Future<bool> update() async {
     await collection.update(project.remoteId!, body: {
       PocketBaseProjectFields.name: project.name,
     });
+    return true;
   }
 
-  Future pullIf() async {
+  @override
+  Future<bool> checkUpdate() async {
     RecordModel record = await collection.getOne(project.remoteId!);
     DateTime updated = DateTime.parse(record.updated);
     if (updated.millisecondsSinceEpoch >
@@ -63,10 +79,6 @@ class PocketBaseProject {
       project.lastUpdate = updated;
     }
     await project.conn.save();
-  }
-
-  @override
-  Future saveParticipants() {
-    throw UnimplementedError();
+    return true;
   }
 }

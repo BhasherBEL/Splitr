@@ -1,13 +1,13 @@
 import '../../app_data.dart';
 import '../../item_part.dart';
-import '../itempart_connector.dart';
 
 const String tableItemParts = 'itemParts';
 
-class LocalItemPart extends ItemPartConnector {
-  LocalItemPart(super.itemPart);
+class LocalItemPart {
+  LocalItemPart(this.itemPart);
 
-  @override
+  final ItemPart itemPart;
+
   Future save() async {
     if (itemPart.localId != null) {
       final results = await AppData.db.query(
@@ -29,7 +29,6 @@ class LocalItemPart extends ItemPartConnector {
         await AppData.db.insert(tableItemParts, itemPart.toJson());
   }
 
-  @override
   Future delete() async {
     await AppData.db.delete(
       tableItemParts,

@@ -42,7 +42,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
   @override
   void initState() {
     super.initState();
-    bill = BillData(item: widget.item);
+    bill = BillData(item: widget.item, project: widget.project);
     titleController.text = bill.title;
     dateController.text = daysElapsed(bill.date);
     emitterController.text = bill.emitter.pseudo;

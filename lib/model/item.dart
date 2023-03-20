@@ -2,7 +2,6 @@ import 'package:shared/model/item_part.dart';
 import 'package:shared/model/participant.dart';
 import 'package:shared/model/project.dart';
 
-import 'connectors/item_connector.dart';
 import 'connectors/local/item.dart';
 
 class ItemFields {
@@ -50,7 +49,7 @@ class Item {
   double amount;
   DateTime date;
   List<ItemPart> itemParts = [];
-  late ItemConnector conn;
+  late LocalItem conn;
   late DateTime lastUpdate;
 
   Map<String, Object?> toJson() => {
