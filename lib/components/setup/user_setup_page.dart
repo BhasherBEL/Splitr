@@ -9,23 +9,39 @@ class UserSetupPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      const Text("How do you want to be called ?"),
       TextFormField(
         initialValue: setupData.pseudo,
+        decoration: const InputDecoration(
+          labelText: "Pseudo",
+          border: OutlineInputBorder(),
+        ),
+
         validator: (value) => value == null || value.isEmpty
             ? 'Your pseudo can\'t be empty'
             : null,
         // onChanged: (value) => update((state) => state.copyWith(pseudo: value)),
         onChanged: (value) => setupData.pseudo = value,
       ),
-      const Text("What's your firstname ?"),
+      const SizedBox(
+        height: 12, // <-- SEE HERE
+      ),
       TextFormField(
         onChanged: (value) => setupData.firstname = value,
+        decoration: const InputDecoration(
+          labelText: "First name",
+          border: OutlineInputBorder(),
+        ),
         // update((state) => state.copyWith(firstname: value)),
       ),
-      const Text("What's your lastname ?"),
+      const SizedBox(
+        height: 12, // <-- SEE HERE
+      ),
       TextFormField(
         onChanged: (value) => setupData.lastname = value,
+        decoration: const InputDecoration(
+          labelText: "Last name",
+          border: OutlineInputBorder(),
+        ),
         // update((state) => state.copyWith(lastname: value)),
       ),
     ]);

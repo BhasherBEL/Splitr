@@ -40,6 +40,10 @@ class _SetupScreenState extends State<_SetupScreen> {
       title: 'Setup',
       theme: mainThemeData,
       home: Scaffold(
+        appBar: AppBar(
+          title: const Text("Setup"),
+          elevation: 4,
+        ),
         body: Form(
           key: formKey,
           child: SafeArea(
@@ -58,13 +62,6 @@ class _SetupScreenState extends State<_SetupScreen> {
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: ElevatedButton(
-                              style: currentPage > 0
-                                  ? ButtonStyle()
-                                  : ButtonStyle(
-                                      backgroundColor:
-                                          MaterialStateProperty.all(
-                                              Colors.grey.shade700),
-                                    ),
                               onPressed: currentPage > 0
                                   ? () {
                                       setState(() {

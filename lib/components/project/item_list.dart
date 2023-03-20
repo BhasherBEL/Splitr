@@ -56,7 +56,7 @@ class _ItemListState extends State<ItemList> {
                       ],
                     ),
                   ),
-                  tileColor: Color(0xFF444444),
+                  tileColor: Theme.of(context).primaryColorLight,
                   dense: true,
                 );
               }
@@ -122,9 +122,9 @@ class _ItemListState extends State<ItemList> {
                             style: TextStyle(
                               fontStyle: FontStyle.italic,
                               color: share > 0
-                                  ? Color.fromARGB(200, 76, 175, 80)
+                                  ? Colors.green
                                   : share < 0
-                                      ? Color.fromARGB(200, 250, 68, 55)
+                                      ? Colors.red
                                       : Colors.grey,
                             ),
                           ),

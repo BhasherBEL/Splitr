@@ -50,6 +50,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
+        elevation: 4,
         title: Column(
           children: [
             Text(

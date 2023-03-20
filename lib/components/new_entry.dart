@@ -69,21 +69,14 @@ class _NewEntryPageState extends State<NewEntryPage> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        centerTitle: true,
+        elevation: 4,
         title: Column(
           children: [
             Text(
-              widget.item == null ? 'Add new bill' : 'Update bill',
+              widget.item == null ? 'Add new expense' : 'Update expense',
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              widget.project.name,
-              style: const TextStyle(
-                fontSize: 14,
-                fontStyle: FontStyle.italic,
               ),
             ),
           ],
@@ -101,7 +94,9 @@ class _NewEntryPageState extends State<NewEntryPage> {
               children: [
                 Column(
                   children: [
-                    const TitleField("What ?"),
+                    const SizedBox(
+                      height: 12, // <-- SEE HERE
+                    ),
                     TextFormField(
                       controller: titleController,
                       validator: (value) => value == null || value.isEmpty
@@ -110,10 +105,14 @@ class _NewEntryPageState extends State<NewEntryPage> {
                       autocorrect: true,
                       decoration: const InputDecoration(
                         contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                        labelText: "Title",
+                        border: OutlineInputBorder(),
                       ),
                       onChanged: (value) => bill.title = value,
                     ),
-                    const TitleField('How much ?'),
+                    const SizedBox(
+                      height: 12, // <-- SEE HERE
+                    ),
                     TextFormField(
                       autocorrect: false,
                       validator: (value) {
@@ -132,6 +131,8 @@ class _NewEntryPageState extends State<NewEntryPage> {
                       decoration: const InputDecoration(
                         suffixText: ' €',
                         contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                        labelText: "Title",
+                        border: OutlineInputBorder(),
                       ),
                       controller: amountController,
                       onChanged: (value) {
@@ -143,6 +144,9 @@ class _NewEntryPageState extends State<NewEntryPage> {
                         } catch (e) {}
                       },
                     ),
+                    const SizedBox(
+                      height: 12, // <-- SEE HERE
+                    ),
                     Row(
                       children: [
                         Expanded(
@@ -150,12 +154,13 @@ class _NewEntryPageState extends State<NewEntryPage> {
                             padding: const EdgeInsets.only(right: 8.0),
                             child: Column(
                               children: [
-                                const TitleField("Who paid ?"),
                                 SelectFormField(
                                   type: SelectFormFieldType.dropdown,
                                   decoration: const InputDecoration(
                                     contentPadding:
                                         EdgeInsets.symmetric(horizontal: 10),
+                                    labelText: "Who paid",
+                                    border: OutlineInputBorder(),
                                   ),
                                   items: widget.project.participants
                                       .map((p) => <String, dynamic>{
@@ -179,13 +184,14 @@ class _NewEntryPageState extends State<NewEntryPage> {
                             padding: const EdgeInsets.only(left: 8.0),
                             child: Column(
                               children: [
-                                const TitleField("When ?"),
                                 TextField(
                                   readOnly: true,
                                   controller: dateController,
                                   decoration: const InputDecoration(
                                     contentPadding:
                                         EdgeInsets.symmetric(horizontal: 10),
+                                    labelText: "When?",
+                                    border: OutlineInputBorder(),
                                     hintText: 'Pick your Date',
                                   ),
                                   onTap: () async {
@@ -207,7 +213,10 @@ class _NewEntryPageState extends State<NewEntryPage> {
                         ),
                       ],
                     ),
-                    // const TitleField('For whom ?'),
+                    const SizedBox(
+                      height: 35, // <-- SEE HERE
+                    ),
+                    const Divider(),
                     Padding(
                       padding: const EdgeInsets.only(top: 25),
                       child: Table(
@@ -274,10 +283,6 @@ class _NewEntryPageState extends State<NewEntryPage> {
                                           );
                                         });
                                       },
-                                      side: BorderSide(
-                                        color: ColorModel.primary,
-                                      ),
-                                      activeColor: ColorModel.primary,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(3),
                                       ),
@@ -337,6 +342,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
                         }
                       },
                       child: Text(widget.item == null ? 'Create' : 'Update'),
+
                     ),
                   ),
                 ),
@@ -400,10 +406,6 @@ class _NewEntryPageState extends State<NewEntryPage> {
                   }
                 });
               },
-              side: BorderSide(
-                color: ColorModel.primary,
-              ),
-              activeColor: ColorModel.primary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(3),
               ),
