@@ -14,15 +14,17 @@ class _ProjectSetupPageState extends State<ProjectSetupPage> {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      const Text("What's the name of your poject ?"),
       TextFormField(
         validator: (value) => value == null || value.isEmpty
             ? 'Your project can\'t have an empty name'
             : null,
-        initialValue: widget.setupData.projectName,
-        onChanged: (value) => widget.setupData.projectName = value,
+        initialValue: setupData.projectName,
+        onChanged: (value) => setupData.projectName = value,
+        decoration: const InputDecoration(
+          labelText: "Name",
+          border: OutlineInputBorder(),
+        ),
       ),
-      const Text("Which type of project do you want to create ?"),
       DropdownMenu<int>(
         dropdownMenuEntries: const [
           DropdownMenuEntry(value: 0, label: "Local"),
@@ -34,6 +36,13 @@ class _ProjectSetupPageState extends State<ProjectSetupPage> {
             if (value != null) widget.setupData.providerId = value;
           });
         },
+        decoration: const InputDecoration(
+          labelText: "Project type",
+          border: OutlineInputBorder(),
+        ),
+      ),
+      const SizedBox(
+        height: 12, // <-- SEE HERE
       ),
       if (widget.setupData.providerId == 1)
         Column(
