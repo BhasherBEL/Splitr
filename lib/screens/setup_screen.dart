@@ -84,19 +84,25 @@ class _SetupScreenState extends State<_SetupScreen> {
                                 if (formKey.currentState != null &&
                                     formKey.currentState!.validate()) {
                                   if (currentPage == pages.length - 1) {
-                                    AppData.current =
-                                        Project(name: setupData.projectName!);
-                                    AppData.me = Participant(
+                                    AppData.current = Project(
+                                      name: setupData.projectName!,
+                                      providerId: setupData.providerId,
+                                      providerData: setupData.providerData,
+                                    );
+                                    AppData.current!.currentParticipant =
+                                        Participant(
+                                      project: AppData.current!,
                                       pseudo: setupData.pseudo!,
                                       lastname: setupData.lastname,
                                       firstname: setupData.firstname,
                                     );
-                                    AppData.current!.addParticipant(AppData.me);
+                                    AppData.current!.participants.add(
+                                        AppData.current!.currentParticipant!);
 
-                                    await AppData.current!.db.save();
-                                    await AppData.me.db.save();
-                                    await AppData.current!.db
-                                        .saveParticipants();
+                                    await AppData.current!.conn.save();
+                                    await AppData
+                                        .current!.currentParticipant!.conn
+                                        .save();
                                     AppData.firstRun = false;
                                     runApp(const MainScreen());
                                   } else {

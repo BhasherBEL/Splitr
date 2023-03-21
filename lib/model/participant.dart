@@ -1,60 +1,70 @@
-import 'package:shared/model/connectors/participant.dart';
+import 'package:shared/model/project.dart';
 
-import '../db/shared_database.dart';
-import 'app_data.dart';
-import 'connectors/local/item_part.dart';
 import 'connectors/local/participant.dart';
 
 class ParticipantFields {
   static const values = [
-    id,
+    localId,
+    remoteId,
+    projectId,
     pseudo,
     lastname,
     firstname,
+    lastUpdate,
   ];
 
-  static const String id = '_id';
+  static const String localId = 'local_id';
+  static const String remoteId = 'remote_id';
+  static const String projectId = 'project_id';
   static const String pseudo = 'pseudo';
   static const String lastname = 'lastname';
   static const String firstname = 'firstname';
+  static const String lastUpdate = 'last_update';
 }
 
 class Participant {
   Participant({
-    this.id,
+    this.localId,
+    this.remoteId,
+    required this.project,
     required this.pseudo,
     this.lastname,
     this.firstname,
+    DateTime? lastUpdate,
   }) {
-    db = LocalParticipant(this);
-    AppData.participants.add(this);
+    conn = LocalParticipant(this);
+    this.lastUpdate = lastUpdate ?? DateTime.now();
   }
 
-  int? id;
+  int? localId;
+  String? remoteId;
+  Project project;
   String pseudo;
   String? lastname;
   String? firstname;
-  late ParticipantConnector db;
-
-  static Participant? fromId(int id) {
-    return AppData.participants.isEmpty
-        ? null
-        : AppData.participants.firstWhere((element) => element.id == id);
-  }
+  late LocalParticipant conn;
+  late DateTime lastUpdate;
 
   Map<String, Object?> toJson() => {
-        ParticipantFields.id: id,
+        ParticipantFields.localId: localId,
+        ParticipantFields.remoteId: remoteId,
+        ParticipantFields.projectId: project.localId,
         ParticipantFields.pseudo: pseudo,
         ParticipantFields.lastname: lastname,
         ParticipantFields.firstname: firstname,
+        ParticipantFields.lastUpdate: DateTime.now().millisecondsSinceEpoch,
       };
 
-  static Participant fromJson(Map<String, Object?> json) {
+  static Participant fromJson(Project p, Map<String, Object?> json) {
     return Participant(
-      id: json[ParticipantFields.id] as int?,
+      localId: json[ParticipantFields.localId] as int?,
+      remoteId: json[ParticipantFields.remoteId] as String?,
+      project: p,
       pseudo: json[ParticipantFields.pseudo] as String,
       lastname: json[ParticipantFields.lastname] as String?,
       firstname: json[ParticipantFields.firstname] as String?,
+      lastUpdate: DateTime.fromMillisecondsSinceEpoch(
+          json[ParticipantFields.lastUpdate] as int),
     );
   }
 

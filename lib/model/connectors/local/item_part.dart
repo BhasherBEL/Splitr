@@ -1,39 +1,48 @@
 import '../../app_data.dart';
 import '../../item_part.dart';
-import '../itempart_connector.dart';
+import 'deleted.dart';
 
 const String tableItemParts = 'itemParts';
 
-class LocalItemPart extends ItemPartConnector {
-  LocalItemPart(super.itemPart);
+class LocalItemPart {
+  LocalItemPart(this.itemPart);
 
-  @override
+  final ItemPart itemPart;
+
   Future save() async {
-    if (itemPart.id != null) {
+    if (itemPart.localId != null) {
       final results = await AppData.db.query(
         tableItemParts,
-        where: 'id = ?',
-        whereArgs: [itemPart.id],
+        where: '${ItemPartFields.localId} = ?',
+        whereArgs: [itemPart.localId],
       );
       if (results.isNotEmpty) {
         await AppData.db.update(
           tableItemParts,
           itemPart.toJson(),
-          where: 'id = ?',
-          whereArgs: [itemPart.id],
+          where: '${ItemPartFields.localId} = ?',
+          whereArgs: [itemPart.localId],
         );
         return;
       }
     }
-    itemPart.id = await AppData.db.insert(tableItemParts, itemPart.toJson());
+    itemPart.localId =
+        await AppData.db.insert(tableItemParts, itemPart.toJson());
   }
 
-  @override
   Future delete() async {
     await AppData.db.delete(
       tableItemParts,
-      where: '${ItemPartFields.id} = ?',
-      whereArgs: [itemPart.id],
+      where: '${ItemPartFields.localId} = ?',
+      whereArgs: [itemPart.localId],
     );
+    if (itemPart.remoteId != null) {
+      await LocalDeleted.add(
+        'itemParts',
+        itemPart.remoteId!,
+        itemPart.item.project,
+        DateTime.now(),
+      );
+    }
   }
 }

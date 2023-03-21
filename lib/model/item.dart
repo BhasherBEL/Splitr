@@ -2,55 +2,65 @@ import 'package:shared/model/item_part.dart';
 import 'package:shared/model/participant.dart';
 import 'package:shared/model/project.dart';
 
-import 'connectors/item_connector.dart';
 import 'connectors/local/item.dart';
 
 class ItemFields {
   static const values = [
-    id,
+    localId,
+    remoteId,
     project,
     title,
     emitter,
     amount,
     date,
+    lastUpdate,
   ];
 
-  static const String id = '_id';
+  static const String localId = 'local_id';
+  static const String remoteId = 'remote_id';
   static const String project = 'project';
   static const String title = 'title';
   static const String emitter = 'emitter';
   static const String amount = 'amount';
   static const String date = 'date';
+  static const String lastUpdate = 'last_update';
 }
 
 class Item {
   Item({
-    this.id,
+    this.localId,
+    this.remoteId,
     required this.project,
     required this.title,
     required this.emitter,
     required this.amount,
     required this.date,
+    DateTime? lastUpdate,
   }) {
     conn = LocalItem(this);
+    this.lastUpdate = lastUpdate ?? DateTime.now();
   }
 
-  int? id;
+  int? localId;
+  String? remoteId;
   Project project;
   String title;
   Participant emitter;
   double amount;
   DateTime date;
   List<ItemPart> itemParts = [];
-  late ItemConnector conn;
+  late LocalItem conn;
+  late DateTime lastUpdate;
 
   Map<String, Object?> toJson() => {
-        ItemFields.id: id,
-        ItemFields.project: project.id,
+        ItemFields.localId: localId,
+        ItemFields.remoteId: remoteId,
+        ItemFields.project: project.localId,
         ItemFields.title: title,
-        ItemFields.emitter: emitter.id,
+        ItemFields.emitter: emitter.localId,
         ItemFields.amount: amount,
         ItemFields.date: date.millisecondsSinceEpoch,
+        ItemFields.lastUpdate: DateTime.now().millisecondsSinceEpoch,
       };
 
   double shareOf(Participant participant) {
@@ -99,13 +109,24 @@ class Item {
     }
 
     return Item(
-      id: json[ItemFields.id] as int?,
+      localId: json[ItemFields.localId] as int?,
+      remoteId: json[ItemFields.remoteId] as String?,
       project: p,
       title: json[ItemFields.title] as String,
-      emitter: p.participants.firstWhere(
-          (participant) => participant.id == json[ItemFields.emitter] as int),
+      emitter: p.participants.firstWhere((participant) =>
+          participant.localId == json[ItemFields.emitter] as int),
       amount: json[ItemFields.amount] as double,
       date: DateTime.fromMillisecondsSinceEpoch(json[ItemFields.date] as int),
+      lastUpdate: DateTime.fromMillisecondsSinceEpoch(
+          json[ItemFields.lastUpdate] as int),
     );
+  }
+
+  ItemPart? partByRemoteId(String id) {
+    try {
+      return itemParts.firstWhere((element) => element.remoteId == id);
+    } catch (e) {
+      return null;
+    }
   }
 }

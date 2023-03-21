@@ -1,4 +1,3 @@
-import 'package:shared/model/app_data.dart';
 import 'package:shared/model/item_part.dart';
 import 'package:shared/model/participant.dart';
 import 'package:shared/model/project.dart';
@@ -6,10 +5,15 @@ import 'package:shared/model/project.dart';
 import 'item.dart';
 
 class BillData {
-  BillData({this.item}) {
+  BillData({
+    this.item,
+    required this.project,
+  }) {
     title = item?.title ?? "";
     date = item?.date ?? DateTime.now();
-    emitter = item?.emitter ?? AppData.me;
+    emitter = item?.emitter ??
+        project.currentParticipant ??
+        project.participants.first;
     amount = item?.amount ?? 0;
     if (item != null) {
       for (ItemPart ip in item!.itemParts) {
@@ -19,10 +23,11 @@ class BillData {
   }
 
   Item? item;
+  Project project;
 
   String title = "";
   DateTime date = DateTime.now();
-  Participant emitter = AppData.me;
+  late Participant emitter;
   double amount = 0;
   Map<Participant, BillPart> shares = {};
 
@@ -53,7 +58,7 @@ shares: ${shares.entries.map((e) => "${e.key.pseudo}:${e.value}").join(",")}""";
         .reduce((a, b) => a! + b!)!;
   }
 
-  Item toItemOf(Project project) {
+  Future<Item> toItemOf(Project project) async {
     if (item == null) {
       item = Item(
         amount: amount,
@@ -69,7 +74,7 @@ shares: ${shares.entries.map((e) => "${e.key.pseudo}:${e.value}").join(",")}""";
       item!.emitter = emitter;
       item!.title = title.isEmpty ? 'No title' : title;
       for (var element in item!.itemParts) {
-        element.conn.delete();
+        await element.conn.delete();
       }
       item!.itemParts = [];
     }

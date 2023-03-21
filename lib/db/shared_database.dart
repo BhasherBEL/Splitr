@@ -1,4 +1,5 @@
 import 'package:path/path.dart';
+import 'package:shared/model/connectors/local/deleted.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../model/connectors/local/item.dart';
@@ -9,7 +10,6 @@ import '../model/item.dart';
 import '../model/item_part.dart';
 import '../model/participant.dart';
 import '../model/project.dart';
-import '../model/project_participant.dart';
 
 class SharedDatabase {
   static final SharedDatabase instance = SharedDatabase._init();
@@ -29,51 +29,70 @@ class SharedDatabase {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 2, onCreate: _createDB);
+    return await openDatabase(
+      path,
+      version: 3,
+      onCreate: _createDB,
+    );
   }
 
   Future _createDB(Database db, int version) async {
     await db.execute('''
 CREATE TABLE $tableProjects (
-  ${ProjectFields.id} INTEGER PRIMARY KEY AUTOINCREMENT,
-  ${ProjectFields.name} TEXT NOT NULL
+  ${ProjectFields.localId} INTEGER PRIMARY KEY AUTOINCREMENT,
+  ${ProjectFields.remoteId} TEXT,
+  ${ProjectFields.currentParticipant} INTEGER,
+  ${ProjectFields.name} TEXT NOT NULL,
+  ${ProjectFields.providerId} INTEGER NOT NULL,
+  ${ProjectFields.providerData} TEXT,
+  ${ProjectFields.lastSync} INTEGER,
+  ${ProjectFields.lastUpdate} INTEGER
 )
 ''');
 
     await db.execute('''
 CREATE TABLE $tableParticipants (
-  ${ParticipantFields.id} INTEGER PRIMARY KEY AUTOINCREMENT,
+  ${ParticipantFields.localId} INTEGER PRIMARY KEY AUTOINCREMENT,
+  ${ParticipantFields.remoteId} TEXT,
+  ${ParticipantFields.projectId} INTEGER,
   ${ParticipantFields.pseudo} TEXT NOT NULL,
   ${ParticipantFields.lastname} TEXT,
-  ${ParticipantFields.firstname} TEXT
-)
-''');
-
-    await db.execute('''
-CREATE TABLE $tableProjectParticipants (
-  ${ProjectParticipantFields.projectId} INTEGER NOT NULL,
-  ${ProjectParticipantFields.participantId} INTEGER NOT NULL
+  ${ParticipantFields.firstname} TEXT,
+  ${ParticipantFields.lastUpdate} INTEGER
 )
 ''');
 
     await db.execute('''
 CREATE TABLE $tableItems (
-  ${ItemFields.id} INTEGER PRIMARY KEY AUTOINCREMENT,
+  ${ItemFields.localId} INTEGER PRIMARY KEY AUTOINCREMENT,
+  ${ItemFields.remoteId} TEXT,
   ${ItemFields.project} INTEGER NOT NULL,
   ${ItemFields.title} TEXT NOT NULL,
   ${ItemFields.emitter} INTEGER NOT NULL,
   ${ItemFields.amount} REAL NOT NULL,
-  ${ItemFields.date} INTEGER NOT NULL
+  ${ItemFields.date} INTEGER NOT NULL,
+  ${ItemFields.lastUpdate} INTEGER
 )
 ''');
 
     await db.execute('''
 CREATE TABLE $tableItemParts (
-  ${ItemPartFields.id} INTEGER PRIMARY KEY AUTOINCREMENT,
+  ${ItemPartFields.localId} INTEGER PRIMARY KEY AUTOINCREMENT,
+  ${ItemPartFields.remoteId} TEXT,
   ${ItemPartFields.itemId} INTEGER NOT NULL,
   ${ItemPartFields.participantId} INTEGER NOT NULL,
   ${ItemPartFields.rate} REAL,
-  ${ItemPartFields.amount} REAL
+  ${ItemPartFields.amount} REAL,
+  ${ItemPartFields.lastUpdate} INTEGER
+)
+''');
+
+    await db.execute('''
+CREATE TABLE $tableDeleted (
+  ${DeletedFields.collection} TEXT NOT NULL,
+  ${DeletedFields.projectId} INTEGER NOT NULL,
+  ${DeletedFields.uid} TEXT NOT NULL,
+  ${DeletedFields.updated} INTEGER
 )
 ''');
   }

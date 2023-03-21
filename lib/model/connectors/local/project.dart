@@ -1,23 +1,24 @@
+import 'package:shared/model/connectors/local/deleted.dart';
+
 import '../../app_data.dart';
 import '../../item.dart';
 import '../../participant.dart';
 import '../../project.dart';
-import '../../project_participant.dart';
-import '../project.dart';
 import 'item.dart';
 import 'participant.dart';
 
 const String tableProjects = 'projects';
 
-class LocalProject extends ProjectConnector {
-  LocalProject(super.project);
+class LocalProject {
+  LocalProject(this.project);
 
-  @override
+  final Project project;
+
   Future loadEntries() async {
     final rawItems = await AppData.db.query(
       tableItems,
       where: '${ItemFields.project} = ?',
-      whereArgs: [project.id],
+      whereArgs: [project.localId],
       orderBy: '${ItemFields.date} DESC',
     );
 
@@ -30,74 +31,57 @@ class LocalProject extends ProjectConnector {
     }
   }
 
-  @override
   Future loadParticipants() async {
-    final rawParticipants = await AppData.db.rawQuery('''
-SELECT * FROM $tableProjectParticipants 
-LEFT JOIN $tableParticipants ON $tableParticipants.${ParticipantFields.id} = ${ProjectParticipantFields.participantId}
-WHERE ${ProjectParticipantFields.projectId} = ${project.id};
-''');
+    final rawParticipants = await AppData.db.query(
+      tableParticipants,
+      columns: ParticipantFields.values,
+      where: '${ParticipantFields.projectId} = ${project.localId}',
+    );
 
     project.participants.clear();
 
     for (Map<String, Object?> e in rawParticipants) {
-      project.participants.add(Participant.fromJson(e));
+      project.participants.add(Participant.fromJson(project, e));
     }
   }
 
-  @override
   Future save() async {
-    if (project.id != null) {
+    project.lastUpdate = DateTime.now();
+    if (project.localId != null) {
       final results = await AppData.db.query(
         tableProjects,
-        where: '${ProjectFields.id} = ?',
-        whereArgs: [project.id],
+        where: '${ProjectFields.localId} = ?',
+        whereArgs: [project.localId],
       );
       if (results.isNotEmpty) {
         await AppData.db.update(
           tableProjects,
           project.toJson(),
-          where: '${ProjectFields.id} = ?',
-          whereArgs: [project.id],
+          where: '${ProjectFields.localId} = ?',
+          whereArgs: [project.localId],
         );
         return;
       }
     }
 
-    project.id = await AppData.db.insert(tableProjects, project.toJson());
+    project.localId = await AppData.db.insert(tableProjects, project.toJson());
   }
 
-  @override
-  Future saveParticipants() async {
-    if (project.id == null) await save();
-    for (Participant participant in project.participants) {
-      if (participant.id == null) await participant.db.save();
-      final results = await AppData.db.query(
-        tableProjectParticipants,
-        where:
-            '${ProjectParticipantFields.participantId} = ? AND ${ProjectParticipantFields.projectId} = ?',
-        whereArgs: [participant.id, project.id],
-      );
-      if (results.isEmpty) {
-        await AppData.db.insert(
-          tableProjectParticipants,
-          {
-            ProjectParticipantFields.participantId: participant.id,
-            ProjectParticipantFields.projectId: project.id,
-          },
-        );
-      }
-    }
-  }
-
-  @override
-  Future<bool> delete() async {
+  Future delete() async {
     bool res = await AppData.db.delete(
           tableProjects,
-          where: '${ProjectFields.id} = ?',
-          whereArgs: [project.id],
+          where: '${ProjectFields.localId} = ?',
+          whereArgs: [project.localId],
         ) >
         0;
+    if (project.remoteId != null) {
+      await LocalDeleted.add(
+        'projects',
+        project.remoteId!,
+        project,
+        DateTime.now(),
+      );
+    }
     if (res) {
       for (Item item in project.items) {
         await item.conn.delete();
