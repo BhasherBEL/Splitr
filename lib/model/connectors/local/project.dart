@@ -1,3 +1,5 @@
+import 'package:shared/model/connectors/local/deleted.dart';
+
 import '../../app_data.dart';
 import '../../item.dart';
 import '../../participant.dart';
@@ -72,6 +74,14 @@ class LocalProject {
           whereArgs: [project.localId],
         ) >
         0;
+    if (project.remoteId != null) {
+      await LocalDeleted.add(
+        'projects',
+        project.remoteId!,
+        project,
+        DateTime.now(),
+      );
+    }
     if (res) {
       for (Item item in project.items) {
         await item.conn.delete();

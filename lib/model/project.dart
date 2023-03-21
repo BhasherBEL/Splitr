@@ -60,10 +60,6 @@ class Project {
   late DateTime lastSync;
   late DateTime lastUpdate;
 
-  void addParticipant(Participant participant) {
-    participants.add(participant);
-  }
-
   double shareOf(Participant participant) {
     return ([0.0] + items.map((e) => e.shareOf(participant)).toList())
         .reduce((a, b) => a + b);
@@ -138,5 +134,21 @@ class Project {
     bool res = await provider.sync();
     print('Synced in ${DateTime.now().difference(st).inMilliseconds / 1000}s');
     return res;
+  }
+
+  Participant? participantByRemoteId(String id) {
+    try {
+      return participants.firstWhere((element) => element.remoteId == id);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Item? itemByRemoteId(String id) {
+    try {
+      return items.firstWhere((element) => element.remoteId == id);
+    } catch (e) {
+      return null;
+    }
   }
 }

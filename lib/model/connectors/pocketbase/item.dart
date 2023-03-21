@@ -1,50 +1,49 @@
 import 'package:pocketbase/pocketbase.dart';
 import 'package:shared/model/connectors/external_connector.dart';
+import 'package:shared/model/connectors/pocketbase/deleted.dart';
 import 'package:shared/model/project.dart';
 
-import '../../participant.dart';
+import '../../item.dart';
 
-class PocketBaseParticipantFields {
+class PocketBaseItemsFields {
   static const String id = "id";
-  static const String pseudo = "pseudo";
-  static const String firstname = "firstname";
-  static const String lastname = "lastname";
+  static const String title = "title";
+  static const String emitterId = "emitter_id";
+  static const String projectId = "project_id";
+  static const String amount = "amount";
+  static const String date = "date";
 }
 
-class PocketBaseParticipant implements ExternalConnector {
-  PocketBaseParticipant(this.lastSync, this.participant, this.pb) {
-    collection = pb.collection("participants");
+class PocketBaseItem implements ExternalConnector {
+  PocketBaseItem(this.project, this.item, this.pb) {
+    collection = pb.collection("items");
   }
 
   final PocketBase pb;
-  final Participant participant;
-  final DateTime lastSync;
+  final Item item;
+  final Project project;
   late final RecordService collection;
 
   @override
   Future<bool> delete() async {
-    if (participant.remoteId != null) {
-      await collection.delete(participant.remoteId!);
+    if (item.remoteId != null) {
+      await collection.delete(item.remoteId!);
+      await PocketBaseDeleted.delete(
+        pb,
+        project,
+        "items",
+        item.remoteId!,
+      );
     }
     return true;
   }
 
   @override
-  Future<bool> sync() async {
-    if (participant.remoteId == null ||
-        participant.lastUpdate.difference(lastSync).inMilliseconds > 0) {
-      await push();
-    } else {
-      await checkUpdate();
-    }
-    return true;
-  }
-
-  @override
-  Future<bool> push() async {
-    if (participant.remoteId == null) {
+  Future<bool> pushIfChange() async {
+    if (item.remoteId == null) {
       await create();
-    } else {
+    } else if (item.lastUpdate.difference(project.lastSync).inMilliseconds >
+        0) {
       await update();
     }
     return true;
@@ -54,63 +53,66 @@ class PocketBaseParticipant implements ExternalConnector {
   Future<bool> create() async {
     RecordModel recordModel = await collection.create(
       body: <String, dynamic>{
-        PocketBaseParticipantFields.pseudo: participant.pseudo,
-        PocketBaseParticipantFields.lastname: participant.lastname,
-        PocketBaseParticipantFields.firstname: participant.firstname,
+        PocketBaseItemsFields.title: item.title,
+        PocketBaseItemsFields.emitterId: item.emitter.remoteId,
+        PocketBaseItemsFields.projectId: item.project.remoteId,
+        PocketBaseItemsFields.date: item.date.millisecondsSinceEpoch,
+        PocketBaseItemsFields.amount: item.amount,
       },
     );
-    participant.remoteId = recordModel.id;
-    await participant.conn.save();
+    item.remoteId = recordModel.id;
+    await item.conn.save();
     return true;
   }
 
   @override
   Future<bool> update() async {
     await collection.update(
-      participant.remoteId!,
+      item.remoteId!,
       body: <String, dynamic>{
-        PocketBaseParticipantFields.pseudo: participant.pseudo,
-        PocketBaseParticipantFields.lastname: participant.lastname,
-        PocketBaseParticipantFields.firstname: participant.firstname,
+        PocketBaseItemsFields.title: item.title,
+        PocketBaseItemsFields.emitterId: item.emitter.remoteId,
+        PocketBaseItemsFields.projectId: item.project.remoteId,
+        PocketBaseItemsFields.date: item.date.millisecondsSinceEpoch,
+        PocketBaseItemsFields.amount: item.amount,
       },
     );
     return true;
   }
 
-  static Future<List<Participant>> checkNews(
-      PocketBase pb, Project project) async {
-    List<RecordModel> records = await pb.collection("participants").getFullList(
-          filter: 'updated > "${project.lastSync}"',
-        );
-
-    return records
+  static Future<bool> checkNews(PocketBase pb, Project project) async {
+    (await pb.collection("items").getFullList(
+              filter:
+                  'updated > "${project.lastSync.toUtc()}" && ${PocketBaseItemsFields.projectId} = "${project.remoteId}"',
+            ))
         .map(
-          (e) => Participant(
+      (e) async {
+        Item? i = project.itemByRemoteId(e.id);
+        if (i == null) {
+          i = Item(
             project: project,
-            pseudo: e.getStringValue(PocketBaseParticipantFields.pseudo),
-            firstname: e.getStringValue(PocketBaseParticipantFields.firstname),
-            lastname: e.getStringValue(PocketBaseParticipantFields.lastname),
+            amount: e.getDoubleValue(PocketBaseItemsFields.amount),
+            date: DateTime.fromMillisecondsSinceEpoch(
+                e.getIntValue(PocketBaseItemsFields.date)),
+            emitter: project.participantByRemoteId(
+                e.getStringValue(PocketBaseItemsFields.emitterId))!,
+            title: e.getStringValue(PocketBaseItemsFields.title),
+            lastUpdate: DateTime.parse(e.updated),
             remoteId: e.id,
-          ),
-        )
-        .toList();
-  }
-
-  @override
-  Future<bool> checkUpdate() async {
-    RecordModel record = await collection.getOne(participant.remoteId!);
-    DateTime updated = DateTime.parse(record.updated);
-    if (updated.millisecondsSinceEpoch >
-        participant.lastUpdate.millisecondsSinceEpoch) {
-      participant.pseudo =
-          record.getStringValue(PocketBaseParticipantFields.pseudo);
-      participant.firstname =
-          record.getStringValue(PocketBaseParticipantFields.firstname);
-      participant.lastname =
-          record.getStringValue(PocketBaseParticipantFields.lastname);
-      participant.lastUpdate = updated;
-    }
-    await participant.conn.save();
+          );
+          project.items.add(i);
+        } else {
+          i.amount = e.getDoubleValue(PocketBaseItemsFields.amount);
+          i.date = DateTime.fromMillisecondsSinceEpoch(
+              e.getIntValue(PocketBaseItemsFields.date));
+          i.emitter = project.participantByRemoteId(
+              e.getStringValue(PocketBaseItemsFields.emitterId))!;
+          i.title = e.getStringValue(PocketBaseItemsFields.title);
+          i.lastUpdate = DateTime.parse(e.updated);
+        }
+        await i.conn.save();
+      },
+    );
     return true;
   }
 }

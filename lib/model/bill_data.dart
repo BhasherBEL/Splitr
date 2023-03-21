@@ -58,7 +58,7 @@ shares: ${shares.entries.map((e) => "${e.key.pseudo}:${e.value}").join(",")}""";
         .reduce((a, b) => a! + b!)!;
   }
 
-  Item toItemOf(Project project) {
+  Future<Item> toItemOf(Project project) async {
     if (item == null) {
       item = Item(
         amount: amount,
@@ -74,7 +74,7 @@ shares: ${shares.entries.map((e) => "${e.key.pseudo}:${e.value}").join(",")}""";
       item!.emitter = emitter;
       item!.title = title.isEmpty ? 'No title' : title;
       for (var element in item!.itemParts) {
-        element.conn.delete();
+        await element.conn.delete();
       }
       item!.itemParts = [];
     }

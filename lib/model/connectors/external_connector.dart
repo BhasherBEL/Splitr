@@ -3,13 +3,9 @@ abstract class ExternalConnector<E> {
 
   Future<bool> delete();
 
-  Future<bool> sync();
-
-  Future<bool> push();
+  Future<bool> pushIfChange();
 
   Future<bool> create();
 
   Future<bool> update();
-
-  Future<bool> checkUpdate();
 }

@@ -99,7 +99,7 @@ class _SetupScreenState extends State<_SetupScreen> {
                                       lastname: setupData.lastname,
                                       firstname: setupData.firstname,
                                     );
-                                    AppData.current!.addParticipant(
+                                    AppData.current!.participants.add(
                                         AppData.current!.currentParticipant!);
 
                                     await AppData.current!.conn.save();

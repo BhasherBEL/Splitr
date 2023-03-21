@@ -31,7 +31,7 @@ class LocalParticipant {
         await AppData.db.insert(tableParticipants, participant.toJson());
   }
 
-  Future delete() {
-    throw UnimplementedError();
+  Future delete() async {
+    // await AppData.db.delete(tableParticipants);
   }
 }

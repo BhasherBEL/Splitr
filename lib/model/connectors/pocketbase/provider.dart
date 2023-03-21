@@ -1,7 +1,13 @@
 import 'package:pocketbase/pocketbase.dart';
+import 'package:shared/model/connectors/local/deleted.dart';
+import 'package:shared/model/connectors/pocketbase/deleted.dart';
+import 'package:shared/model/connectors/pocketbase/item.dart';
+import 'package:shared/model/connectors/pocketbase/item_part.dart';
 import 'package:shared/model/connectors/pocketbase/participant.dart';
 import 'package:shared/model/connectors/pocketbase/project.dart';
 import 'package:shared/model/connectors/provider.dart';
+import 'package:shared/model/item.dart';
+import 'package:shared/model/item_part.dart';
 import 'package:shared/model/participant.dart';
 
 class PocketBaseProvider extends Provider {
@@ -27,16 +33,42 @@ class PocketBaseProvider extends Provider {
 
   @override
   Future<bool> sync() async {
+    final Map<String, List<String>> deleted =
+        await PocketBaseDeleted.checkNewDeleted(pb, project);
+
+    (await LocalDeleted.getSince(project, project.lastSync)).forEach(
+      (collection, uids) async {
+        for (String uid in uids) {
+          await PocketBaseDeleted.delete(pb, project, collection, uid);
+          await pb.collection(collection).delete(uid);
+        }
+      },
+    );
+
     await PocketBaseProject(project, pb).sync();
-    // TODO getFullList of updated participants rather than ask for each
     for (Participant participant in project.participants) {
-      await PocketBaseParticipant(project, participant, pb).sync();
+      if (participant.remoteId != null &&
+          deleted['participants']!.contains(participant.remoteId)) {
+        project.participants.remove(participant);
+        await participant.conn.delete();
+      } else {
+        await PocketBaseParticipant(project, participant, pb).pushIfChange();
+      }
     }
-    for (Participant participant
-        in await PocketBaseParticipant.checkNews(pb, project)) {
-      project.addParticipant(participant);
-      await participant.conn.save();
+    await PocketBaseParticipant.checkNews(pb, project);
+
+    for (Item item in project.items) {
+      if (item.remoteId != null && deleted['items']!.contains(item.remoteId)) {
+        project.items.remove(item);
+        await item.conn.delete();
+      } else {
+        await PocketBaseItem(project, item, pb).pushIfChange();
+        for (ItemPart ip in item.itemParts) {
+          await PocketBaseItemPart(project, ip, pb).pushIfChange();
+        }
+      }
     }
+    await PocketBaseParticipant.checkNews(pb, project);
 
     project.lastSync = DateTime.now();
     await project.conn.save();

@@ -39,7 +39,7 @@ class NewParticipantPage extends StatelessWidget {
                 pseudo: pseudoController.text,
               );
               await participant.conn.save();
-              project.addParticipant(participant);
+              project.participants.add(participant);
               Navigator.pop(context, true);
             },
             child: const Text('Create'),

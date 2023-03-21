@@ -1,4 +1,5 @@
 import 'package:path/path.dart';
+import 'package:shared/model/connectors/local/deleted.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../model/connectors/local/item.dart';
@@ -28,7 +29,11 @@ class SharedDatabase {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 2, onCreate: _createDB);
+    return await openDatabase(
+      path,
+      version: 3,
+      onCreate: _createDB,
+    );
   }
 
   Future _createDB(Database db, int version) async {
@@ -79,6 +84,15 @@ CREATE TABLE $tableItemParts (
   ${ItemPartFields.rate} REAL,
   ${ItemPartFields.amount} REAL,
   ${ItemPartFields.lastUpdate} INTEGER
+)
+''');
+
+    await db.execute('''
+CREATE TABLE $tableDeleted (
+  ${DeletedFields.collection} TEXT NOT NULL,
+  ${DeletedFields.projectId} INTEGER NOT NULL,
+  ${DeletedFields.uid} TEXT NOT NULL,
+  ${DeletedFields.updated} INTEGER
 )
 ''');
   }

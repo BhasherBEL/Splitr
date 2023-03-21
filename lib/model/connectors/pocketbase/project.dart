@@ -1,5 +1,6 @@
 import 'package:pocketbase/pocketbase.dart';
 import 'package:shared/model/connectors/external_connector.dart';
+import 'package:shared/model/connectors/pocketbase/deleted.dart';
 
 import '../../project.dart';
 
@@ -21,6 +22,12 @@ class PocketBaseProject extends ExternalConnector<Project> {
   Future<bool> delete() async {
     if (project.remoteId != null) {
       await collection.delete(project.remoteId!);
+      await PocketBaseDeleted.delete(
+        pb,
+        project,
+        "projects",
+        project.remoteId!,
+      );
       return true;
     }
     return false;
@@ -30,7 +37,7 @@ class PocketBaseProject extends ExternalConnector<Project> {
   Future<bool> sync() async {
     if (project.remoteId == null ||
         project.lastUpdate.difference(project.lastSync).inMilliseconds > 0) {
-      await push();
+      await pushIfChange();
     } else {
       await checkUpdate();
     }
@@ -38,7 +45,7 @@ class PocketBaseProject extends ExternalConnector<Project> {
   }
 
   @override
-  Future<bool> push() async {
+  Future<bool> pushIfChange() async {
     if (project.remoteId == null) {
       await create();
     } else {

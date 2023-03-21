@@ -121,4 +121,12 @@ class Item {
           json[ItemFields.lastUpdate] as int),
     );
   }
+
+  ItemPart? partByRemoteId(String id) {
+    try {
+      return itemParts.firstWhere((element) => element.remoteId == id);
+    } catch (e) {
+      return null;
+    }
+  }
 }

@@ -331,7 +331,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
                     child: ElevatedButton(
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          Item item = bill.toItemOf(widget.project);
+                          Item item = await bill.toItemOf(widget.project);
                           await item.conn.saveRecursively();
                           Navigator.pop(context, true);
                         }

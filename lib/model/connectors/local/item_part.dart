@@ -1,5 +1,6 @@
 import '../../app_data.dart';
 import '../../item_part.dart';
+import 'deleted.dart';
 
 const String tableItemParts = 'itemParts';
 
@@ -35,5 +36,13 @@ class LocalItemPart {
       where: '${ItemPartFields.localId} = ?',
       whereArgs: [itemPart.localId],
     );
+    if (itemPart.remoteId != null) {
+      await LocalDeleted.add(
+        'itemParts',
+        itemPart.remoteId!,
+        itemPart.item.project,
+        DateTime.now(),
+      );
+    }
   }
 }

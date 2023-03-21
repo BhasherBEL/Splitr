@@ -1,6 +1,7 @@
 import '../../app_data.dart';
 import '../../item.dart';
 import '../../item_part.dart';
+import 'deleted.dart';
 import 'item_part.dart';
 
 const String tableItems = 'items';
@@ -47,6 +48,15 @@ class LocalItem {
       where: '${ItemFields.localId} = ?',
       whereArgs: [item.localId],
     );
+
+    if (item.remoteId != null) {
+      await LocalDeleted.add(
+        'items',
+        item.remoteId!,
+        item.project,
+        DateTime.now(),
+      );
+    }
 
     for (final ItemPart ip in item.itemParts) {
       await ip.conn.delete();
