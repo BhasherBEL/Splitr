@@ -50,6 +50,7 @@ class _HomePageState extends State<HomePage> {
     bool hasProject = project != null;
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.5),
         centerTitle: true,
         elevation: 4,
         actions: <Widget>[

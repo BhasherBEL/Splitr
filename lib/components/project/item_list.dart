@@ -3,7 +3,6 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:shared/utils/colors.dart';
 import 'package:shared/utils/string.dart';
 
-import '../../model/app_data.dart';
 import '../../model/item.dart';
 import '../../model/project.dart';
 import '../../utils/time.dart';
@@ -56,7 +55,7 @@ class _ItemListState extends State<ItemList> {
                       ],
                     ),
                   ),
-                  tileColor: Theme.of(context).primaryColorLight,
+                  tileColor: Theme.of(context).splashColor,
                   dense: true,
                 );
               }

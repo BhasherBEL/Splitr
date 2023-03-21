@@ -18,8 +18,8 @@ class _ProjectSetupPageState extends State<ProjectSetupPage> {
         validator: (value) => value == null || value.isEmpty
             ? 'Your project can\'t have an empty name'
             : null,
-        initialValue: setupData.projectName,
-        onChanged: (value) => setupData.projectName = value,
+        initialValue: widget.setupData.projectName,
+        onChanged: (value) => widget.setupData.projectName = value,
         decoration: const InputDecoration(
           labelText: "Name",
           border: OutlineInputBorder(),
@@ -36,10 +36,10 @@ class _ProjectSetupPageState extends State<ProjectSetupPage> {
             if (value != null) widget.setupData.providerId = value;
           });
         },
-        decoration: const InputDecoration(
-          labelText: "Project type",
-          border: OutlineInputBorder(),
-        ),
+        // decoration: const InputDecoration(
+        //   labelText: "Project type",
+        //   border: OutlineInputBorder(),
+        // ),
       ),
       const SizedBox(
         height: 12, // <-- SEE HERE

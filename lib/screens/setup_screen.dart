@@ -1,3 +1,4 @@
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:shared/components/setup/user_setup_page.dart';
 import 'package:shared/model/app_data.dart';
@@ -36,100 +37,109 @@ class _SetupScreenState extends State<_SetupScreen> {
       UserSetupPage(setupData),
       ProjectSetupPage(setupData),
     ];
-    return MaterialApp(
-      title: 'Setup',
-      theme: mainThemeData,
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text("Setup"),
-          elevation: 4,
+    return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
+      return MaterialApp(
+        title: 'Setup',
+        theme: ThemeData(
+          colorScheme: lightColorScheme ?? defaultLightColorScheme,
+          useMaterial3: true,
         ),
-        body: Form(
-          key: formKey,
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: pages[currentPage],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: ElevatedButton(
-                              onPressed: currentPage > 0
-                                  ? () {
+        darkTheme: ThemeData(
+          colorScheme: darkColorScheme ?? defaultDarkColorScheme,
+          useMaterial3: true,
+        ),
+        home: Scaffold(
+          appBar: AppBar(
+            title: const Text("Setup"),
+            elevation: 4,
+          ),
+          body: Form(
+            key: formKey,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: pages[currentPage],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: ElevatedButton(
+                                onPressed: currentPage > 0
+                                    ? () {
+                                        setState(() {
+                                          currentPage--;
+                                        });
+                                      }
+                                    : null,
+                                child: const Padding(
+                                  padding: EdgeInsets.all(15.0),
+                                  child: Text("Previous"),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  if (formKey.currentState != null &&
+                                      formKey.currentState!.validate()) {
+                                    if (currentPage == pages.length - 1) {
+                                      AppData.current = Project(
+                                        name: setupData.projectName!,
+                                        providerId: setupData.providerId,
+                                        providerData: setupData.providerData,
+                                      );
+                                      AppData.current!.currentParticipant =
+                                          Participant(
+                                        project: AppData.current!,
+                                        pseudo: setupData.pseudo!,
+                                        lastname: setupData.lastname,
+                                        firstname: setupData.firstname,
+                                      );
+                                      AppData.current!.participants.add(
+                                          AppData.current!.currentParticipant!);
+
+                                      await AppData.current!.conn.save();
+                                      await AppData
+                                          .current!.currentParticipant!.conn
+                                          .save();
+                                      AppData.firstRun = false;
+                                      runApp(const MainScreen());
+                                    } else {
                                       setState(() {
-                                        currentPage--;
+                                        currentPage++;
                                       });
                                     }
-                                  : null,
-                              child: const Padding(
-                                padding: EdgeInsets.all(15.0),
-                                child: Text("Previous"),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                if (formKey.currentState != null &&
-                                    formKey.currentState!.validate()) {
-                                  if (currentPage == pages.length - 1) {
-                                    AppData.current = Project(
-                                      name: setupData.projectName!,
-                                      providerId: setupData.providerId,
-                                      providerData: setupData.providerData,
-                                    );
-                                    AppData.current!.currentParticipant =
-                                        Participant(
-                                      project: AppData.current!,
-                                      pseudo: setupData.pseudo!,
-                                      lastname: setupData.lastname,
-                                      firstname: setupData.firstname,
-                                    );
-                                    AppData.current!.participants.add(
-                                        AppData.current!.currentParticipant!);
-
-                                    await AppData.current!.conn.save();
-                                    await AppData
-                                        .current!.currentParticipant!.conn
-                                        .save();
-                                    AppData.firstRun = false;
-                                    runApp(const MainScreen());
-                                  } else {
-                                    setState(() {
-                                      currentPage++;
-                                    });
                                   }
-                                }
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(15.0),
-                                child: Text(currentPage == pages.length - 1
-                                    ? "Finish"
-                                    : "Next"),
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(15.0),
+                                  child: Text(currentPage == pages.length - 1
+                                      ? "Finish"
+                                      : "Next"),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 }

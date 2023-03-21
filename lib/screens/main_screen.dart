@@ -1,11 +1,16 @@
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
-import 'package:shared/utils/colors.dart';
 
 import '../components/home_page.dart';
 
-ThemeData mainThemeData = ThemeData(
-  useMaterial3: true,
-  colorSchemeSeed: Colors.green,
+final defaultLightColorScheme = ColorScheme.fromSwatch(
+  primarySwatch: Colors.red,
+);
+
+final defaultDarkColorScheme = ColorScheme.fromSwatch(
+  primarySwatch: Colors.red,
+  brightness: Brightness.dark,
+  backgroundColor: Colors.black87,
 );
 
 class MainScreen extends StatelessWidget {
@@ -13,10 +18,23 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Shared',
-      theme: mainThemeData,
-      home: const HomePage(),
-    );
+    return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
+      return MaterialApp(
+        title: 'Shared',
+        theme: ThemeData(
+          colorScheme: defaultLightColorScheme,
+          brightness: Brightness.light,
+          useMaterial3: true,
+        ),
+        // ),
+        darkTheme: ThemeData(
+          useMaterial3: true,
+          brightness: Brightness.dark,
+          colorScheme: defaultDarkColorScheme,
+        ),
+        themeMode: ThemeMode.system,
+        home: const HomePage(),
+      );
+    });
   }
 }
