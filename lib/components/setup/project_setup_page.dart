@@ -9,17 +9,26 @@ class ProjectSetupPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      const Text("Which type of project do you want to create ? (soon)"),
       TextFormField(
         enabled: false,
+        decoration: const InputDecoration(
+          labelText: "Project type",
+          border: OutlineInputBorder(),
+        ),
       ),
-      const Text("What's the name of your poject ?"),
+      const SizedBox(
+        height: 12, // <-- SEE HERE
+      ),
       TextFormField(
         validator: (value) => value == null || value.isEmpty
             ? 'Your project can\'t have an empty name'
             : null,
         initialValue: setupData.projectName,
         onChanged: (value) => setupData.projectName = value,
+        decoration: const InputDecoration(
+          labelText: "Name",
+          border: OutlineInputBorder(),
+        ),
         // update((state) => state.copyWith(projectName: value)),
       ),
     ]);

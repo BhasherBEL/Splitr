@@ -15,40 +15,39 @@ class NewProjectPage extends StatelessWidget {
         TextEditingController(text: project != null ? project!.name : "");
 
     return Scaffold(
-      appBar: AppBar(),
-      body: Column(
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(left: 8.0),
-            child: Text(
-              "Project name",
-              maxLines: 1,
-              style: TextStyle(fontWeight: FontWeight.bold),
+      appBar: AppBar(
+        elevation: 4,
+        title: Text("New project"),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: projectTitleController,
+              autocorrect: false,
+              decoration: const InputDecoration(
+                labelText: "Name",
+                border: OutlineInputBorder(),
+              ),
             ),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          TextField(
-            controller: projectTitleController,
-            autocorrect: false,
-            decoration: const InputDecoration(border: OutlineInputBorder()),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (project == null) {
-                project = Project(name: projectTitleController.text);
-                project!.addParticipant(AppData.me);
-                await project!.db.saveParticipants();
-              } else {
-                project!.name = projectTitleController.text;
-              }
-              await project!.db.save();
-              Navigator.pop(context, true);
-            },
-            child: Text(project == null ? 'Create' : 'Update'),
-          ),
-        ],
+            Spacer(),
+            ElevatedButton(
+              onPressed: () async {
+                if (project == null) {
+                  project = Project(name: projectTitleController.text);
+                  project!.addParticipant(AppData.me);
+                  await project!.db.saveParticipants();
+                } else {
+                  project!.name = projectTitleController.text;
+                }
+                await project!.db.save();
+                Navigator.pop(context, true);
+              },
+              child: Text(project == null ? 'Create' : 'Update'),
+            ),
+          ],
+        ),
       ),
     );
   }
