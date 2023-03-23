@@ -15,6 +15,22 @@ final defaultDarkColorScheme = ColorScheme.fromSwatch(
   backgroundColor: Colors.black87,
 );
 
+final defaultTheme = ThemeData(
+    colorScheme: defaultLightColorScheme,
+    brightness: Brightness.light,
+    useMaterial3: true,
+    appBarTheme: AppBarTheme(backgroundColor: defaultDarkColorScheme.primary),
+    inputDecorationTheme: const InputDecorationTheme(
+      border: OutlineInputBorder(),
+    ));
+
+final defaultDarkTheme = ThemeData(
+  useMaterial3: true,
+  brightness: Brightness.dark,
+  colorScheme: defaultDarkColorScheme,
+  appBarTheme: AppBarTheme(backgroundColor: defaultDarkColorScheme.primary),
+);
+
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
@@ -23,21 +39,8 @@ class MainScreen extends StatelessWidget {
     return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
       return MaterialApp(
         title: 'Shared',
-        theme: ThemeData(
-          colorScheme: defaultLightColorScheme,
-          brightness: Brightness.light,
-          useMaterial3: true,
-          appBarTheme:
-              AppBarTheme(backgroundColor: defaultDarkColorScheme.primary),
-        ),
-        // ),
-        darkTheme: ThemeData(
-          useMaterial3: true,
-          brightness: Brightness.dark,
-          colorScheme: defaultDarkColorScheme,
-          appBarTheme:
-              AppBarTheme(backgroundColor: defaultDarkColorScheme.primary),
-        ),
+        theme: defaultTheme,
+        darkTheme: defaultDarkTheme,
         themeMode: ThemeMode.system,
         home: const HomePage(),
       );

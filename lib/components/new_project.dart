@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared/model/app_data.dart';
 
-import '../model/participant.dart';
 import '../model/project.dart';
 
 class NewProjectPage extends StatefulWidget {
@@ -16,6 +15,7 @@ class NewProjectPage extends StatefulWidget {
 class _NewProjectPageState extends State<NewProjectPage> {
   int? providerId;
   Map<int, String> providerDataMap = {};
+  String? message;
 
   String get providerData {
     int i = 0;
@@ -121,6 +121,9 @@ class _NewProjectPageState extends State<NewProjectPage> {
                     providerData: providerData,
                   );
                   await widget.project!.provider.connect();
+                  if (!await widget.project!.provider.checkConnection()) {
+                    return;
+                  }
                 } else {
                   widget.project!.name = projectTitleController.text;
                 }

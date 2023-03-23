@@ -139,8 +139,10 @@ class _ItemListState extends State<ItemList> {
             },
             itemCount: widget.project.items.length,
           )
-        : const Center(
-            child: Text("Add your first item!"),
+        : Center(
+            child: Text(widget.project.participants.isEmpty
+                ? "Add your first participant!"
+                : "Add your first item!"),
           );
   }
 }

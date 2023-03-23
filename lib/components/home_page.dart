@@ -94,20 +94,22 @@ class _HomePageState extends State<HomePage> {
       ),
       drawer:
           hasProject ? ProjectsDrawer(project!, onDrawerCallback: back) : null,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  hasProject ? NewEntryPage(project!) : NewProjectPage(),
+      floatingActionButton: hasProject && project!.participants.isEmpty
+          ? null
+          : FloatingActionButton(
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        hasProject ? NewEntryPage(project!) : NewProjectPage(),
+                  ),
+                );
+                setState(() {});
+              },
+              tooltip: 'Add new entry',
+              child: const Icon(Icons.add),
             ),
-          );
-          setState(() {});
-        },
-        tooltip: 'Add new entry',
-        child: const Icon(Icons.add),
-      ),
     );
   }
 }
