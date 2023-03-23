@@ -50,12 +50,13 @@ class _HomePageState extends State<HomePage> {
     bool hasProject = project != null;
     return Scaffold(
       appBar: AppBar(
+        // backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.8),
         centerTitle: true,
         elevation: 4,
         actions: <Widget>[
           if (hasProject && project!.provider.id != LocalProvider.pid)
             IconButton(
-              icon: Icon(
+              icon: const Icon(
                 Icons.sync,
               ),
               onPressed: () async {

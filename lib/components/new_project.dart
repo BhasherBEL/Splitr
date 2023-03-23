@@ -52,83 +52,85 @@ class _NewProjectPageState extends State<NewProjectPage> {
             Spacer(),
             ElevatedButton(
               onPressed: () async {
-                if (project == null) {
-                  project = Project(name: projectTitleController.text);
-                  project!.addParticipant(AppData.me);
-                  await project!.db.saveParticipants();
+                if (widget.project == null) {
+                  widget.project = Project(
+                      name: projectTitleController.text,
+                      providerId: providerId!,
+                      providerData: providerData);
+                  AppData.current = widget.project;
                 } else {
-                  project!.name = projectTitleController.text;
+                  widget.project!.name = projectTitleController.text;
                 }
-                await project!.db.save();
+                await widget.project!.conn.save();
                 Navigator.pop(context, true);
               },
-              child: Text(project == null ? 'Create' : 'Update'),
+              child: Text(widget.project == null ? 'Create' : 'Update'),
             ),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          TextField(
-            controller: projectTitleController,
-            autocorrect: false,
-            decoration: const InputDecoration(border: OutlineInputBorder()),
-          ),
-          if (widget.project == null)
-            Column(
-              children: [
-                const Text("Which type of project do you want to create ?"),
-                DropdownMenu<int>(
-                  dropdownMenuEntries: const [
-                    DropdownMenuEntry(value: 0, label: "Local"),
-                    DropdownMenuEntry(value: 1, label: "PocketBase"),
-                  ],
-                  initialSelection: providerId,
-                  onSelected: (value) {
-                    setState(() {
-                      if (value != null) providerId = value;
-                    });
-                  },
-                ),
-                if (providerId == 1)
-                  Column(
-                    children: [
-                      const Text("Pocketbase instance:"),
-                      TextFormField(
-                        validator: (value) => value == null || value.isEmpty
-                            ? 'Instance can\'t be empty'
-                            : null,
-                        onChanged: (value) => providerDataMap[0] = value,
-                      ),
-                      const Text("Pocketbase username:"),
-                      TextFormField(
-                        onChanged: (value) => providerDataMap[1] = value,
-                      ),
-                      const Text("Pocketbase password:"),
-                      TextFormField(
-                        onChanged: (value) => providerDataMap[2] = value,
-                      ),
+            const SizedBox(
+              height: 10,
+            ),
+            TextField(
+              controller: projectTitleController,
+              autocorrect: false,
+              decoration: const InputDecoration(border: OutlineInputBorder()),
+            ),
+            if (widget.project == null)
+              Column(
+                children: [
+                  const Text("Which type of project do you want to create ?"),
+                  DropdownMenu<int>(
+                    dropdownMenuEntries: const [
+                      DropdownMenuEntry(value: 0, label: "Local"),
+                      DropdownMenuEntry(value: 1, label: "PocketBase"),
                     ],
+                    initialSelection: providerId,
+                    onSelected: (value) {
+                      setState(() {
+                        if (value != null) providerId = value;
+                      });
+                    },
                   ),
-              ],
+                  if (providerId == 1)
+                    Column(
+                      children: [
+                        const Text("Pocketbase instance:"),
+                        TextFormField(
+                          validator: (value) => value == null || value.isEmpty
+                              ? 'Instance can\'t be empty'
+                              : null,
+                          onChanged: (value) => providerDataMap[0] = value,
+                        ),
+                        const Text("Pocketbase username:"),
+                        TextFormField(
+                          onChanged: (value) => providerDataMap[1] = value,
+                        ),
+                        const Text("Pocketbase password:"),
+                        TextFormField(
+                          onChanged: (value) => providerDataMap[2] = value,
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ElevatedButton(
+              onPressed: () async {
+                if (widget.project == null) {
+                  widget.project = Project(
+                    name: projectTitleController.text,
+                    providerId: providerId!,
+                    providerData: providerData,
+                  );
+                  await widget.project!.provider.connect();
+                } else {
+                  widget.project!.name = projectTitleController.text;
+                }
+                await widget.project!.conn.save();
+                Navigator.pop(context, true);
+              },
+              child: Text(widget.project == null ? 'Create' : 'Update'),
             ),
-          ElevatedButton(
-            onPressed: () async {
-              if (widget.project == null) {
-                widget.project = Project(
-                  name: projectTitleController.text,
-                  providerId: providerId!,
-                  providerData: providerData,
-                );
-                await widget.project!.provider.connect();
-              } else {
-                widget.project!.name = projectTitleController.text;
-              }
-              await widget.project!.conn.save();
-              Navigator.pop(context, true);
-            },
-            child: Text(widget.project == null ? 'Create' : 'Update'),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
