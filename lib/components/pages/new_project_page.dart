@@ -1,17 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:select_form_field/select_form_field.dart';
-import 'package:shared/model/setup_data.dart';
+import 'package:shared/model/connectors/provider.dart';
 
-class ProjectSetupPage extends StatefulWidget {
-  ProjectSetupPage(this.setupData, {super.key});
+import '../../model/project.dart';
+import '../../model/project_data.dart';
 
-  SetupData setupData;
+class NewProjectPage extends StatefulWidget {
+  NewProjectPage({super.key, this.project, required this.projectData});
+
+  Project? project;
+  ProjectData projectData;
 
   @override
-  State<ProjectSetupPage> createState() => _ProjectSetupPageState();
+  State<NewProjectPage> createState() => _NewProjectPageState();
 }
 
-class _ProjectSetupPageState extends State<ProjectSetupPage> {
+class _NewProjectPageState extends State<NewProjectPage> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.project != null) {
+      widget.projectData.projectName = widget.project!.name;
+      widget.projectData.providerId = widget.project!.provider.id;
+      widget.projectData.providerDataMap =
+          widget.project!.provider.data.split(';').asMap();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -20,8 +35,8 @@ class _ProjectSetupPageState extends State<ProjectSetupPage> {
           validator: (value) => value == null || value.isEmpty
               ? 'Your project can\'t have an empty title'
               : null,
-          initialValue: widget.setupData.projectName,
-          onChanged: (value) => widget.setupData.projectName = value,
+          initialValue: widget.projectData.projectName,
+          onChanged: (value) => widget.projectData.projectName = value,
           decoration: const InputDecoration(
             labelText: "Title",
             border: OutlineInputBorder(),
@@ -34,7 +49,11 @@ class _ProjectSetupPageState extends State<ProjectSetupPage> {
           children: [
             Expanded(
               child: SelectFormField(
+                validator: (value) => value == null || value.isEmpty
+                    ? 'You must select a project type!'
+                    : null,
                 type: SelectFormFieldType.dropdown,
+                initialValue: widget.projectData.providerId?.toString(),
                 items: const [
                   {'value': 0, 'label': "Local"},
                   {'value': 1, 'label': "PocketBase"},
@@ -42,7 +61,7 @@ class _ProjectSetupPageState extends State<ProjectSetupPage> {
                 // initialSelection: widget.setupData.providerId,
                 onChanged: (value) {
                   setState(() {
-                    widget.setupData.providerId = int.parse(value);
+                    widget.projectData.providerId = int.parse(value);
                   });
                 },
                 decoration: const InputDecoration(
@@ -57,15 +76,16 @@ class _ProjectSetupPageState extends State<ProjectSetupPage> {
         const SizedBox(
           height: 12, // <-- SEE HERE
         ),
-        if (widget.setupData.providerId == 1)
+        if (widget.projectData.providerId == 1)
           Column(
             children: [
               TextFormField(
                 validator: (value) => value == null || value.isEmpty
                     ? 'Instance URL can\'t be empty'
                     : null,
+                initialValue: widget.projectData.providerDataMap[0],
                 onChanged: (value) =>
-                    widget.setupData.providerDataMap[0] = value,
+                    widget.projectData.providerDataMap[0] = value,
                 decoration: const InputDecoration(
                   labelText: "Instance URL",
                   border: OutlineInputBorder(),
@@ -78,8 +98,9 @@ class _ProjectSetupPageState extends State<ProjectSetupPage> {
                 children: [
                   Expanded(
                     child: TextFormField(
+                      initialValue: widget.projectData.providerDataMap[1],
                       onChanged: (value) =>
-                          widget.setupData.providerDataMap[1] = value,
+                          widget.projectData.providerDataMap[1] = value,
                       validator: (value) => value == null || value.isEmpty
                           ? 'Username can\'t be empty'
                           : null,
@@ -94,8 +115,9 @@ class _ProjectSetupPageState extends State<ProjectSetupPage> {
                   ),
                   Expanded(
                     child: TextFormField(
+                      initialValue: widget.projectData.providerDataMap[2],
                       onChanged: (value) =>
-                          widget.setupData.providerDataMap[2] = value,
+                          widget.projectData.providerDataMap[2] = value,
                       validator: (value) => value == null || value.isEmpty
                           ? 'Password can\'t be empty'
                           : null,

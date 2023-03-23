@@ -1,20 +1,19 @@
-class SetupData {
-  SetupData({
-    this.pseudo,
-    this.firstname,
-    this.lastname,
+class ProjectData {
+  ProjectData({
     this.projectName,
-    this.providerId = 0,
-  });
+    this.providerId,
+    String? providerData,
+  }) {
+    providerData?.split(';').asMap().forEach((key, value) {
+      providerDataMap[key] = value;
+    });
+  }
 
-  String? pseudo;
-  String? firstname;
-  String? lastname;
   String? projectName;
-  int providerId;
+  int? providerId;
   Map<int, String> providerDataMap = {};
 
-  String get providerData {
+  String getProviderData() {
     int i = 0;
     List<String> res = [];
     while (providerDataMap.containsKey(i)) {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared/components/new_project.dart';
 import 'package:shared/components/projects_list.dart';
 import 'package:shared/model/app_data.dart';
 import 'package:shared/model/connectors/local/provider.dart';
+import 'package:shared/screens/new_project_screen.dart';
 
 import '../model/project.dart';
 import 'new_entry.dart';
@@ -101,8 +101,9 @@ class _HomePageState extends State<HomePage> {
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        hasProject ? NewEntryPage(project!) : NewProjectPage(),
+                    builder: (context) => hasProject
+                        ? NewEntryPage(project!)
+                        : NewProjectScreen(),
                   ),
                 );
                 setState(() {});

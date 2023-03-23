@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:shared/components/new_project.dart';
+import 'package:shared/screens/new_project_screen.dart';
 
 import '../model/app_data.dart';
 import '../model/project.dart';
@@ -42,7 +42,7 @@ class _ProjectsListState extends State<ProjectsList> {
                         await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => NewProjectPage(
+                            builder: (context) => NewProjectScreen(
                               project: project,
                             ),
                           ),

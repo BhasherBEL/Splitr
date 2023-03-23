@@ -17,6 +17,17 @@ abstract class Provider {
 
   Future<bool> connect();
 
+  static String getNameFromId(int id) {
+    switch (id) {
+      case 0:
+        return 'local';
+      case 1:
+        return 'pocketbase';
+      default:
+        throw UnimplementedError();
+    }
+  }
+
   static Provider initFromId(int id, Project project, String data) {
     switch (id) {
       case 0:
