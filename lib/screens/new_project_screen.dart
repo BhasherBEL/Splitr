@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:shared/model/connectors/provider.dart';
@@ -73,6 +75,7 @@ class NewProjectScreen extends StatelessWidget {
           }
           AppData.current = project;
           await project!.conn.save();
+          await project!.sync();
           if (first) {
             AppData.firstRun = false;
             runApp(const MainScreen());
@@ -85,4 +88,17 @@ class NewProjectScreen extends StatelessWidget {
       },
     );
   }
+}
+
+String getRandom(int length) {
+  const ch = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789';
+  Random r = Random();
+  return String.fromCharCodes(
+    Iterable.generate(
+      length,
+      (_) => ch.codeUnitAt(
+        r.nextInt(ch.length),
+      ),
+    ),
+  );
 }

@@ -31,47 +31,43 @@ class _NewProjectPageState extends State<NewProjectPage> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(children: [
+        SelectFormField(
+          validator: (value) => value == null || value.isEmpty
+              ? 'You must select a project type!'
+              : null,
+          type: SelectFormFieldType.dropdown,
+          initialValue: widget.projectData.providerId?.toString(),
+          items: const [
+            {'value': 0, 'label': "Local"},
+            {'value': 1, 'label': "PocketBase"},
+          ],
+          // initialSelection: widget.setupData.providerId,
+          onChanged: (value) {
+            setState(() {
+              widget.projectData.providerId = int.parse(value);
+            });
+          },
+          decoration: const InputDecoration(
+            labelText: "Project type",
+            border: OutlineInputBorder(),
+            suffixIcon: Icon(Icons.arrow_drop_down),
+          ),
+        ),
+        const SizedBox(
+          height: 12, // <-- SEE HERE
+        ),
         TextFormField(
           validator: (value) => value == null || value.isEmpty
               ? 'Your project can\'t have an empty title'
               : null,
           initialValue: widget.projectData.projectName,
           onChanged: (value) => widget.projectData.projectName = value,
-          decoration: const InputDecoration(
-            labelText: "Title",
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: widget.projectData.providerId == 1
+                ? "Title (to create) or code (to join)"
+                : "Title",
+            border: const OutlineInputBorder(),
           ),
-        ),
-        const SizedBox(
-          height: 12, // <-- SEE HERE
-        ),
-        Row(
-          children: [
-            Expanded(
-              child: SelectFormField(
-                validator: (value) => value == null || value.isEmpty
-                    ? 'You must select a project type!'
-                    : null,
-                type: SelectFormFieldType.dropdown,
-                initialValue: widget.projectData.providerId?.toString(),
-                items: const [
-                  {'value': 0, 'label': "Local"},
-                  {'value': 1, 'label': "PocketBase"},
-                ],
-                // initialSelection: widget.setupData.providerId,
-                onChanged: (value) {
-                  setState(() {
-                    widget.projectData.providerId = int.parse(value);
-                  });
-                },
-                decoration: const InputDecoration(
-                  labelText: "Project type",
-                  border: OutlineInputBorder(),
-                  suffixIcon: Icon(Icons.arrow_drop_down),
-                ),
-              ),
-            ),
-          ],
         ),
         const SizedBox(
           height: 12, // <-- SEE HERE

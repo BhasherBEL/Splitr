@@ -11,6 +11,7 @@ class ProjectFields {
     localId,
     remoteId,
     name,
+    code,
     currentParticipant,
     providerId,
     providerData,
@@ -21,6 +22,7 @@ class ProjectFields {
   static const String localId = 'local_id';
   static const String remoteId = 'remote_id';
   static const String name = 'name';
+  static const String code = 'code';
   static const String currentParticipant = 'current_participant';
   static const String providerId = 'provider_id';
   static const String providerData = 'provider_data';
@@ -32,8 +34,9 @@ class Project {
   Project({
     this.localId,
     this.remoteId,
-    this.currentParticipantId,
     required this.name,
+    this.code,
+    this.currentParticipantId,
     required int providerId,
     String providerData = '',
     DateTime? lastSync,
@@ -57,6 +60,7 @@ class Project {
   int? localId;
   String? remoteId;
   String name;
+  String? code;
   int? currentParticipantId;
   Participant? currentParticipant;
   late Provider provider;
@@ -77,6 +81,7 @@ class Project {
       ProjectFields.localId: localId,
       ProjectFields.remoteId: remoteId,
       ProjectFields.name: name,
+      ProjectFields.code: code,
       ProjectFields.currentParticipant: currentParticipant?.localId,
       ProjectFields.providerId: provider.id,
       ProjectFields.providerData: provider.data,
@@ -90,6 +95,7 @@ class Project {
       localId: json[ProjectFields.localId] as int?,
       remoteId: json[ProjectFields.remoteId] as String?,
       name: json[ProjectFields.name] as String,
+      code: json[ProjectFields.code] as String?,
       currentParticipantId: json[ProjectFields.currentParticipant] as int?,
       providerId: json[ProjectFields.providerId] as int,
       providerData: json[ProjectFields.providerData] as String,

@@ -41,8 +41,9 @@ class SharedDatabase {
 CREATE TABLE $tableProjects (
   ${ProjectFields.localId} INTEGER PRIMARY KEY AUTOINCREMENT,
   ${ProjectFields.remoteId} TEXT,
-  ${ProjectFields.currentParticipant} INTEGER,
   ${ProjectFields.name} TEXT NOT NULL,
+  ${ProjectFields.code} TEXT NOT NULL UNIQUE,
+  ${ProjectFields.currentParticipant} INTEGER,
   ${ProjectFields.providerId} INTEGER NOT NULL,
   ${ProjectFields.providerData} TEXT,
   ${ProjectFields.lastSync} INTEGER,
