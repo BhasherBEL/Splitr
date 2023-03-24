@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared/components/projects_list.dart';
 import 'package:shared/model/app_data.dart';
-import 'package:shared/model/connectors/local/provider.dart';
 import 'package:shared/screens/new_project_screen.dart';
 
 import '../model/project.dart';
