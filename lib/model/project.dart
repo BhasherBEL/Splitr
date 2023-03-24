@@ -1,4 +1,5 @@
 import 'package:shared/model/connectors/provider.dart';
+import 'package:tuple/tuple.dart';
 
 import 'app_data.dart';
 import 'connectors/local/project.dart';
@@ -31,7 +32,7 @@ class Project {
   Project({
     this.localId,
     this.remoteId,
-    this.currentParticipant,
+    this.currentParticipantId,
     required this.name,
     required int providerId,
     String providerData = '',
@@ -47,11 +48,16 @@ class Project {
       this.lastSync = lastSync;
     }
     this.lastUpdate = lastUpdate ?? DateTime.now();
+    try {
+      currentParticipant = participants
+          .firstWhere((element) => element.localId == currentParticipantId);
+    } on StateError {}
   }
 
   int? localId;
   String? remoteId;
   String name;
+  int? currentParticipantId;
   Participant? currentParticipant;
   late Provider provider;
   late LocalProject conn;
@@ -59,28 +65,32 @@ class Project {
   final List<Participant> participants = [];
   late DateTime lastSync;
   late DateTime lastUpdate;
+  int notSyncCount = 0;
 
   double shareOf(Participant participant) {
     return ([0.0] + items.map((e) => e.shareOf(participant)).toList())
         .reduce((a, b) => a + b);
   }
 
-  Map<String, Object?> toJson() => {
-        ProjectFields.localId: localId,
-        ProjectFields.remoteId: remoteId,
-        ProjectFields.name: name,
-        ProjectFields.currentParticipant: currentParticipant?.localId,
-        ProjectFields.providerId: provider.id,
-        ProjectFields.providerData: provider.data,
-        ProjectFields.lastSync: lastSync.millisecondsSinceEpoch,
-        ProjectFields.lastUpdate: lastUpdate.millisecondsSinceEpoch,
-      };
+  Map<String, Object?> toJson() {
+    return {
+      ProjectFields.localId: localId,
+      ProjectFields.remoteId: remoteId,
+      ProjectFields.name: name,
+      ProjectFields.currentParticipant: currentParticipant?.localId,
+      ProjectFields.providerId: provider.id,
+      ProjectFields.providerData: provider.data,
+      ProjectFields.lastSync: lastSync.millisecondsSinceEpoch,
+      ProjectFields.lastUpdate: lastUpdate.millisecondsSinceEpoch,
+    };
+  }
 
   static Project fromJson(Map<String, Object?> json) {
     return Project(
       localId: json[ProjectFields.localId] as int?,
       remoteId: json[ProjectFields.remoteId] as String?,
       name: json[ProjectFields.name] as String,
+      currentParticipantId: json[ProjectFields.currentParticipant] as int?,
       providerId: json[ProjectFields.providerId] as int,
       providerData: json[ProjectFields.providerData] as String,
       lastSync: DateTime.fromMillisecondsSinceEpoch(
@@ -129,11 +139,16 @@ class Project {
         : AppData.projects.firstWhere((element) => element.name == s);
   }
 
-  Future<bool> sync() async {
-    DateTime st = DateTime.now();
-    bool res = await provider.sync();
-    print('Synced in ${DateTime.now().difference(st).inMilliseconds / 1000}s');
-    return res;
+  Future<Tuple2<bool, String>> sync() async {
+    try {
+      DateTime st = DateTime.now();
+      bool res = await provider.sync();
+      notSyncCount = 0;
+      return Tuple2(true,
+          (DateTime.now().difference(st).inMilliseconds / 1000).toString());
+    } catch (e) {
+      return Tuple2(false, e.toString());
+    }
   }
 
   Participant? participantByRemoteId(String id) {

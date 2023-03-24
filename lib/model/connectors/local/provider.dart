@@ -19,4 +19,9 @@ class LocalProvider extends Provider {
   Future<bool> connect() async {
     return true;
   }
+
+  @override
+  bool hasSync() {
+    return false;
+  }
 }

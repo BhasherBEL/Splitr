@@ -80,11 +80,19 @@ class _ProjectsDrawerState extends State<ProjectsDrawer> {
                       double share = (widget.project.shareOf(participant) * 100)
                               .roundToDouble() /
                           100;
+                      bool current =
+                          participant == widget.project.currentParticipant;
                       return ListTile(
                         title: Row(
                           children: [
                             Expanded(
-                                child: Text(participant.pseudo.capitalize())),
+                              child: Text(
+                                "${participant.pseudo.capitalize()}${current ? " (moi)" : ""}",
+                                style: TextStyle(
+                                  fontWeight: current ? FontWeight.bold : null,
+                                ),
+                              ),
+                            ),
                             Text(
                               '$share €',
                               style: TextStyle(
@@ -104,7 +112,12 @@ class _ProjectsDrawerState extends State<ProjectsDrawer> {
                             : null,
                         onTap: () async {
                           widget.project.currentParticipant = participant;
-                          widget.project.conn.save();
+                          await widget.project.conn.save();
+                          if (widget.onDrawerCallback != null) {
+                            await widget.onDrawerCallback!();
+                          }
+                          // setState(() {});
+                          Navigator.pop(context);
                         },
                       );
                     },

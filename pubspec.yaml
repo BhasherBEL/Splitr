@@ -45,6 +45,7 @@ dependencies:
   pocketbase: ^0.7.3
   intl: ^0.18.0
   dynamic_color: ^1.6.2
+  tuple: ^2.0.1
 
 dev_dependencies:
   flutter_test:

@@ -41,7 +41,12 @@ class LocalProject {
     project.participants.clear();
 
     for (Map<String, Object?> e in rawParticipants) {
-      project.participants.add(Participant.fromJson(project, e));
+      Participant participant = Participant.fromJson(project, e);
+      if (project.currentParticipant == null &&
+          project.currentParticipantId == participant.localId) {
+        project.currentParticipant = participant;
+      }
+      project.participants.add(participant);
     }
   }
 
@@ -60,11 +65,13 @@ class LocalProject {
           where: '${ProjectFields.localId} = ?',
           whereArgs: [project.localId],
         );
+        project.notSyncCount++;
         return;
       }
     }
 
     project.localId = await AppData.db.insert(tableProjects, project.toJson());
+    project.notSyncCount++;
   }
 
   Future delete() async {

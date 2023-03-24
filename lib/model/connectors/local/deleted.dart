@@ -18,7 +18,11 @@ class DeletedFields {
 
 class LocalDeleted {
   static Future<bool> add(
-      String collection, String uid, Project project, DateTime dateTime) async {
+    String collection,
+    String uid,
+    Project project,
+    DateTime dateTime,
+  ) async {
     await AppData.db.insert(
       tableDeleted,
       {
@@ -28,11 +32,14 @@ class LocalDeleted {
         DeletedFields.updated: dateTime.millisecondsSinceEpoch,
       },
     );
+    project.notSyncCount++;
     return true;
   }
 
   static Future<Map<String, List<String>>> getSince(
-      Project project, DateTime dateTime) async {
+    Project project,
+    DateTime dateTime,
+  ) async {
     if (project.remoteId == null) return {};
     final res = await AppData.db.query(
       tableDeleted,
@@ -52,8 +59,6 @@ class LocalDeleted {
       String a = elem[DeletedFields.collection] as String;
       deleteds[a]!.add(elem[DeletedFields.uid] as String);
     }
-
-    print(deleteds);
 
     return deleteds;
   }

@@ -21,10 +21,9 @@ class _HomePageState extends State<HomePage> {
   bool isLoaded = false;
 
   void back() {
-    setState(() {
-      project = AppData.current;
-    });
+    project = AppData.current;
     if (project != null) _loadProjectData();
+    setState(() {});
   }
 
   @override
@@ -53,18 +52,6 @@ class _HomePageState extends State<HomePage> {
         // backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.8),
         centerTitle: true,
         elevation: 4,
-        actions: <Widget>[
-          if (hasProject && project!.provider.id != LocalProvider.pid)
-            IconButton(
-              icon: const Icon(
-                Icons.sync,
-              ),
-              onPressed: () async {
-                await project!.sync();
-                setState(() {});
-              },
-            )
-        ],
         title: Column(
           children: [
             Text(

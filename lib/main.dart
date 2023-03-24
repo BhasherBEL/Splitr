@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shared/screens/new_project_screen.dart';
-
 import 'model/app_data.dart';
 import 'screens/main_screen.dart';
+import 'screens/new_project_screen.dart';
 import 'screens/splash_screen.dart';
 
 void main() async {

@@ -36,10 +36,12 @@ class LocalItem {
           where: '${ItemFields.localId} = ?',
           whereArgs: [item.localId],
         );
+        item.project.notSyncCount++;
         return;
       }
     }
     item.localId = await AppData.db.insert(tableItems, item.toJson());
+    item.project.notSyncCount++;
   }
 
   Future delete() async {

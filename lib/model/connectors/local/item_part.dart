@@ -23,11 +23,13 @@ class LocalItemPart {
           where: '${ItemPartFields.localId} = ?',
           whereArgs: [itemPart.localId],
         );
+        itemPart.item.project.notSyncCount++;
         return;
       }
     }
     itemPart.localId =
         await AppData.db.insert(tableItemParts, itemPart.toJson());
+    itemPart.item.project.notSyncCount++;
   }
 
   Future delete() async {

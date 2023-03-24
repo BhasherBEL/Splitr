@@ -23,12 +23,14 @@ class LocalParticipant {
           where: '${ParticipantFields.localId} = ?',
           whereArgs: [participant.localId],
         );
+        participant.project.notSyncCount++;
         return;
       }
     }
 
     participant.localId =
         await AppData.db.insert(tableParticipants, participant.toJson());
+    participant.project.notSyncCount++;
   }
 
   Future delete() async {

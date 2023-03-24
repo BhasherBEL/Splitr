@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:shared/components/project/drawer.dart';
 import 'package:shared/utils/colors.dart';
 import 'package:shared/utils/string.dart';
+import 'package:tuple/tuple.dart';
 
 import '../../model/item.dart';
 import '../../model/project.dart';
@@ -18,131 +22,201 @@ class ItemList extends StatefulWidget {
 }
 
 class _ItemListState extends State<ItemList> {
+  Future<void> sync() async {
+    Tuple2<bool, String> res = await widget.project.sync();
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            res.item1
+                ? "Project synced in ${res.item2} seconds"
+                : "Error: ${res.item2}",
+          ),
+        ),
+      );
+      setState(() {});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     DateTime? lastDate;
-    return widget.project.items.isNotEmpty
-        ? ListView.builder(
-            itemBuilder: (context, index) {
-              Item item = widget.project.items.elementAt(index);
-              Widget? header;
-              if (lastDate == null ||
-                  item.date.day != lastDate!.day ||
-                  item.date.month != lastDate!.month ||
-                  item.date.year != lastDate!.year) {
-                lastDate = item.date;
-                header = ListTile(
-                  title: Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            daysElapsed(lastDate!).toUpperCase(),
-                          ),
-                        ),
-                        // Expanded(
-                        //   child: Text(
-                        //     lastDate!.toDate(),
-                        //     textAlign: TextAlign.right,
-                        //     style: const TextStyle(
-                        //       fontSize: 11,
-                        //       // color: Color(0xFF333333),
-                        //       fontStyle: FontStyle.italic,
-                        //     ),
-                        //   ),
-                        // ),
-                      ],
-                    ),
-                  ),
-                  tileColor: Theme.of(context).splashColor,
-                  dense: true,
-                );
-              }
+    return RefreshIndicator(
+      onRefresh: sync,
+      child: Column(
+        children: [
+          if (widget.project.provider.hasSync())
+            ListTile(
+              // tileColor: Theme.of(context).splashColor,
+              subtitle: Text(
+                "${widget.project.notSyncCount} changes to push",
+                style: TextStyle(fontStyle: FontStyle.italic),
+              ),
+              trailing: Icon(
+                Icons.sync,
+                color: Theme.of(context).textTheme.bodyMedium?.color,
+              ),
+              title: DynamicSync(time: widget.project.lastSync),
+              dense: true,
+              onTap: sync,
+            ),
+          Expanded(
+            child: widget.project.items.isNotEmpty
+                ? ScrollConfiguration(
+                    behavior: NoGlow(),
+                    child: ListView.builder(
+                      itemBuilder: (context, index) {
+                        Item item = widget.project.items.elementAt(index);
+                        Widget? header;
+                        if (lastDate == null ||
+                            item.date.day != lastDate!.day ||
+                            item.date.month != lastDate!.month ||
+                            item.date.year != lastDate!.year) {
+                          lastDate = item.date;
+                          header = ListTile(
+                            title: Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      daysElapsed(lastDate!).toUpperCase(),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            tileColor: Theme.of(context).splashColor,
+                            dense: true,
+                          );
+                        }
 
-              double share = widget.project.currentParticipant == null
-                  ? 0
-                  : (item.shareOf(widget.project.currentParticipant!) * 100)
-                          .roundToDouble() /
-                      100;
+                        double share = widget.project.currentParticipant == null
+                            ? 0
+                            : (item.shareOf(widget
+                                            .project.currentParticipant!) *
+                                        100)
+                                    .roundToDouble() /
+                                100;
 
-              return Column(
-                children: [
-                  if (header != null) header,
-                  Slidable(
-                    endActionPane: ActionPane(
-                      extentRatio: 0.4,
-                      motion: const ScrollMotion(),
-                      children: [
-                        SlidableAction(
-                          onPressed: (BuildContext? context) {
-                            widget.project.deleteItem(item);
-                            item.conn.delete();
-                            setState(() {});
-                          },
-                          icon: Icons.delete,
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          label: 'Delete',
-                        ),
-                        SlidableAction(
-                          onPressed: (BuildContext context) async {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => NewEntryPage(
-                                  widget.project,
-                                  item: item,
+                        return Column(
+                          children: [
+                            if (header != null) header,
+                            Slidable(
+                              endActionPane: ActionPane(
+                                extentRatio: 0.4,
+                                motion: const ScrollMotion(),
+                                children: [
+                                  SlidableAction(
+                                    onPressed: (BuildContext? context) {
+                                      widget.project.deleteItem(item);
+                                      item.conn.delete();
+                                      setState(() {});
+                                    },
+                                    icon: Icons.delete,
+                                    backgroundColor: Colors.red,
+                                    foregroundColor: Colors.white,
+                                    label: 'Delete',
+                                  ),
+                                  SlidableAction(
+                                    onPressed: (BuildContext context) async {
+                                      await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => NewEntryPage(
+                                            widget.project,
+                                            item: item,
+                                          ),
+                                        ),
+                                      );
+                                      setState(() {});
+                                    },
+                                    icon: Icons.edit,
+                                    backgroundColor: ColorModel.orange,
+                                    foregroundColor: Colors.white,
+                                    label: 'Edit',
+                                  ),
+                                ],
+                              ),
+                              child: ListTile(
+                                title: Row(children: [
+                                  Expanded(
+                                      child: Text(item.title.capitalize())),
+                                  Text('${item.amount} €'),
+                                ]),
+                                subtitle: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        "${item.emitter.pseudo} ➝ ${item.toParticipantsString()}",
+                                        style: const TextStyle(
+                                            fontStyle: FontStyle.italic),
+                                      ),
+                                    ),
+                                    Text(
+                                      '$share €',
+                                      style: TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                        color: share > 0
+                                            ? Colors.green
+                                            : share < 0
+                                                ? Colors.red
+                                                : Colors.grey,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            );
-                            setState(() {});
-                          },
-                          icon: Icons.edit,
-                          backgroundColor: ColorModel.orange,
-                          foregroundColor: Colors.white,
-                          label: 'Edit',
-                        ),
-                      ],
-                    ),
-                    child: ListTile(
-                      title: Row(children: [
-                        Expanded(child: Text(item.title.capitalize())),
-                        Text('${item.amount} €'),
-                      ]),
-                      subtitle: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              "${item.emitter.pseudo} ➝ ${item.toParticipantsString()}",
-                              style:
-                                  const TextStyle(fontStyle: FontStyle.italic),
                             ),
-                          ),
-                          Text(
-                            '$share €',
-                            style: TextStyle(
-                              fontStyle: FontStyle.italic,
-                              color: share > 0
-                                  ? Colors.green
-                                  : share < 0
-                                      ? Colors.red
-                                      : Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        );
+                      },
+                      itemCount: widget.project.items.length,
                     ),
+                  )
+                : Center(
+                    child: Text(widget.project.participants.isEmpty
+                        ? "Add your first participant!"
+                        : "Add your first item!"),
                   ),
-                ],
-              );
-            },
-            itemCount: widget.project.items.length,
-          )
-        : Center(
-            child: Text(widget.project.participants.isEmpty
-                ? "Add your first participant!"
-                : "Add your first item!"),
-          );
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class DynamicSync extends StatefulWidget {
+  const DynamicSync({
+    super.key,
+    required this.time,
+  });
+
+  final DateTime time;
+
+  @override
+  State<DynamicSync> createState() => _DynamicSyncState();
+}
+
+class _DynamicSyncState extends State<DynamicSync> {
+  late Timer timer;
+
+  @override
+  void initState() {
+    super.initState();
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text("Last sync ${timeElapsed(widget.time)}");
   }
 }

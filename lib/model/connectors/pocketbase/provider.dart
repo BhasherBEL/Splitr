@@ -85,4 +85,9 @@ class PocketBaseProvider extends Provider {
     final bool isValid = pb.authStore.isValid;
     return isValid;
   }
+
+  @override
+  bool hasSync() {
+    return true;
+  }
 }
