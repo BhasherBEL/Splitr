@@ -8,6 +8,13 @@ Shared is a free and open-source app that lets you create multiple projects, add
 
 This is currently a beta version. To get the app, you have to build it yourself with flutter or download the current beta version [here](https://github.com/BhasherBEL/Shared/releases).
 
+
+## Screenshots
+
+| | | |
+|:-------------------------:|:-------------------------:|:-------------------------:|
+![Project](https://raw.githubusercontent.com/BhasherBEL/Shared/master/metadata/en-US/images/phoneScreenshots/1.png) | ![Refund](https://raw.githubusercontent.com/BhasherBEL/Shared/master/metadata/en-US/images/phoneScreenshots/2.png) | ![New project](https://raw.githubusercontent.com/BhasherBEL/Shared/master/metadata/en-US/images/phoneScreenshots/3.png) |
+
 ## Features
 
 - Create multiple projects and track expenses within each one
