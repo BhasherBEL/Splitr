@@ -44,23 +44,18 @@ class NewScreen extends StatelessWidget {
                       child: page,
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 10.0),
-                      child: Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: onValidate == null
-                                  ? null
-                                  : () => onValidate!(context, formKey),
-                              child: Padding(
-                                padding: const EdgeInsets.all(15.0),
-                                child: Text(buttonTitle == null
-                                    ? "Finish"
-                                    : buttonTitle!),
-                              ),
-                            ),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 20),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: onValidate == null
+                              ? null
+                              : () => onValidate!(context, formKey),
+                          child: Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: Text(
+                                buttonTitle == null ? "Finish" : buttonTitle!),
                           ),
                         ),
                       ),

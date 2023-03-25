@@ -2,6 +2,7 @@ class ProjectData {
   ProjectData({
     this.projectName,
     this.providerId,
+    this.join = false,
     String? providerData,
   }) {
     providerData?.split(';').asMap().forEach((key, value) {
@@ -11,6 +12,7 @@ class ProjectData {
 
   String? projectName;
   int? providerId;
+  bool join;
   Map<int, String> providerDataMap = {};
 
   String getProviderData() {

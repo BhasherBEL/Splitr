@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:select_form_field/select_form_field.dart';
-import 'package:shared/model/connectors/provider.dart';
 
 import '../../model/project.dart';
 import '../../model/project_data.dart';
+import 'new_project/local.dart';
+import 'new_project/pocketbase.dart';
 
 class NewProjectPage extends StatefulWidget {
-  NewProjectPage({super.key, this.project, required this.projectData});
+  const NewProjectPage({super.key, this.project, required this.projectData});
 
-  Project? project;
-  ProjectData projectData;
+  final Project? project;
+  final ProjectData projectData;
 
   @override
   State<NewProjectPage> createState() => _NewProjectPageState();
@@ -56,78 +57,10 @@ class _NewProjectPageState extends State<NewProjectPage> {
         const SizedBox(
           height: 12, // <-- SEE HERE
         ),
-        TextFormField(
-          validator: (value) => value == null || value.isEmpty
-              ? 'Your project can\'t have an empty title'
-              : null,
-          initialValue: widget.projectData.projectName,
-          onChanged: (value) => widget.projectData.projectName = value,
-          decoration: InputDecoration(
-            labelText: widget.projectData.providerId == 1
-                ? "Title (to create) or code (to join)"
-                : "Title",
-            border: const OutlineInputBorder(),
-          ),
-        ),
-        const SizedBox(
-          height: 12, // <-- SEE HERE
-        ),
+        if (widget.projectData.providerId == 0)
+          LocalNewProject(widget.projectData),
         if (widget.projectData.providerId == 1)
-          Column(
-            children: [
-              TextFormField(
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Instance URL can\'t be empty'
-                    : null,
-                initialValue: widget.projectData.providerDataMap[0],
-                onChanged: (value) =>
-                    widget.projectData.providerDataMap[0] = value,
-                decoration: const InputDecoration(
-                  labelText: "Instance URL",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(
-                height: 12, // <-- SEE HERE
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      initialValue: widget.projectData.providerDataMap[1],
-                      onChanged: (value) =>
-                          widget.projectData.providerDataMap[1] = value,
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'Username can\'t be empty'
-                          : null,
-                      decoration: const InputDecoration(
-                        labelText: "Username",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 12,
-                  ),
-                  Expanded(
-                    child: TextFormField(
-                      initialValue: widget.projectData.providerDataMap[2],
-                      onChanged: (value) =>
-                          widget.projectData.providerDataMap[2] = value,
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'Password can\'t be empty'
-                          : null,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        labelText: "Password",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+          PocketbaseNewProject(widget.projectData),
       ]),
     );
   }

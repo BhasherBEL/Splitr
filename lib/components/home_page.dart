@@ -78,8 +78,9 @@ class _HomePageState extends State<HomePage> {
                 : const Text("Loading entries ...")
             : ProjectsList(() => setState(back)),
       ),
-      drawer:
-          hasProject ? ProjectsDrawer(project!, onDrawerCallback: back) : null,
+      drawer: hasProject
+          ? ProjectsDrawer(project!, onDrawerCallback: () => setState(back))
+          : null,
       floatingActionButton: hasProject && project!.participants.isEmpty
           ? null
           : FloatingActionButton(
@@ -92,7 +93,7 @@ class _HomePageState extends State<HomePage> {
                         : NewProjectScreen(),
                   ),
                 );
-                setState(() {});
+                setState(back);
               },
               tooltip: 'Add new entry',
               child: const Icon(Icons.add),

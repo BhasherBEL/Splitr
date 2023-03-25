@@ -62,6 +62,12 @@ class _ProjectsListState extends State<ProjectsList> {
                     widget.reload();
                   },
                   title: Text(project.name),
+                  subtitle: Text(
+                    project.provider.name,
+                    style: const TextStyle(
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
                 ),
               );
             },

@@ -90,4 +90,9 @@ class PocketBaseProvider extends Provider {
   bool hasSync() {
     return true;
   }
+
+  @override
+  Future<bool> joinWithTitle() async {
+    return await PocketBaseProject(project, pb).join();
+  }
 }

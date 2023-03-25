@@ -1,4 +1,5 @@
 import 'package:shared/model/connectors/provider.dart';
+import 'package:shared/screens/new_project_screen.dart';
 import 'package:tuple/tuple.dart';
 
 import 'app_data.dart';
@@ -81,7 +82,7 @@ class Project {
       ProjectFields.localId: localId,
       ProjectFields.remoteId: remoteId,
       ProjectFields.name: name,
-      ProjectFields.code: code,
+      ProjectFields.code: code ?? getRandom(5),
       ProjectFields.currentParticipant: currentParticipant?.localId,
       ProjectFields.providerId: provider.id,
       ProjectFields.providerData: provider.data,

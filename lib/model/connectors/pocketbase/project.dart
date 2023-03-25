@@ -37,20 +37,6 @@ class PocketBaseProject extends ExternalConnector<Project> {
   @override
   Future<bool> sync() async {
     await project.provider.checkConnection();
-    if (project.code == null && project.remoteId == null) {
-      try {
-        RecordModel record =
-            await collection.getFirstListItem("code = \"${project.name}\"");
-        project.name = record.getStringValue(PocketBaseProjectFields.name);
-        project.code = record.getStringValue(PocketBaseProjectFields.code);
-        project.lastUpdate = DateTime.parse(record.updated);
-        await project.conn.save();
-        return true;
-      } on ClientException {
-        project.code ??= getRandom(5);
-      }
-    }
-
     if (project.remoteId == null ||
         project.lastUpdate.difference(project.lastSync).inMilliseconds > 0) {
       await pushIfChange();
@@ -102,6 +88,17 @@ class PocketBaseProject extends ExternalConnector<Project> {
       project.code = record.getStringValue(PocketBaseProjectFields.code);
       project.lastUpdate = updated;
     }
+    await project.conn.save();
+    return true;
+  }
+
+  Future<bool> join() async {
+    RecordModel record =
+        await collection.getFirstListItem("code = \"${project.name}\"");
+    project.code = project.name;
+    project.name = record.getStringValue(PocketBaseProjectFields.name);
+    project.remoteId = record.id;
+    project.lastUpdate = DateTime.parse(record.updated);
     await project.conn.save();
     return true;
   }

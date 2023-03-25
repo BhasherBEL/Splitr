@@ -51,7 +51,9 @@ class _ProjectsDrawerState extends State<ProjectsDrawer> {
                                     NewParticipantPage(AppData.current!),
                               ),
                             );
-                            setState(() {});
+                            if (widget.onDrawerCallback != null) {
+                              widget.onDrawerCallback!();
+                            }
                           },
                         );
                       } else if (i == 1) {

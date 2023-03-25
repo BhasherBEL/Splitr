@@ -14,7 +14,7 @@ import 'main_screen.dart';
 class NewProjectScreen extends StatelessWidget {
   NewProjectScreen({this.first = false, this.project, super.key});
 
-  bool first;
+  final bool first;
   Project? project;
 
   ProjectData setupData = ProjectData();
@@ -75,6 +75,9 @@ class NewProjectScreen extends StatelessWidget {
           }
           AppData.current = project;
           await project!.conn.save();
+          if (setupData.join) {
+            await project!.provider.joinWithTitle();
+          }
           await project!.sync();
           if (first) {
             AppData.firstRun = false;

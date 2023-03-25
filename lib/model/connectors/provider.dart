@@ -19,6 +19,8 @@ abstract class Provider {
 
   bool hasSync();
 
+  Future<bool> joinWithTitle();
+
   static String getNameFromId(int id) {
     switch (id) {
       case 0:

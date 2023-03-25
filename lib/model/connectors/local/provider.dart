@@ -24,4 +24,9 @@ class LocalProvider extends Provider {
   bool hasSync() {
     return false;
   }
+
+  @override
+  Future<bool> joinWithTitle() async {
+    return true;
+  }
 }
