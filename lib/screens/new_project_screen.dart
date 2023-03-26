@@ -56,6 +56,7 @@ class NewProjectScreen extends StatelessWidget {
           try {
             await project!.provider.connect();
           } on ClientException {
+            print('Connection error');
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -65,6 +66,7 @@ class NewProjectScreen extends StatelessWidget {
             }
             return;
           } catch (e) {
+            print(e);
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
