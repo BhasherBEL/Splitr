@@ -68,7 +68,7 @@ class PocketBaseProvider extends Provider {
         }
       }
     }
-    await PocketBaseParticipant.checkNews(pb, project);
+    await PocketBaseItem.checkNews(pb, project);
 
     project.lastSync = DateTime.now();
     await project.conn.save();

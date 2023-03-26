@@ -105,7 +105,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
                       autocorrect: true,
                       decoration: const InputDecoration(
                         contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                        labelText: "Title",
+                        labelText: "What",
                         border: OutlineInputBorder(),
                       ),
                       onChanged: (value) => bill.title = value,
@@ -131,7 +131,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
                       decoration: const InputDecoration(
                         suffixText: ' €',
                         contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                        labelText: "Title",
+                        labelText: "How much",
                         border: OutlineInputBorder(),
                       ),
                       controller: amountController,
@@ -190,7 +190,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
                                   decoration: const InputDecoration(
                                     contentPadding:
                                         EdgeInsets.symmetric(horizontal: 10),
-                                    labelText: "When?",
+                                    labelText: "When",
                                     border: OutlineInputBorder(),
                                     hintText: 'Pick your Date',
                                   ),
@@ -342,7 +342,6 @@ class _NewEntryPageState extends State<NewEntryPage> {
                         }
                       },
                       child: Text(widget.item == null ? 'Create' : 'Update'),
-
                     ),
                   ),
                 ),

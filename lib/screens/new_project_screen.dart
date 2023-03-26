@@ -41,6 +41,7 @@ class NewProjectScreen extends StatelessWidget {
           if (project == null) {
             project = Project(
               name: setupData.projectName!,
+              code: setupData.join ? null : getRandom(5),
               providerId: setupData.providerId!,
               providerData: setupData.getProviderData(),
             );
@@ -78,7 +79,18 @@ class NewProjectScreen extends StatelessWidget {
           if (setupData.join) {
             await project!.provider.joinWithTitle();
           }
-          await project!.sync();
+          try {
+            await project!.sync();
+          } catch (e) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(e.toString()),
+                ),
+              );
+            }
+            return;
+          }
           if (first) {
             AppData.firstRun = false;
             runApp(const MainScreen());

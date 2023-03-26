@@ -83,34 +83,36 @@ class PocketBaseItemPart implements ExternalConnector {
     Project project,
     Item item,
   ) async {
-    (await pb.collection("itemParts").getFullList(
-              filter:
-                  'updated > "${project.lastSync.toUtc()}" && ${PocketBaseItemPartsFields.itemId} = "${item.remoteId}"',
-            ))
-        .map(
-      (e) async {
-        ItemPart? i = item.partByRemoteId(e.id);
-        if (i == null) {
-          i = ItemPart(
-            item: item,
-            participant: project.participantByRemoteId(
-                e.getStringValue(PocketBaseItemPartsFields.participantId))!,
-            amount: e.getDoubleValue(PocketBaseItemPartsFields.amount),
-            rate: e.getDoubleValue(PocketBaseItemPartsFields.rate),
-            lastUpdate: DateTime.parse(e.updated),
-            remoteId: e.id,
-          );
-          item.itemParts.add(i);
-        } else {
-          i.participant = project.participantByRemoteId(
-              e.getStringValue(PocketBaseItemPartsFields.participantId))!;
-          i.amount = e.getDoubleValue(PocketBaseItemPartsFields.amount);
-          i.rate = e.getDoubleValue(PocketBaseItemPartsFields.rate);
-          i.lastUpdate = DateTime.parse(e.updated);
-        }
-        await i.conn.save();
-      },
-    );
+    List<RecordModel> records = await pb.collection("itemParts").getFullList(
+          filter:
+              'updated > "${project.lastSync.toUtc()}" && ${PocketBaseItemPartsFields.itemId} = "${item.remoteId}"',
+        );
+    for (RecordModel e in records) {
+      ItemPart? i = item.partByRemoteId(e.id);
+      if (i == null) {
+        i = ItemPart(
+          item: item,
+          participant: project.participantByRemoteId(
+              e.getStringValue(PocketBaseItemPartsFields.participantId))!,
+          amount: e.getStringValue(PocketBaseItemPartsFields.amount).isEmpty
+              ? null
+              : e.getDoubleValue(PocketBaseItemPartsFields.amount),
+          rate: e.getDoubleValue(PocketBaseItemPartsFields.rate),
+          lastUpdate: DateTime.parse(e.updated),
+          remoteId: e.id,
+        );
+        item.itemParts.add(i);
+      } else {
+        i.participant = project.participantByRemoteId(
+            e.getStringValue(PocketBaseItemPartsFields.participantId))!;
+        i.amount = e.getStringValue(PocketBaseItemPartsFields.amount).isEmpty
+            ? null
+            : e.getDoubleValue(PocketBaseItemPartsFields.amount);
+        i.rate = e.getDoubleValue(PocketBaseItemPartsFields.rate);
+        i.lastUpdate = DateTime.parse(e.updated);
+      }
+      await i.conn.save();
+    }
     return true;
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared/components/projects_list.dart';
 import 'package:shared/model/app_data.dart';
 import 'package:shared/screens/new_project_screen.dart';
@@ -70,6 +71,17 @@ class _HomePageState extends State<HomePage> {
               ),
           ],
         ),
+        actions: [
+          if (hasProject && project!.code != null)
+            IconButton(
+              onPressed: () {
+                Share.share(
+                  'Join my shared project with this code: ${project!.code!}',
+                );
+              },
+              icon: const Icon(Icons.share),
+            ),
+        ],
       ),
       body: Center(
         child: hasProject

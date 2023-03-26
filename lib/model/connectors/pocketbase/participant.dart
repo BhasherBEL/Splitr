@@ -80,32 +80,31 @@ class PocketBaseParticipant implements ExternalConnector {
   }
 
   static Future<bool> checkNews(PocketBase pb, Project project) async {
-    (await pb.collection("participants").getFullList(
-              filter:
-                  'updated > "${project.lastSync.toUtc()}" && ${PocketBaseParticipantFields.projectId} = "${project.remoteId}"',
-            ))
-        .map(
-      (e) async {
-        Participant? p = project.participantByRemoteId(e.id);
-        if (p == null) {
-          p = Participant(
-            project: project,
-            pseudo: e.getStringValue(PocketBaseParticipantFields.pseudo),
-            firstname: e.getStringValue(PocketBaseParticipantFields.firstname),
-            lastname: e.getStringValue(PocketBaseParticipantFields.lastname),
-            lastUpdate: DateTime.parse(e.updated),
-            remoteId: e.id,
-          );
-          project.participants.add(p);
-        } else {
-          p.pseudo = e.getStringValue(PocketBaseParticipantFields.pseudo);
-          p.firstname = e.getStringValue(PocketBaseParticipantFields.firstname);
-          p.lastname = e.getStringValue(PocketBaseParticipantFields.lastname);
-          p.lastUpdate = DateTime.parse(e.updated);
-        }
-        await p.conn.save();
-      },
-    );
+    List<RecordModel> records = await pb.collection("participants").getFullList(
+          filter:
+              'updated > "${project.lastSync.toUtc()}" && ${PocketBaseParticipantFields.projectId} = "${project.remoteId}"',
+        );
+    for (RecordModel e in records) {
+      Participant? p = project.participantByRemoteId(e.id);
+      if (p == null) {
+        p = Participant(
+          project: project,
+          pseudo: e.getStringValue(PocketBaseParticipantFields.pseudo),
+          firstname: e.getStringValue(PocketBaseParticipantFields.firstname),
+          lastname: e.getStringValue(PocketBaseParticipantFields.lastname),
+          lastUpdate: DateTime.parse(e.updated),
+          remoteId: e.id,
+        );
+        project.participants.add(p);
+      } else {
+        p.pseudo = e.getStringValue(PocketBaseParticipantFields.pseudo);
+        p.firstname = e.getStringValue(PocketBaseParticipantFields.firstname);
+        p.lastname = e.getStringValue(PocketBaseParticipantFields.lastname);
+        p.lastUpdate = DateTime.parse(e.updated);
+      }
+      await p.conn.save();
+    }
+    ;
     return true;
   }
 }

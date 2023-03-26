@@ -1,6 +1,7 @@
 import 'package:pocketbase/pocketbase.dart';
 import 'package:shared/model/connectors/external_connector.dart';
 import 'package:shared/model/connectors/pocketbase/deleted.dart';
+import 'package:shared/model/connectors/pocketbase/item_part.dart';
 import 'package:shared/model/project.dart';
 
 import '../../item.dart';
@@ -56,8 +57,8 @@ class PocketBaseItem implements ExternalConnector {
         PocketBaseItemsFields.title: item.title,
         PocketBaseItemsFields.emitterId: item.emitter.remoteId,
         PocketBaseItemsFields.projectId: item.project.remoteId,
-        PocketBaseItemsFields.date: item.date.millisecondsSinceEpoch,
         PocketBaseItemsFields.amount: item.amount,
+        PocketBaseItemsFields.date: item.date.toUtc().toString(),
       },
     );
     item.remoteId = recordModel.id;
@@ -73,46 +74,43 @@ class PocketBaseItem implements ExternalConnector {
         PocketBaseItemsFields.title: item.title,
         PocketBaseItemsFields.emitterId: item.emitter.remoteId,
         PocketBaseItemsFields.projectId: item.project.remoteId,
-        PocketBaseItemsFields.date: item.date.millisecondsSinceEpoch,
         PocketBaseItemsFields.amount: item.amount,
+        PocketBaseItemsFields.date: item.date.toUtc().toString(),
       },
     );
     return true;
   }
 
   static Future<bool> checkNews(PocketBase pb, Project project) async {
-    (await pb.collection("items").getFullList(
-              filter:
-                  'updated > "${project.lastSync.toUtc()}" && ${PocketBaseItemsFields.projectId} = "${project.remoteId}"',
-            ))
-        .map(
-      (e) async {
-        Item? i = project.itemByRemoteId(e.id);
-        if (i == null) {
-          i = Item(
-            project: project,
-            amount: e.getDoubleValue(PocketBaseItemsFields.amount),
-            date: DateTime.fromMillisecondsSinceEpoch(
-                e.getIntValue(PocketBaseItemsFields.date)),
-            emitter: project.participantByRemoteId(
-                e.getStringValue(PocketBaseItemsFields.emitterId))!,
-            title: e.getStringValue(PocketBaseItemsFields.title),
-            lastUpdate: DateTime.parse(e.updated),
-            remoteId: e.id,
-          );
-          project.items.add(i);
-        } else {
-          i.amount = e.getDoubleValue(PocketBaseItemsFields.amount);
-          i.date = DateTime.fromMillisecondsSinceEpoch(
-              e.getIntValue(PocketBaseItemsFields.date));
-          i.emitter = project.participantByRemoteId(
-              e.getStringValue(PocketBaseItemsFields.emitterId))!;
-          i.title = e.getStringValue(PocketBaseItemsFields.title);
-          i.lastUpdate = DateTime.parse(e.updated);
-        }
-        await i.conn.save();
-      },
-    );
+    List<RecordModel> records = await pb.collection("items").getFullList(
+          filter:
+              'updated > "${project.lastSync.toUtc()}" && ${PocketBaseItemsFields.projectId} = "${project.remoteId}"',
+        );
+    for (RecordModel e in records) {
+      Item? i = project.itemByRemoteId(e.id);
+      if (i == null) {
+        i = Item(
+          project: project,
+          amount: e.getDoubleValue(PocketBaseItemsFields.amount),
+          date: DateTime.parse(e.getStringValue(PocketBaseItemsFields.date)),
+          emitter: project.participantByRemoteId(
+              e.getStringValue(PocketBaseItemsFields.emitterId))!,
+          title: e.getStringValue(PocketBaseItemsFields.title),
+          lastUpdate: DateTime.parse(e.updated),
+          remoteId: e.id,
+        );
+        project.items.add(i);
+      } else {
+        i.amount = e.getDoubleValue(PocketBaseItemsFields.amount);
+        i.date = DateTime.parse(e.getStringValue(PocketBaseItemsFields.date));
+        i.emitter = project.participantByRemoteId(
+            e.getStringValue(PocketBaseItemsFields.emitterId))!;
+        i.title = e.getStringValue(PocketBaseItemsFields.title);
+        i.lastUpdate = DateTime.parse(e.updated);
+      }
+      await i.conn.save();
+      await PocketBaseItemPart.checkNews(pb, project, i);
+    }
     return true;
   }
 }

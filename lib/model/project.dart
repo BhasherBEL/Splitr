@@ -46,11 +46,7 @@ class Project {
     provider = Provider.initFromId(providerId, this, providerData);
     conn = LocalProject(this);
     AppData.projects.add(this);
-    if (lastSync == null) {
-      this.lastSync = DateTime(1970);
-    } else {
-      this.lastSync = lastSync;
-    }
+    this.lastSync = lastSync ?? DateTime(1970);
     this.lastUpdate = lastUpdate ?? DateTime.now();
     try {
       currentParticipant = participants
