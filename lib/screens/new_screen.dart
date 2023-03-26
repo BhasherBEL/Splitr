@@ -32,35 +32,38 @@ class NewScreen extends StatelessWidget {
                   title: Text(title!),
                   elevation: 4,
                 ),
-          body: Form(
-            key: formKey,
-            child: SafeArea(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: page,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 20),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: onValidate == null
-                              ? null
-                              : () => onValidate!(context, formKey),
-                          child: Padding(
-                            padding: const EdgeInsets.all(15.0),
-                            child: Text(
-                                buttonTitle == null ? "Finish" : buttonTitle!),
+          body: Builder(
+            builder: (context) => Form(
+              key: formKey,
+              child: SafeArea(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: page,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 20),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: onValidate == null
+                                ? null
+                                : () => onValidate!(context, formKey),
+                            child: Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: Text(buttonTitle == null
+                                  ? "Finish"
+                                  : buttonTitle!),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:pocketbase/pocketbase.dart';
+import 'package:shared/model/connectors/pocketbase/provider.dart';
 import 'package:shared/model/connectors/provider.dart';
 import 'package:shared/model/project_data.dart';
 import 'package:shared/screens/new_screen.dart';
@@ -55,34 +56,15 @@ class NewProjectScreen extends StatelessWidget {
           }
           try {
             await project!.provider.connect();
-          } on ClientException {
-            print('Connection error');
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Connection error"),
-                ),
-              );
+            AppData.current = project;
+            await project!.conn.save();
+            if (setupData.join) {
+              await project!.provider.joinWithTitle();
             }
-            return;
-          } catch (e) {
-            print(e);
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(e.toString()),
-                ),
-              );
-            }
-            return;
-          }
-          AppData.current = project;
-          await project!.conn.save();
-          if (setupData.join) {
-            await project!.provider.joinWithTitle();
-          }
-          try {
             await project!.sync();
+          } on ClientException catch (e) {
+            PocketBaseProvider.onClientException(e, context);
+            return;
           } catch (e) {
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:shared/model/connectors/local/deleted.dart';
 import 'package:shared/model/connectors/pocketbase/deleted.dart';
@@ -94,5 +95,25 @@ class PocketBaseProvider extends Provider {
   @override
   Future<bool> joinWithTitle() async {
     return await PocketBaseProject(project, pb).join();
+  }
+
+  static void onClientException(ClientException e, BuildContext c) {
+    String message;
+
+    if (e.statusCode != 0 && e.response.containsKey('message')) {
+      message = 'Error ${e.statusCode}: ${e.response['message']}';
+    } else if (e.originalError != null) {
+      message = e.originalError.toString();
+    } else {
+      message = e.toString();
+    }
+
+    if (c.mounted) {
+      ScaffoldMessenger.of(c).showSnackBar(
+        SnackBar(
+          content: Text(message),
+        ),
+      );
+    }
   }
 }
