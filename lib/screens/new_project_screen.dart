@@ -33,7 +33,7 @@ class NewProjectScreen extends StatelessWidget {
           : project == null
               ? 'Create'
               : 'Update',
-      page: NewProjectPage(
+      child: NewProjectPage(
         projectData: setupData,
         project: project,
       ),
