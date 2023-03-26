@@ -98,6 +98,7 @@ class _ProjectsDrawerState extends State<ProjectsDrawer> {
                             Text(
                               '$share €',
                               style: TextStyle(
+                                fontWeight: current ? FontWeight.bold : null,
                                 color: share > 0
                                     ? const Color.fromARGB(255, 76, 175, 80)
                                     : share < 0
@@ -107,11 +108,16 @@ class _ProjectsDrawerState extends State<ProjectsDrawer> {
                             ),
                           ],
                         ),
-                        subtitle: (participant.firstname != null ||
-                                participant.lastname != null)
+                        subtitle: (participant.firstname != null &&
+                                    participant.firstname!.isNotEmpty ||
+                                participant.lastname != null &&
+                                    participant.lastname!.isNotEmpty)
                             ? Text(
                                 "${participant.firstname} ${participant.lastname}")
                             : null,
+                        visualDensity: const VisualDensity(
+                          vertical: VisualDensity.minimumDensity,
+                        ),
                         onTap: () async {
                           widget.project.currentParticipant = participant;
                           await widget.project.conn.save();
