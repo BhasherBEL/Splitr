@@ -52,6 +52,8 @@ class AppData {
       try {
         _current =
             Project.fromName(sharedPreferences.getString("lastProject")!);
+        await _current!.conn.loadParticipants();
+        await _current!.conn.loadEntries();
       } catch (e) {}
     }
   }

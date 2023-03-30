@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared/components/projects_list.dart';
 import 'package:shared/model/app_data.dart';
@@ -6,7 +7,7 @@ import 'package:shared/screens/new_project_screen.dart';
 
 import '../model/project.dart';
 import 'new_entry.dart';
-import 'project/drawer.dart';
+import 'new_participant.dart';
 import 'project/item_list.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,29 +19,22 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   Project? project = AppData.current;
-  bool isLoaded = false;
-
-  void back() {
-    project = AppData.current;
-    if (project != null) _loadProjectData();
-    setState(() {});
-  }
+  int pageIndex = 1;
+  late List<Widget> pages;
 
   @override
   void initState() {
     super.initState();
-    setState(() {
-      project = AppData.current;
-    });
-    if (project != null) _loadProjectData();
+    pages = [
+      Container(),
+      ItemList(project!),
+      Container(),
+    ];
   }
 
-  Future<void> _loadProjectData() async {
-    await project!.conn.loadParticipants();
-    await project!.conn.loadEntries();
-    setState(() {
-      isLoaded = true;
-    });
+  void back() {
+    project = AppData.current;
+    setState(() {});
   }
 
   @override
@@ -82,34 +76,128 @@ class _HomePageState extends State<HomePage> {
               icon: const Icon(Icons.share),
             ),
         ],
+        leading: hasProject
+            ? IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () {
+                  setState(() {
+                    AppData.current = null;
+                  });
+                },
+              )
+            : null,
       ),
       body: Center(
-        child: hasProject
-            ? isLoaded
-                ? ItemList(project!)
-                : const Text("Loading entries ...")
-            : ProjectsList(() => setState(back)),
+        child:
+            hasProject ? pages[pageIndex] : ProjectsList(() => setState(back)),
       ),
-      drawer: hasProject
-          ? ProjectsDrawer(project!, onDrawerCallback: () => setState(back))
+      // drawer: hasProject
+      //     ? ProjectsDrawer(project!, onDrawerCallback: () => setState(back))
+      //     : null,
+      floatingActionButton: MainFloatingActionButton(
+        project,
+        onDone: () => setState(back),
+      ),
+      bottomNavigationBar: hasProject
+          ? BottomNavigationBar(
+              currentIndex: pageIndex,
+              onTap: (value) => setState(() {
+                pageIndex = value;
+              }),
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.bar_chart),
+                  label: "Stats",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.list),
+                  label: "Bills",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.compare_arrows),
+                  label: "Balancing",
+                ),
+              ],
+            )
           : null,
-      floatingActionButton: hasProject && project!.participants.isEmpty
-          ? null
-          : FloatingActionButton(
-              onPressed: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => hasProject
-                        ? NewEntryPage(project!)
-                        : NewProjectScreen(),
-                  ),
-                );
-                setState(back);
-              },
-              tooltip: 'Add new entry',
-              child: const Icon(Icons.add),
-            ),
     );
+  }
+}
+
+class MainFloatingActionButton extends StatefulWidget {
+  const MainFloatingActionButton(
+    this.project, {
+    super.key,
+    this.onDone,
+  });
+
+  final Project? project;
+  final void Function()? onDone;
+
+  @override
+  State<MainFloatingActionButton> createState() =>
+      _MainFloatingActionButtonState();
+}
+
+class _MainFloatingActionButtonState extends State<MainFloatingActionButton> {
+  ValueNotifier<bool> isDialOpen = ValueNotifier(false);
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.project != null
+        ? SpeedDial(
+            icon: Icons.add,
+            activeIcon: Icons.close,
+            openCloseDial: isDialOpen,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(16.0),
+              ),
+            ),
+            overlayOpacity: 0,
+            children: [
+              SpeedDialChild(
+                child: const Icon(Icons.person_add_alt_1_rounded),
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => NewParticipantPage(widget.project!),
+                    ),
+                  );
+                  if (widget.onDone != null) widget.onDone!();
+                },
+              ),
+              // SpeedDialChild(
+              //   child: Icon(Icons.post_add),
+              // ),
+              if (widget.project!.participants.isNotEmpty)
+                SpeedDialChild(
+                  child: const Icon(Icons.add),
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => NewEntryPage(widget.project!),
+                      ),
+                    );
+                    if (widget.onDone != null) widget.onDone!();
+                  },
+                ),
+            ],
+          )
+        : FloatingActionButton(
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NewProjectScreen(),
+                ),
+              );
+              if (widget.onDone != null) widget.onDone!();
+            },
+            tooltip: 'Add new entry',
+            child: const Icon(Icons.add),
+          );
   }
 }

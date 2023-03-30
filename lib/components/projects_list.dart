@@ -57,8 +57,10 @@ class _ProjectsListState extends State<ProjectsList> {
                   ],
                 ),
                 child: ListTile(
-                  onTap: () {
+                  onTap: () async {
                     AppData.current = project;
+                    await project.conn.loadParticipants();
+                    await project.conn.loadEntries();
                     widget.reload();
                   },
                   title: Text(project.name),
