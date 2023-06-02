@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared/components/pages/balancing_page_part.dart';
 import 'package:shared/components/projects_list.dart';
 import 'package:shared/model/app_data.dart';
 import 'package:shared/screens/new_project_screen.dart';
@@ -19,16 +20,16 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   Project? project = AppData.current;
-  int pageIndex = 1;
+  int pageIndex = 0;
   late List<Widget> pages;
 
   @override
   void initState() {
     super.initState();
     pages = [
-      Container(),
+      // Container(),
       ItemList(project!),
-      Container(),
+      BalancingPagePart(project!),
     ];
   }
 
@@ -105,10 +106,10 @@ class _HomePageState extends State<HomePage> {
                 pageIndex = value;
               }),
               items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.bar_chart),
-                  label: "Stats",
-                ),
+                // BottomNavigationBarItem(
+                //   icon: Icon(Icons.bar_chart),
+                //   label: "Stats",
+                // ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.list),
                   label: "Bills",
