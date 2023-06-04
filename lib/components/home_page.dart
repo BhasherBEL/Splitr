@@ -58,7 +58,9 @@ class _HomePageState extends State<HomePage> {
             ),
             if (hasProject)
               Text(
-                project!.participants.map((e) => e.pseudo).join(', '),
+                project!.participants.length <= 4
+                    ? project!.participants.map((e) => e.pseudo).join(', ')
+                    : '${project!.participants.length} participants',
                 style: const TextStyle(
                   fontSize: 14,
                   fontStyle: FontStyle.italic,
@@ -68,30 +70,39 @@ class _HomePageState extends State<HomePage> {
         ),
         actions: [
           if (hasProject && project!.code != null)
-            IconButton(
-              onPressed: () {
-                Share.share(
-                  'Join my shared project with this code: ${project!.code!}',
-                );
-              },
-              icon: const Icon(Icons.share),
+            PopupMenuButton(
+              itemBuilder: (context) => [
+                buildMenuItem(
+                  text: "Manage users",
+                  icon: Icons.person,
+                ),
+                buildMenuItem(
+                  text: "Share",
+                  icon: Icons.share,
+                  onTap: () {
+                    Share.share(
+                      'Join my shared project with this code: ${project!.code!}',
+                    );
+                  },
+                ),
+                buildMenuItem(
+                  text: "Settings",
+                  icon: Icons.settings,
+                ),
+                buildMenuItem(
+                  text: "Close",
+                  icon: Icons.close,
+                  onTap: () {
+                    setState(() {
+                      AppData.current = null;
+                    });
+                  },
+                ),
+              ],
             ),
         ],
-        leading: hasProject
-            ? IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () {
-                  setState(() {
-                    AppData.current = null;
-                  });
-                },
-              )
-            : null,
       ),
-      body: Center(
-        child:
-            hasProject ? pages[pageIndex] : ProjectsList(() => setState(back)),
-      ),
+      body: hasProject ? pages[pageIndex] : ProjectsList(() => setState(back)),
       // drawer: hasProject
       //     ? ProjectsDrawer(project!, onDrawerCallback: () => setState(back))
       //     : null,
@@ -123,6 +134,29 @@ class _HomePageState extends State<HomePage> {
           : null,
     );
   }
+}
+
+PopupMenuItem buildMenuItem({
+  required final String text,
+  final IconData? icon,
+  final bool? enabled,
+  final void Function()? onTap,
+}) {
+  return PopupMenuItem(
+    onTap: onTap,
+    enabled: enabled ?? onTap != null,
+    child: ListTile(
+      leading: Icon(icon),
+      contentPadding: EdgeInsets.zero,
+      title: Text(
+        text,
+        textAlign: TextAlign.left,
+      ),
+      minLeadingWidth: 0,
+      visualDensity: const VisualDensity(horizontal: -4),
+      enabled: enabled ?? onTap != null,
+    ),
+  );
 }
 
 class MainFloatingActionButton extends StatefulWidget {

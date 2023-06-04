@@ -50,7 +50,7 @@ class _ItemListState extends State<ItemList> {
               // tileColor: Theme.of(context).splashColor,
               subtitle: Text(
                 "${widget.project.notSyncCount} changes to push",
-                style: TextStyle(fontStyle: FontStyle.italic),
+                style: const TextStyle(fontStyle: FontStyle.italic),
               ),
               trailing: Icon(
                 Icons.sync,

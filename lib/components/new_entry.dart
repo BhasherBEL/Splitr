@@ -352,8 +352,6 @@ class _NewEntrySubPageState extends State<NewEntrySubPage> {
 
       if (price.isNaN) price = 0;
 
-      print(price);
-
       try {
         if (fixedsController[participant]!.text == "" ||
             double.parse(fixedsController[participant]!.text) != price) {

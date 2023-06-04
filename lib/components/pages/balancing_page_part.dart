@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
 import 'package:shared/model/participant.dart';
 
 import '../../model/project.dart';
@@ -24,21 +23,31 @@ class BalancingPagePart extends StatelessWidget {
     List<Participant> sortedParticipants = parts.keys.toList(growable: false);
     sortedParticipants.sort((a, b) => parts[b]!.compareTo(parts[a]!));
 
-    double maxShare = parts.isNotEmpty ? parts.values.reduce(max) : 1;
+    double maxShare = parts.isNotEmpty ? max(parts.values.reduce(max), 1) : 1;
 
     return ListView.builder(
       itemBuilder: (context, index) {
         Participant p = sortedParticipants.elementAt(index);
         double w = MediaQuery.of(context).size.width / 2;
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          child: CustomPaint(
-            painter: SharePainter(
-              participant: p,
-              share: parts[p]!,
-              isMe: project.currentParticipant == p,
-              maxShare: maxShare,
-              screenW: w,
+        bool last = index == sortedParticipants.length - 1;
+        return GestureDetector(
+          onTap: () {
+            print("yes");
+            // project.currentParticipant = p;
+            // project.currentParticipantId = p.localId;
+          },
+          child: Padding(
+            padding: last
+                ? const EdgeInsets.only(bottom: 50, top: 20)
+                : const EdgeInsets.symmetric(vertical: 20),
+            child: CustomPaint(
+              painter: SharePainter(
+                participant: p,
+                share: parts[p]!,
+                isMe: project.currentParticipant == p,
+                maxShare: maxShare,
+                screenW: w,
+              ),
             ),
           ),
         );
@@ -75,10 +84,10 @@ class SharePainter extends CustomPainter {
 
     RRect fullRect = RRect.fromRectAndCorners(
       Rect.fromCenter(center: Offset(centerW, h / 2), width: w, height: h),
-      topLeft: w < 0 ? Radius.circular(5) : Radius.zero,
-      bottomLeft: w < 0 ? Radius.circular(5) : Radius.zero,
-      topRight: w > 0 ? Radius.circular(5) : Radius.zero,
-      bottomRight: w > 0 ? Radius.circular(5) : Radius.zero,
+      topLeft: w < 0 ? const Radius.circular(5) : Radius.zero,
+      bottomLeft: w < 0 ? const Radius.circular(5) : Radius.zero,
+      topRight: w > 0 ? const Radius.circular(5) : Radius.zero,
+      bottomRight: w > 0 ? const Radius.circular(5) : Radius.zero,
     );
     canvas.drawRRect(fullRect, paint1);
 
@@ -105,7 +114,7 @@ class SharePainter extends CustomPainter {
     pseudoPainter.layout();
     valuePainter.layout();
 
-    if (w > 0) {
+    if (w >= 0) {
       pseudoPainter.paint(
         canvas,
         Offset(

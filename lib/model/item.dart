@@ -95,7 +95,7 @@ class Item {
       'All except ${project.participants.where((element) => !participants.contains(element)).map((e) => e.pseudo).join(', ')}',
     ];
 
-    possibilites.sort();
+    possibilites.sort((a, b) => a.length - b.length);
 
     return possibilites.first;
   }
