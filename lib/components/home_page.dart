@@ -27,7 +27,6 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     pages = [
-      // Container(),
       ItemList(project!),
       BalancingPagePart(project!),
     ];
@@ -106,10 +105,12 @@ class _HomePageState extends State<HomePage> {
       // drawer: hasProject
       //     ? ProjectsDrawer(project!, onDrawerCallback: () => setState(back))
       //     : null,
-      floatingActionButton: MainFloatingActionButton(
-        project,
-        onDone: () => setState(back),
-      ),
+      floatingActionButton: pageIndex == 0
+          ? MainFloatingActionButton(
+              project,
+              onDone: () => setState(back),
+            )
+          : null,
       bottomNavigationBar: hasProject
           ? BottomNavigationBar(
               currentIndex: pageIndex,
@@ -123,11 +124,11 @@ class _HomePageState extends State<HomePage> {
                 // ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.list),
-                  label: "Bills",
+                  label: "Expenses",
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.compare_arrows),
-                  label: "Balancing",
+                  label: "Balances",
                 ),
               ],
             )

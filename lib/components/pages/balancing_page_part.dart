@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:shared/model/participant.dart';
 
 import '../../model/project.dart';
+import 'refund_page_part.dart';
 
-class BalancingPagePart extends StatelessWidget {
+class BalancingPagePart extends StatefulWidget {
   const BalancingPagePart(
     this.project, {
     super.key,
@@ -14,45 +15,66 @@ class BalancingPagePart extends StatelessWidget {
   final Project project;
 
   @override
+  State<BalancingPagePart> createState() => _BalancingPagePartState();
+}
+
+class _BalancingPagePartState extends State<BalancingPagePart> {
+  @override
   Widget build(BuildContext context) {
     Map<Participant, double> parts = {
-      for (Participant participant in project.participants)
-        participant: project.shareOf(participant)
+      for (Participant participant in widget.project.participants)
+        participant: widget.project.shareOf(participant)
     };
 
-    List<Participant> sortedParticipants = parts.keys.toList(growable: false);
+    List<Participant> sortedParticipants = parts.keys.toList();
     sortedParticipants.sort((a, b) => parts[b]!.compareTo(parts[a]!));
 
-    double maxShare = parts.isNotEmpty ? max(parts.values.reduce(max), 1) : 1;
+    double maxShare = parts.isNotEmpty
+        ? max(parts.values.map((e) => e.abs()).reduce(max), 1)
+        : 1;
 
-    return ListView.builder(
-      itemBuilder: (context, index) {
-        Participant p = sortedParticipants.elementAt(index);
-        double w = MediaQuery.of(context).size.width / 2;
-        bool last = index == sortedParticipants.length - 1;
-        return GestureDetector(
-          onTap: () {
-            print("yes");
-            // project.currentParticipant = p;
-            // project.currentParticipantId = p.localId;
+    List<Widget> items = [];
+
+    for (Participant p in sortedParticipants) {
+      double w = MediaQuery.of(context).size.width / 2;
+      bool isMe = widget.project.currentParticipant == p;
+      items.add(
+        GestureDetector(
+          onTap: () async {
+            widget.project.currentParticipant = p;
+            widget.project.currentParticipantId = p.localId;
+            widget.project.conn.save();
+            setState(() {});
           },
           child: Padding(
-            padding: last
-                ? const EdgeInsets.only(bottom: 50, top: 20)
-                : const EdgeInsets.symmetric(vertical: 20),
+            padding: isMe
+                ? const EdgeInsets.only(top: 5, bottom: 10)
+                : const EdgeInsets.symmetric(vertical: 5),
             child: CustomPaint(
               painter: SharePainter(
                 participant: p,
                 share: parts[p]!,
-                isMe: project.currentParticipant == p,
+                isMe: isMe,
                 maxShare: maxShare,
                 screenW: w,
               ),
+              child: Container(height: 30),
             ),
           ),
-        );
-      },
-      itemCount: sortedParticipants.length,
+        ),
+      );
+    }
+
+    items.addAll(
+      getRefundPageTiles(
+        project: widget.project,
+        parts: parts,
+        sortedParticipants: sortedParticipants,
+        context: context,
+      ),
+    );
+    return ListView(
+      children: items,
     );
   }
 }
@@ -93,7 +115,7 @@ class SharePainter extends CustomPainter {
 
     var pseudoPainter = TextPainter(
       text: TextSpan(
-        text: participant.pseudo,
+        text: participant.pseudo + (isMe ? " (Me)" : ""),
         style: TextStyle(
           fontWeight: isMe ? FontWeight.bold : FontWeight.normal,
         ),
