@@ -29,4 +29,9 @@ class LocalProvider extends Provider {
   Future<bool> joinWithTitle() async {
     return true;
   }
+
+  @override
+  String getInstance() {
+    return "local";
+  }
 }

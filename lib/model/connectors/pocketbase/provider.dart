@@ -97,6 +97,11 @@ class PocketBaseProvider extends Provider {
     return await PocketBaseProject(project, pb).join();
   }
 
+  @override
+  String getInstance() {
+    return dataList.elementAt(0);
+  }
+
   static void onClientException(ClientException e, BuildContext c) {
     String message;
 

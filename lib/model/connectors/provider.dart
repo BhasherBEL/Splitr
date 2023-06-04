@@ -21,6 +21,8 @@ abstract class Provider {
 
   Future<bool> joinWithTitle();
 
+  String getInstance();
+
   static String getNameFromId(int id) {
     switch (id) {
       case 0:

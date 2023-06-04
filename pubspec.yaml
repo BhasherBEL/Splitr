@@ -48,6 +48,7 @@ dependencies:
   tuple: ^2.0.1
   share_plus: ^6.3.1
   flutter_speed_dial: ^6.2.0
+  app_links: ^3.4.3
 
 dev_dependencies:
   flutter_test:

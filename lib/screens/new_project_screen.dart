@@ -13,15 +13,36 @@ import '../model/project.dart';
 import 'main_screen.dart';
 
 class NewProjectScreen extends StatelessWidget {
-  NewProjectScreen({this.first = false, this.project, super.key});
+  NewProjectScreen({
+    this.first = false,
+    this.project,
+    this.type,
+    this.code,
+    this.instance,
+    super.key,
+  });
 
   final bool first;
   Project? project;
+  final String? type;
+  final String? code;
+  final String? instance;
 
   ProjectData setupData = ProjectData();
 
   @override
   Widget build(BuildContext context) {
+    switch (type?.toLowerCase()) {
+      case 'local':
+        setupData.providerId = 0;
+        break;
+      case 'pocketbase':
+        setupData.providerId = 1;
+        setupData.join = true;
+        setupData.projectName = code;
+        if (instance != null) setupData.providerDataMap[0] = instance!;
+        break;
+    }
     return NewScreen(
       title: first
           ? 'Create your first project!'

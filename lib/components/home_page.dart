@@ -80,7 +80,7 @@ class _HomePageState extends State<HomePage> {
                   icon: Icons.share,
                   onTap: () {
                     Share.share(
-                      'Join my shared project with this code: ${project!.code!}',
+                      'Join my shared project with this link:\nhttps://shared.bhasher.com/join?type=${project!.provider.name}&instance=${Uri.encodeComponent(project!.provider.getInstance())}&code=${project!.code}',
                     );
                   },
                 ),
