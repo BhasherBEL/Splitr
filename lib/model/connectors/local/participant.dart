@@ -34,6 +34,10 @@ class LocalParticipant {
   }
 
   Future delete() async {
-    // await AppData.db.delete(tableParticipants);
+    await AppData.db.delete(
+      tableParticipants,
+      where: '${ParticipantFields.localId} = ?',
+      whereArgs: [participant.localId],
+    );
   }
 }

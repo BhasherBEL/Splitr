@@ -1,4 +1,5 @@
 import 'package:shared/model/connectors/provider.dart';
+import 'package:shared/model/item_part.dart';
 import 'package:shared/screens/new_project_screen.dart';
 import 'package:tuple/tuple.dart';
 
@@ -168,5 +169,31 @@ class Project {
     } catch (e) {
       return null;
     }
+  }
+
+  Future deleteParticipant(Participant participant) async {
+    for (int i = 0; i < items.length; i++) {
+      Item item = items[i];
+      for (ItemPart ip in List.of(item.itemParts)) {
+        if (ip.participant == participant) {
+          if (ip.amount != null) {
+            item.amount -= ip.amount!;
+          } else if (ip.rate != null) {
+            item.amount += item.shareOf(participant);
+          }
+          item.itemParts.remove(ip);
+          await ip.conn.delete();
+        }
+      }
+      if (item.emitter == participant || item.itemParts.isEmpty) {
+        items.remove(item);
+        await item.conn.delete();
+      } else {
+        await item.conn.save();
+      }
+    }
+
+    participants.remove(participant);
+    await participant.conn.delete();
   }
 }

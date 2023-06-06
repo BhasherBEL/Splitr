@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:shared/components/project/drawer.dart';
 import 'package:shared/utils/colors.dart';
 import 'package:shared/utils/string.dart';
 import 'package:tuple/tuple.dart';
@@ -108,9 +107,9 @@ class _ItemListState extends State<ItemList> {
                                 motion: const ScrollMotion(),
                                 children: [
                                   SlidableAction(
-                                    onPressed: (BuildContext? context) {
+                                    onPressed: (BuildContext? context) async {
                                       widget.project.deleteItem(item);
-                                      item.conn.delete();
+                                      await item.conn.delete();
                                       setState(() {});
                                     },
                                     icon: Icons.delete,
@@ -218,5 +217,13 @@ class _DynamicSyncState extends State<DynamicSync> {
   @override
   Widget build(BuildContext context) {
     return Text("Last sync ${timeElapsed(widget.time)}");
+  }
+}
+
+class NoGlow extends ScrollBehavior {
+  @override
+  Widget buildOverscrollIndicator(
+      BuildContext context, Widget child, ScrollableDetails details) {
+    return child;
   }
 }

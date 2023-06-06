@@ -8,7 +8,6 @@ import 'package:shared/screens/new_project_screen.dart';
 
 import '../model/project.dart';
 import 'new_entry.dart';
-import 'new_participant.dart';
 import 'project/item_list.dart';
 
 class HomePage extends StatefulWidget {
@@ -68,37 +67,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         actions: [
-          if (hasProject && project!.code != null)
-            PopupMenuButton(
-              itemBuilder: (context) => [
-                buildMenuItem(
-                  text: "Manage users",
-                  icon: Icons.person,
-                ),
-                buildMenuItem(
-                  text: "Share",
-                  icon: Icons.share,
-                  onTap: () {
-                    Share.share(
-                      'Join my shared project with this link:\nhttps://shared.bhasher.com/join?type=${project!.provider.name}&instance=${Uri.encodeComponent(project!.provider.getInstance())}&code=${project!.code}',
-                    );
-                  },
-                ),
-                buildMenuItem(
-                  text: "Settings",
-                  icon: Icons.settings,
-                ),
-                buildMenuItem(
-                  text: "Close",
-                  icon: Icons.close,
-                  onTap: () {
-                    setState(() {
-                      AppData.current = null;
-                    });
-                  },
-                ),
-              ],
-            ),
+          if (hasProject) actionMenu(),
         ],
       ),
       body: hasProject ? pages[pageIndex] : ProjectsList(() => setState(back)),
@@ -135,17 +104,53 @@ class _HomePageState extends State<HomePage> {
           : null,
     );
   }
+
+  PopupMenuButton<dynamic> actionMenu() {
+    return PopupMenuButton(
+      onSelected: (value) async {
+        switch (value) {
+          case 0:
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => NewProjectScreen(
+                  project: project,
+                ),
+              ),
+            );
+            setState(() {});
+            break;
+          case 1:
+            Share.share(
+              'Join my shared project with this link:\nhttps://shared.bhasher.com/join?type=${project!.provider.name}&instance=${Uri.encodeComponent(project!.provider.getInstance())}&code=${project!.code}',
+            );
+            break;
+          case 3:
+            setState(() {
+              AppData.current = null;
+            });
+            break;
+        }
+      },
+      itemBuilder: (context) => [
+        buildMenuItem(value: 0, text: "Edit project", icon: Icons.edit),
+        buildMenuItem(value: 1, text: "Share", icon: Icons.share),
+        // buildMenuItem(value: 2, text: "Settings", icon: Icons.settings),
+        buildMenuItem(value: 3, text: "Close", icon: Icons.close),
+      ],
+    );
+  }
 }
 
 PopupMenuItem buildMenuItem({
+  required final int value,
   required final String text,
   final IconData? icon,
-  final bool? enabled,
-  final void Function()? onTap,
+  final bool enabled = true,
 }) {
   return PopupMenuItem(
-    onTap: onTap,
-    enabled: enabled ?? onTap != null,
+    value: value,
+    enabled: enabled,
     child: ListTile(
       leading: Icon(icon),
       contentPadding: EdgeInsets.zero,
@@ -155,7 +160,7 @@ PopupMenuItem buildMenuItem({
       ),
       minLeadingWidth: 0,
       visualDensity: const VisualDensity(horizontal: -4),
-      enabled: enabled ?? onTap != null,
+      enabled: enabled,
     ),
   );
 }
@@ -193,16 +198,8 @@ class _MainFloatingActionButtonState extends State<MainFloatingActionButton> {
             overlayOpacity: 0,
             children: [
               SpeedDialChild(
-                child: const Icon(Icons.person_add_alt_1_rounded),
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => NewParticipantPage(widget.project!),
-                    ),
-                  );
-                  if (widget.onDone != null) widget.onDone!();
-                },
+                child: const Icon(Icons.note_add_sharp),
+                onTap: () async {},
               ),
               // SpeedDialChild(
               //   child: Icon(Icons.post_add),

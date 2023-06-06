@@ -15,44 +15,6 @@ class _PocketbaseNewProjectState extends State<PocketbaseNewProject> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Create'),
-            const SizedBox(
-              width: 10,
-            ),
-            Switch(
-              value: widget.projectData.join,
-              onChanged: (value) {
-                setState(() {
-                  widget.projectData.join = value;
-                });
-              },
-            ),
-            const SizedBox(
-              width: 10,
-            ),
-            const Text('Join'),
-          ],
-        ),
-        const SizedBox(
-          height: 12,
-        ),
-        TextFormField(
-          validator: (value) => value == null || value.isEmpty
-              ? 'Your project can\'t have an empty title'
-              : null,
-          initialValue: widget.projectData.projectName,
-          onChanged: (value) => widget.projectData.projectName = value,
-          decoration: InputDecoration(
-            labelText: widget.projectData.join ? "Code" : "Title",
-            border: const OutlineInputBorder(),
-          ),
-        ),
-        const SizedBox(
-          height: 12,
-        ),
         if (widget.projectData.providerId == 1)
           Column(
             children: [
@@ -109,6 +71,71 @@ class _PocketbaseNewProjectState extends State<PocketbaseNewProject> {
               ),
             ],
           ),
+        const SizedBox(
+          height: 12,
+        ),
+        TextSwitch(
+          state: widget.projectData.join,
+          leftText: 'Create',
+          rightText: 'Join',
+          onChanged: (value) {
+            setState(() {
+              widget.projectData.join = value;
+            });
+          },
+        ),
+        const SizedBox(
+          height: 12,
+        ),
+        TextFormField(
+          validator: (value) => value == null || value.isEmpty
+              ? 'Your project can\'t have an empty title'
+              : null,
+          initialValue: widget.projectData.projectName,
+          onChanged: (value) => widget.projectData.projectName = value,
+          decoration: InputDecoration(
+            labelText: widget.projectData.join ? "Code" : "Title",
+            border: const OutlineInputBorder(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class TextSwitch extends StatelessWidget {
+  const TextSwitch({
+    super.key,
+    required this.state,
+    this.leftText = '',
+    this.rightText = '',
+    this.onChanged,
+    this.padding = 10,
+  });
+
+  final bool state;
+  final String leftText;
+  final String rightText;
+  final Function(bool newState)? onChanged;
+  final double padding;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(leftText),
+        SizedBox(
+          width: padding,
+        ),
+        Switch(
+          value: state,
+          onChanged: onChanged,
+        ),
+        SizedBox(
+          width: padding,
+        ),
+        Text(rightText),
       ],
     );
   }
