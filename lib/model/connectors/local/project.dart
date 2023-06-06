@@ -1,9 +1,8 @@
-import 'package:shared/model/connectors/local/deleted.dart';
-
 import '../../app_data.dart';
 import '../../item.dart';
 import '../../participant.dart';
 import '../../project.dart';
+import 'deleted.dart';
 import 'item.dart';
 import 'participant.dart';
 

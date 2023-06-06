@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:shared/components/pages/instances/instance_tile.dart';
-import 'package:shared/components/pages/new_instance/new_instance_page.dart';
-import 'package:shared/model/app_data.dart';
-import 'package:shared/model/instance.dart';
-import 'package:shared/utils/navigator/navigator.dart';
+
+import '../../../model/app_data.dart';
+import '../../../model/instance.dart';
+import '../../../utils/navigator/navigator.dart';
+import '../new_instance/new_instance_page.dart';
+import 'instance_tile.dart';
 
 class InstancesListPage extends StatefulWidget {
   const InstancesListPage({super.key});

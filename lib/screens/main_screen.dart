@@ -1,10 +1,10 @@
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
-import 'package:shared/components/pages/project/project_page.dart';
-import 'package:shared/model/app_data.dart';
-import 'package:shared/utils/colors.dart';
 
+import '../components/pages/project/project_page.dart';
 import '../components/pages/projects_list/projects_list_page.dart';
+import '../model/app_data.dart';
+import '../utils/colors.dart';
 
 final defaultLightColorScheme = ColorScheme.fromSwatch(
   primarySwatch: Colors.red,
@@ -40,7 +40,7 @@ class MainScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
       return MaterialApp(
-        title: 'Shared',
+        title: 'Splitr',
         theme: defaultTheme,
         darkTheme: defaultDarkTheme,
         themeMode: ThemeMode.system,

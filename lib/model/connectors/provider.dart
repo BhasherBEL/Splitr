@@ -1,7 +1,6 @@
-import 'package:shared/model/connectors/local/provider.dart';
-import 'package:shared/model/instance.dart';
-import 'package:shared/model/project.dart';
-
+import '../instance.dart';
+import '../project.dart';
+import 'local/provider.dart';
 import 'pocketbase/provider.dart';
 
 abstract class Provider {

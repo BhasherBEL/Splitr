@@ -1,8 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="be.bhasher.shared">
+    package="be.bhasher.splitr">
     <uses-permission android:name="android.permission.INTERNET"/>
    <application
-        android:label="Shared"
+        android:label="Splitr"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -29,10 +29,10 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="http" android:host="shared.bhasher.com" />
-                <data android:scheme="http" android:host="www.shared.bhasher.com" />
-                <data android:scheme="https" android:host="shared.bhasher.com" />
-                <data android:scheme="https" android:host="www.shared.bhasher.com" />
+                <data android:scheme="http" android:host="splitr.bhasher.com" />
+                <data android:scheme="http" android:host="www.splitr.bhasher.com" />
+                <data android:scheme="https" android:host="splitr.bhasher.com" />
+                <data android:scheme="https" android:host="www.splitr.bhasher.com" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

@@ -2,16 +2,16 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:pocketbase/pocketbase.dart';
-import 'package:shared/model/connectors/pocketbase/provider.dart';
-import 'package:shared/model/connectors/provider.dart';
-import 'package:shared/model/instance.dart';
-import 'package:shared/model/project_data.dart';
-import 'package:shared/screens/new_screen.dart';
 
 import '../components/pages/new_project/new_project_page.dart';
 import '../model/app_data.dart';
+import '../model/connectors/pocketbase/provider.dart';
+import '../model/connectors/provider.dart';
+import '../model/instance.dart';
 import '../model/project.dart';
+import '../model/project_data.dart';
 import 'main_screen.dart';
+import 'new_screen.dart';
 
 class NewProjectScreen extends StatelessWidget {
   NewProjectScreen({

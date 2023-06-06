@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared/components/pages/new_instance/new_instance_page.dart';
-import 'package:shared/components/pages/new_instance/new_instance_pocketbase.dart';
-import 'package:shared/utils/tiles/header_tile.dart';
+
+import '../../../utils/tiles/header_tile.dart';
+import 'new_instance_page.dart';
+import 'new_instance_pocketbase.dart';
 
 class NewInstanceSelector extends StatefulWidget {
   const NewInstanceSelector(this.instanceData, {super.key});

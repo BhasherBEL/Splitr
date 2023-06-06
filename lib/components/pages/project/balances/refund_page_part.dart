@@ -1,9 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:shared/model/participant.dart';
-import 'package:shared/model/project.dart';
-import 'package:shared/utils/tiles/header_tile.dart';
+
+import '../../../../model/participant.dart';
+import '../../../../model/project.dart';
+import '../../../../utils/tiles/header_tile.dart';
 
 List<Widget> getRefundPageTiles({
   required final Project project,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shared/components/pages/projects_list/projects_list.dart';
-import 'package:shared/screens/new_project_screen.dart';
+
+import '../../../screens/new_project_screen.dart';
+import 'projects_list.dart';
 
 class ProjectsListPage extends StatefulWidget {
   const ProjectsListPage({super.key});
@@ -17,7 +18,7 @@ class _ProjectsListPageState extends State<ProjectsListPage> {
         centerTitle: true,
         elevation: 4,
         title: const Text(
-          "Shared",
+          "Splitr",
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,

@@ -1,6 +1,5 @@
-import 'package:shared/model/project.dart';
-
 import '../../instance.dart';
+import '../../project.dart';
 import '../provider.dart';
 
 class LocalProvider extends Provider {

@@ -1,14 +1,13 @@
 import 'package:app_links/app_links.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
-import 'package:shared/model/instance.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../db/shared_database.dart';
+import '../db/splitr_database.dart';
 import '../screens/main_screen.dart';
 import '../screens/new_project_screen.dart';
-import 'connectors/local/instance.dart';
+import 'instance.dart';
 import 'project.dart';
 
 class AppData {
@@ -48,7 +47,7 @@ class AppData {
   static init() async {
     hasBeenInit = true;
     sharedPreferences = await SharedPreferences.getInstance();
-    db = await SharedDatabase.instance.database;
+    db = await SplitrDatabase.instance.database;
 
     if (!sharedPreferences.containsKey("firstRun")) {
       firstRun = true;
@@ -95,7 +94,7 @@ class _NewProjectFromLink extends StatelessWidget {
   Widget build(BuildContext context) {
     return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
       return MaterialApp(
-        title: 'Shared',
+        title: 'Splitr',
         theme: defaultTheme,
         darkTheme: defaultDarkTheme,
         themeMode: ThemeMode.system,

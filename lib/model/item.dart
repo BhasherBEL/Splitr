@@ -1,6 +1,6 @@
-import 'package:shared/model/item_part.dart';
-import 'package:shared/model/participant.dart';
-import 'package:shared/model/project.dart';
+import 'item_part.dart';
+import 'participant.dart';
+import 'project.dart';
 
 import 'connectors/local/item.dart';
 

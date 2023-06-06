@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pocketbase/pocketbase.dart';
-import 'package:shared/components/pages/new_instance/new_instance_selector.dart';
-import 'package:shared/model/app_data.dart';
-import 'package:shared/model/connectors/provider.dart';
-import 'package:shared/model/instance.dart';
 
+import '../../../model/app_data.dart';
 import '../../../model/connectors/pocketbase/provider.dart';
+import '../../../model/connectors/provider.dart';
+import '../../../model/instance.dart';
+import 'new_instance_selector.dart';
 
 class NewInstancePage extends StatelessWidget {
   NewInstancePage({

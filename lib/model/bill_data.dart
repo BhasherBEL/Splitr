@@ -1,6 +1,6 @@
-import 'package:shared/model/item_part.dart';
-import 'package:shared/model/participant.dart';
-import 'package:shared/model/project.dart';
+import 'item_part.dart';
+import 'participant.dart';
+import 'project.dart';
 
 import 'item.dart';
 
@@ -78,12 +78,17 @@ shares: ${shares.entries.map((e) => "${e.key.pseudo}:${e.value}").join(",")}""";
       }
       item!.itemParts = [];
     }
-    shares.forEach((p, s) {
+    await item!.conn.save();
+    for (var a in shares.entries) {
+      Participant p = a.key;
+      BillPart s = a.value;
       if (s.fixed != null || s.share != null) {
-        item!.itemParts.add(ItemPart(
-            item: item!, participant: p, rate: s.share, amount: s.fixed));
+        ItemPart ip = ItemPart(
+            item: item!, participant: p, rate: s.share, amount: s.fixed);
+        item!.itemParts.add(ip);
+        await ip.conn.save();
       }
-    });
+    }
 
     return item!;
   }

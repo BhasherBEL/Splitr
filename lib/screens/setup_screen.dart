@@ -11,7 +11,7 @@ class SetupScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
       return MaterialApp(
-        title: 'Shared',
+        title: 'Splitr',
         theme: defaultTheme,
         darkTheme: defaultDarkTheme,
         themeMode: ThemeMode.system,

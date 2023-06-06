@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shared/model/app_data.dart';
-import 'package:shared/model/instance.dart';
 
+import '../../../model/app_data.dart';
+import '../../../model/instance.dart';
 import '../../../utils/dialogs/confirm_box.dart';
 import '../../../utils/navigator/navigator.dart';
 import '../new_instance/new_instance_page.dart';

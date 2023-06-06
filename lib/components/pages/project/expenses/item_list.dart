@@ -2,14 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:shared/utils/colors.dart';
-import 'package:shared/utils/string.dart';
 import 'package:tuple/tuple.dart';
 
-import '../../../model/item.dart';
-import '../../../model/project.dart';
-import '../../../utils/time.dart';
-import 'expenses/new_entry.dart';
+import '../../../../utils/string.dart';
+import '../../../../model/item.dart';
+import '../../../../model/project.dart';
+import '../../../../utils/colors.dart';
+import '../../../../utils/time.dart';
+import 'new_entry.dart';
 
 class ItemList extends StatefulWidget {
   const ItemList(this.project, {super.key});

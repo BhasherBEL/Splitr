@@ -1,6 +1,5 @@
-import 'package:shared/model/instance.dart';
-
 import '../../app_data.dart';
+import '../../instance.dart';
 
 const String tableInstances = 'instances';
 

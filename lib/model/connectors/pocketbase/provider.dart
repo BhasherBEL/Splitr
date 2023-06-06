@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:pocketbase/pocketbase.dart';
-import 'package:shared/model/connectors/local/deleted.dart';
-import 'package:shared/model/connectors/pocketbase/deleted.dart';
-import 'package:shared/model/connectors/pocketbase/item.dart';
-import 'package:shared/model/connectors/pocketbase/item_part.dart';
-import 'package:shared/model/connectors/pocketbase/participant.dart';
-import 'package:shared/model/connectors/pocketbase/project.dart';
-import 'package:shared/model/connectors/provider.dart';
-import 'package:shared/model/item.dart';
-import 'package:shared/model/item_part.dart';
-import 'package:shared/model/participant.dart';
 
 import '../../instance.dart';
+import '../../item.dart';
+import '../../item_part.dart';
+import '../../participant.dart';
 import '../../project.dart';
+import '../local/deleted.dart';
+import '../provider.dart';
+import 'deleted.dart';
+import 'item.dart';
+import 'item_part.dart';
+import 'participant.dart';
+import 'project.dart';
 
 class PocketBaseProvider extends Provider {
   PocketBaseProvider(Project project, Instance instance)

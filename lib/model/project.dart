@@ -1,12 +1,12 @@
-import 'package:shared/model/connectors/provider.dart';
-import 'package:shared/model/instance.dart';
-import 'package:shared/model/item_part.dart';
-import 'package:shared/screens/new_project_screen.dart';
 import 'package:tuple/tuple.dart';
 
+import '../screens/new_project_screen.dart';
 import 'app_data.dart';
 import 'connectors/local/project.dart';
+import 'connectors/provider.dart';
+import 'instance.dart';
 import 'item.dart';
+import 'item_part.dart';
 import 'participant.dart';
 
 class ProjectFields {

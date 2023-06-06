@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:select_form_field/select_form_field.dart';
-import 'package:shared/components/pages/instances/instances_list_page.dart';
-import 'package:shared/model/app_data.dart';
-import 'package:shared/utils/navigator/navigator.dart';
-import 'package:shared/utils/string.dart';
-import 'package:shared/utils/switches/text_switch.dart';
+import 'package:splitr/utils/string.dart';
 
+import '../../../model/app_data.dart';
 import '../../../model/instance.dart';
 import '../../../model/project.dart';
 import '../../../model/project_data.dart';
+import '../../../utils/navigator/navigator.dart';
+import '../../../utils/switches/text_switch.dart';
 import '../../../utils/tiles/header_tile.dart';
 import '../../../utils/tiles/participant_tile.dart';
+import '../instances/instances_list_page.dart';
 
 class NewProjectPage extends StatefulWidget {
   const NewProjectPage({super.key, this.project, required this.projectData});

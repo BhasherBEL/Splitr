@@ -2,30 +2,30 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:path/path.dart';
-import 'package:shared/model/connectors/local/deleted.dart';
-import 'package:shared/model/connectors/local/instance.dart';
-import 'package:shared/model/instance.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../model/connectors/local/deleted.dart';
+import '../model/connectors/local/instance.dart';
 import '../model/connectors/local/item.dart';
 import '../model/connectors/local/item_part.dart';
 import '../model/connectors/local/participant.dart';
 import '../model/connectors/local/project.dart';
+import '../model/instance.dart';
 import '../model/item.dart';
 import '../model/item_part.dart';
 import '../model/participant.dart';
 import '../model/project.dart';
 
-class SharedDatabase {
-  static final SharedDatabase instance = SharedDatabase._init();
+class SplitrDatabase {
+  static final SplitrDatabase instance = SplitrDatabase._init();
 
   static Database? _database;
 
-  SharedDatabase._init();
+  SplitrDatabase._init();
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('shared.db');
+    _database = await _initDB('splitr.db');
 
     return _database!;
   }

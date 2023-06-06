@@ -1,7 +1,6 @@
-import 'package:shared/model/app_data.dart';
-import 'package:shared/model/connectors/local/deleted.dart';
-
+import '../../app_data.dart';
 import '../../participant.dart';
+import 'deleted.dart';
 
 const String tableParticipants = 'participants';
 

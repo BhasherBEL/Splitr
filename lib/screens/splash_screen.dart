@@ -20,7 +20,7 @@ class SplashScreen extends StatelessWidget {
         ),
         home: const Scaffold(
           body: Center(
-            child: Text("Starting up Shared ..."),
+            child: Text("Starting up Splitr ..."),
           ),
         ),
       );

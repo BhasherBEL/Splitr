@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:shared/model/participant.dart';
 
+import '../../../../model/participant.dart';
 import '../../../../model/project.dart';
 import 'refund_page_part.dart';
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared/components/pages/new_instance/new_instance_page.dart';
+
+import 'new_instance_page.dart';
 
 class NewInstancePocketbase extends StatefulWidget {
   const NewInstancePocketbase(this.instanceData, {super.key});

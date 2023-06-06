@@ -1,5 +1,5 @@
-name: shared
-description: Shared is a free and open-source app that lets you create multiple projects, add and track expenses, split expenses unevenly between members, and settle up balances between group members. It's a great alternative to other expense tracking apps, especially for groups who need to manage expenses together.
+name: splitr
+description: splitr is a free and open-source app that lets you create multiple projects, add and track expenses, split expenses unevenly between members, and settle up balances between group members. It's a great alternative to other expense tracking apps, especially for groups who need to manage expenses together.
 
 publish_to: 'none'
 

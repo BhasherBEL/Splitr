@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:shared/components/pages/project/project_page.dart';
-import 'package:shared/screens/new_project_screen.dart';
-import 'package:shared/utils/navigator/navigator.dart';
 
 import '../../../model/app_data.dart';
 import '../../../model/project.dart';
+import '../../../screens/new_project_screen.dart';
+import '../../../utils/navigator/navigator.dart';
+import '../project/project_page.dart';
 
 class ProjectsList extends StatefulWidget {
   const ProjectsList({super.key});

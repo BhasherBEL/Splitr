@@ -1,10 +1,10 @@
 import 'package:pocketbase/pocketbase.dart';
-import 'package:shared/model/connectors/external_connector.dart';
-import 'package:shared/model/connectors/pocketbase/deleted.dart';
-import 'package:shared/model/item_part.dart';
-import 'package:shared/model/project.dart';
 
 import '../../item.dart';
+import '../../item_part.dart';
+import '../../project.dart';
+import '../external_connector.dart';
+import 'deleted.dart';
 
 class PocketBaseItemPartsFields {
   static const String id = "id";

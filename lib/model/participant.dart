@@ -1,6 +1,5 @@
-import 'package:shared/model/project.dart';
-
 import 'connectors/local/participant.dart';
+import 'project.dart';
 
 class ParticipantFields {
   static const values = [

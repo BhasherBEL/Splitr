@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:shared/components/pages/project/balances/balancing_page_part.dart';
-import 'package:shared/components/pages/projects_list/projects_list_page.dart';
-import 'package:shared/screens/new_project_screen.dart';
-import 'package:shared/utils/dialogs/confirm_box.dart';
 
 import '../../../model/project.dart';
+import '../../../screens/new_project_screen.dart';
+import '../projects_list/projects_list_page.dart';
+import 'balances/balancing_page_part.dart';
 import 'expenses/new_entry.dart';
-import 'item_list.dart';
+import 'expenses/item_list.dart';
 
 class ProjectPage extends StatefulWidget {
   const ProjectPage(this.project, {super.key});
@@ -108,13 +107,13 @@ class _ProjectPageState extends State<ProjectPage> {
                 actions: [
                   TextButton(
                     onPressed: () => Share.share(
-                      'Join my shared project!\n\nInstance: ${Uri.encodeComponent(widget.project.provider.instance.name)}\nCode: ${widget.project.code}',
+                      'Join my Splitr project!\n\nInstance: ${Uri.encodeComponent(widget.project.provider.instance.name)}\nCode: ${widget.project.code}',
                     ),
                     child: const Text("Share code"),
                   ),
                   TextButton(
                     onPressed: () => Share.share(
-                      'Join my shared project!\nhttps://shared.bhasher.com/join?instance=${Uri.encodeComponent(widget.project.provider.instance.name)}&code=${widget.project.code}',
+                      'Join my Splitr project!\nhttps://splitr.bhasher.com/join?instance=${Uri.encodeComponent(widget.project.provider.instance.name)}&code=${widget.project.code}',
                     ),
                     child: const Text("Share link"),
                   ),

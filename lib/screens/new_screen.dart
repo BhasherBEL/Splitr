@@ -11,7 +11,8 @@ class NewScreen extends StatelessWidget {
 
   String? title;
   Widget child;
-  void Function(BuildContext context, GlobalKey<FormState> formKey)? onValidate;
+  Future Function(BuildContext context, GlobalKey<FormState> formKey)?
+      onValidate;
   final GlobalKey<FormState> formKey = GlobalKey();
   String? buttonTitle;
 
@@ -48,7 +49,7 @@ class NewScreen extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: onValidate == null
                             ? null
-                            : () => onValidate!(context, formKey),
+                            : () async => await onValidate!(context, formKey),
                         child: Padding(
                           padding: const EdgeInsets.all(15.0),
                           child: Text(

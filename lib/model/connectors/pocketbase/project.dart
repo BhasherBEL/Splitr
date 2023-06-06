@@ -1,9 +1,8 @@
 import 'package:pocketbase/pocketbase.dart';
-import 'package:shared/model/connectors/external_connector.dart';
-import 'package:shared/model/connectors/pocketbase/deleted.dart';
-import 'package:shared/screens/new_project_screen.dart';
 
 import '../../project.dart';
+import '../external_connector.dart';
+import 'deleted.dart';
 
 class PocketBaseProjectFields {
   static const String name = "name";
