@@ -81,14 +81,6 @@ class LocalProject {
           whereArgs: [project.localId],
         ) >
         0;
-    if (project.remoteId != null) {
-      await LocalDeleted.add(
-        'projects',
-        project.remoteId!,
-        project,
-        DateTime.now(),
-      );
-    }
     if (res) {
       for (Item item in project.items) {
         await item.conn.delete();

@@ -20,16 +20,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Project? project = AppData.current;
   int pageIndex = 0;
-  late List<Widget> pages;
-
-  @override
-  void initState() {
-    super.initState();
-    pages = [
-      ItemList(project!),
-      BalancingPagePart(project!),
-    ];
-  }
+  List<Widget> pages = [];
 
   void back() {
     project = AppData.current;
@@ -38,6 +29,12 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (project != null && pages.isEmpty) {
+      pages = [
+        ItemList(project!),
+        BalancingPagePart(project!),
+      ];
+    }
     project = AppData.current;
     bool hasProject = project != null;
     return Scaffold(
