@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:select_form_field/select_form_field.dart';
 
-import '../model/bill_data.dart';
-import '../model/item.dart';
-import '../model/participant.dart';
-import '../model/project.dart';
-import '../screens/new_screen.dart';
-import '../utils/formatter/decimal.dart';
-import '../utils/time.dart';
+import '../../../../model/bill_data.dart';
+import '../../../../model/item.dart';
+import '../../../../model/participant.dart';
+import '../../../../model/project.dart';
+import '../../../../screens/new_screen.dart';
+import '../../../../utils/formatter/decimal.dart';
+import '../../../../utils/time.dart';
 
 class NewEntryPage extends StatelessWidget {
   const NewEntryPage(this.project, {super.key, this.item});

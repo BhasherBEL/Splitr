@@ -1,12 +1,14 @@
 import 'package:app_links/app_links.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
+import 'package:shared/model/instance.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../db/shared_database.dart';
 import '../screens/main_screen.dart';
 import '../screens/new_project_screen.dart';
+import 'connectors/local/instance.dart';
 import 'project.dart';
 
 class AppData {
@@ -15,6 +17,7 @@ class AppData {
   static Set<Project> projects = {};
   static late Database db;
   static Project? _current;
+  static Set<Instance> instances = {};
 
   static bool get firstRun {
     return _firstRun;
@@ -51,6 +54,8 @@ class AppData {
       firstRun = sharedPreferences.getBool("firstRun")!;
     }
 
+    AppData.instances = await Instance.getAllInstances();
+
     AppData.projects = await Project.getAllProjects();
 
     if (sharedPreferences.containsKey("lastProject")) {
@@ -62,44 +67,44 @@ class AppData {
       } catch (e) {}
     }
 
-    final _appLinks = AppLinks();
+    // final _appLinks = AppLinks();
 
-    _appLinks.allUriLinkStream.listen((uri) {
-      if (uri.queryParameters.containsKey('type')) {
-        runApp(
-          _NewProjectFromLink(
-            type: uri.queryParameters['type'],
-            code: uri.queryParameters['code'],
-            instance:
-                Uri.decodeComponent(uri.queryParameters['instance'] ?? ""),
-          ),
-        );
-      }
-    });
+    // _appLinks.allUriLinkStream.listen((uri) {
+    //   if (uri.queryParameters.containsKey('type')) {
+    //     runApp(
+    //       _NewProjectFromLink(
+    //         type: uri.queryParameters['type'],
+    //         code: uri.queryParameters['code'],
+    //         instance:
+    //             Uri.decodeComponent(uri.queryParameters['instance'] ?? ""),
+    //       ),
+    //     );
+    //   }
+    // });
   }
 }
 
-class _NewProjectFromLink extends StatelessWidget {
-  const _NewProjectFromLink({this.type, this.code, this.instance});
+// class _NewProjectFromLink extends StatelessWidget {
+//   const _NewProjectFromLink({this.type, this.code, this.instance});
 
-  final String? type;
-  final String? code;
-  final String? instance;
+//   final String? type;
+//   final String? code;
+//   final String? instance;
 
-  @override
-  Widget build(BuildContext context) {
-    return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
-      return MaterialApp(
-        title: 'Shared',
-        theme: defaultTheme,
-        darkTheme: defaultDarkTheme,
-        themeMode: ThemeMode.system,
-        home: NewProjectScreen(
-          type: type,
-          code: code,
-          instance: instance,
-        ),
-      );
-    });
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
+//       return MaterialApp(
+//         title: 'Shared',
+//         theme: defaultTheme,
+//         darkTheme: defaultDarkTheme,
+//         themeMode: ThemeMode.system,
+//         home: NewProjectScreen(
+//           type: type,
+//           code: code,
+//           instance: instance,
+//         ),
+//       );
+//     });
+//   }
+// }

@@ -65,7 +65,7 @@ class _ProjectsListState extends State<ProjectsList> {
                   },
                   title: Text(project.name),
                   subtitle: Text(
-                    project.provider.name,
+                    "${project.provider.instance.name} (${project.provider.instance.type})",
                     style: const TextStyle(
                       fontStyle: FontStyle.italic,
                     ),

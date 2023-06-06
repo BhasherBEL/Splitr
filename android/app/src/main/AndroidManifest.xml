@@ -2,7 +2,7 @@
     package="be.bhasher.shared">
     <uses-permission android:name="android.permission.INTERNET"/>
    <application
-        android:label="shared"
+        android:label="Shared"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

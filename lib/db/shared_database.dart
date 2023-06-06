@@ -1,5 +1,10 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:path/path.dart';
 import 'package:shared/model/connectors/local/deleted.dart';
+import 'package:shared/model/connectors/local/instance.dart';
+import 'package:shared/model/instance.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../model/connectors/local/item.dart';
@@ -31,8 +36,9 @@ class SharedDatabase {
 
     return await openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: _createDB,
+      onUpgrade: _updateDB,
     );
   }
 
@@ -44,8 +50,7 @@ CREATE TABLE $tableProjects (
   ${ProjectFields.name} TEXT NOT NULL,
   ${ProjectFields.code} TEXT NOT NULL,
   ${ProjectFields.currentParticipant} INTEGER,
-  ${ProjectFields.providerId} INTEGER NOT NULL,
-  ${ProjectFields.providerData} TEXT,
+  ${ProjectFields.instance} INTEGER NOT NULL,
   ${ProjectFields.lastSync} INTEGER,
   ${ProjectFields.lastUpdate} INTEGER
 )
@@ -96,12 +101,45 @@ CREATE TABLE $tableDeleted (
   ${DeletedFields.updated} INTEGER
 )
 ''');
+
+    await db.execute('''
+CREATE TABLE $tableInstances (
+  ${InstanceFields.localId} INTEGER PRIMARY KEY AUTOINCREMENT,
+  ${InstanceFields.type} TEXT NOT NULL,
+  ${InstanceFields.name} TEXT NOT NULL,
+  ${InstanceFields.data} TEXT
+)
+''');
+
+    await db.insert(tableInstances, {
+      InstanceFields.type: "local",
+      InstanceFields.name: "local",
+      InstanceFields.data: json.encode({}),
+    });
   }
 
   Future close() async {
     if (_database != null) {
       final db = await instance.database;
       db.close();
+    }
+  }
+
+  Future _updateDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 4) {
+      await db.execute('''
+CREATE TABLE $tableInstances (
+  ${InstanceFields.localId} INTEGER PRIMARY KEY AUTOINCREMENT,
+  ${InstanceFields.name} TEXT NUL NULL,
+  ${InstanceFields.data} JSON
+)
+''');
+
+      await db.insert(tableInstances, {
+        InstanceFields.type: "local",
+        InstanceFields.name: "local",
+        InstanceFields.data: json.encode({}),
+      });
     }
   }
 }

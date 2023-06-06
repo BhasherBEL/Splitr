@@ -1,15 +1,14 @@
 import 'package:shared/model/connectors/local/provider.dart';
+import 'package:shared/model/instance.dart';
 import 'package:shared/model/project.dart';
 
 import 'pocketbase/provider.dart';
 
 abstract class Provider {
-  Provider(this.project, this.id, this.name, this.data);
+  Provider(this.project, this.instance);
 
   final Project project;
-  final int id;
-  final String name;
-  final String data;
+  final Instance instance;
 
   Future<bool> checkConnection();
 
@@ -20,8 +19,6 @@ abstract class Provider {
   bool hasSync();
 
   Future<bool> joinWithTitle();
-
-  String getInstance();
 
   static String getNameFromId(int id) {
     switch (id) {
@@ -34,12 +31,23 @@ abstract class Provider {
     }
   }
 
-  static Provider initFromId(int id, Project project, String data) {
-    switch (id) {
-      case 0:
-        return LocalProvider(project);
-      case 1:
-        return PocketBaseProvider(project, data);
+  static Provider initFromInstance(Project project, Instance instance) {
+    switch (instance.type) {
+      case 'local':
+        return LocalProvider(project, instance);
+      case 'pocketbase':
+        return PocketBaseProvider(project, instance);
+      default:
+        throw UnimplementedError();
+    }
+  }
+
+  static Future<bool> checkCredentials(Instance instance) async {
+    switch (instance.type) {
+      case 'local':
+        return LocalProvider.checkCredentials(instance);
+      case 'pocketbase':
+        return PocketBaseProvider.checkCredentials(instance);
       default:
         throw UnimplementedError();
     }

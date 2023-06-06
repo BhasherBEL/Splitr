@@ -1,16 +1,16 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:select_form_field/select_form_field.dart';
-import 'package:shared/model/participant.dart';
+import 'package:shared/components/pages/instances/instances_list_page.dart';
+import 'package:shared/model/app_data.dart';
+import 'package:shared/utils/navigator/navigator.dart';
+import 'package:shared/utils/string.dart';
+import 'package:shared/utils/switches/text_switch.dart';
 
+import '../../../model/instance.dart';
 import '../../../model/project.dart';
 import '../../../model/project_data.dart';
 import '../../../utils/tiles/header_tile.dart';
 import '../../../utils/tiles/participant_tile.dart';
-import 'local.dart';
-import 'pocketbase.dart';
 
 class NewProjectPage extends StatefulWidget {
   const NewProjectPage({super.key, this.project, required this.projectData});
@@ -28,9 +28,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
     super.initState();
     if (widget.project != null) {
       widget.projectData.projectName = widget.project!.name;
-      widget.projectData.providerId = widget.project!.provider.id;
-      widget.projectData.providerDataMap =
-          widget.project!.provider.data.split(';').asMap();
+      widget.projectData.instance = widget.project!.provider.instance;
     }
   }
 
@@ -41,35 +39,66 @@ class _NewProjectPageState extends State<NewProjectPage> {
         const SizedBox(
           height: 5,
         ),
-        SelectFormField(
-          validator: (value) => value == null || value.isEmpty
-              ? 'You must select a project type!'
-              : null,
-          type: SelectFormFieldType.dropdown,
-          initialValue: widget.projectData.providerId?.toString(),
-          items: const [
-            {'value': 0, 'label': "Local"},
-            {'value': 1, 'label': "PocketBase"},
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Expanded(
+              child: SelectFormField(
+                validator: (value) => value == null || value.isEmpty
+                    ? 'You must select a project instance!'
+                    : null,
+                type: SelectFormFieldType.dropdown,
+                initialValue: widget.projectData.instance != null
+                    ? widget.projectData.instance!.name
+                    : null,
+                items: AppData.instances
+                    .map<Map<String, dynamic>>((e) => {
+                          'value': e.name,
+                          'label': e.name.firstCapitalize(),
+                        })
+                    .toList(),
+                onChanged: (v) {
+                  setState(() {
+                    widget.projectData.instance = Instance.fromName(v);
+                  });
+                },
+                decoration: const InputDecoration(
+                  labelText: "Project instance",
+                  border: OutlineInputBorder(),
+                  suffixIcon: Icon(Icons.arrow_drop_down),
+                ),
+              ),
+            ),
+            const SizedBox(width: 5),
+            IconButton(
+              onPressed: () {
+                navigatorPush(context, () => const InstancesListPage());
+              },
+              icon: const Icon(Icons.settings),
+            ),
           ],
-          // initialSelection: widget.setupData.providerId,
-          onChanged: (value) {
-            setState(() {
-              widget.projectData.providerId = int.parse(value);
-            });
-          },
-          decoration: const InputDecoration(
-            labelText: "Project type",
-            border: OutlineInputBorder(),
-            suffixIcon: Icon(Icons.arrow_drop_down),
+        ),
+        const SizedBox(height: 12),
+        const HeaderTile("Configuration"),
+        const SizedBox(height: 12),
+        if (widget.project == null)
+          TextSwitch(
+            state: widget.projectData.join,
+            leftText: "Create",
+            rightText: "Join",
+            onChanged: (v) => setState(() => widget.projectData.join = v),
+          ),
+        TextFormField(
+          validator: (value) =>
+              value == null || value.isEmpty ? 'Name can\'t be empty' : null,
+          initialValue: widget.projectData.projectName,
+          onChanged: (value) => widget.projectData.projectName = value,
+          decoration: InputDecoration(
+            labelText:
+                widget.projectData.join ? "Project code" : "Project title",
+            border: const OutlineInputBorder(),
           ),
         ),
-        const SizedBox(
-          height: 12,
-        ),
-        if (widget.projectData.providerId == 0)
-          LocalNewProject(widget.projectData),
-        if (widget.projectData.providerId == 1)
-          PocketbaseNewProject(widget.projectData),
         const SizedBox(
           height: 12,
         ),

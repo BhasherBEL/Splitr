@@ -1,7 +1,10 @@
+import 'package:shared/model/project.dart';
+
+import '../../instance.dart';
 import '../provider.dart';
 
 class LocalProvider extends Provider {
-  LocalProvider(project) : super(project, 0, "local", "");
+  LocalProvider(Project project, Instance instance) : super(project, instance);
 
   static int pid = 0;
 
@@ -33,5 +36,9 @@ class LocalProvider extends Provider {
   @override
   String getInstance() {
     return "local";
+  }
+
+  static Future<bool> checkCredentials(Instance instance) async {
+    return true;
   }
 }

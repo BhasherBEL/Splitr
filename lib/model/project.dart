@@ -1,4 +1,5 @@
 import 'package:shared/model/connectors/provider.dart';
+import 'package:shared/model/instance.dart';
 import 'package:shared/model/item_part.dart';
 import 'package:shared/screens/new_project_screen.dart';
 import 'package:tuple/tuple.dart';
@@ -15,8 +16,7 @@ class ProjectFields {
     name,
     code,
     currentParticipant,
-    providerId,
-    providerData,
+    instance,
     lastSync,
     lastUpdate,
   ];
@@ -26,8 +26,7 @@ class ProjectFields {
   static const String name = 'name';
   static const String code = 'code';
   static const String currentParticipant = 'current_participant';
-  static const String providerId = 'provider_id';
-  static const String providerData = 'provider_data';
+  static const String instance = 'instance';
   static const String lastSync = 'last_sync';
   static const String lastUpdate = 'last_update';
 }
@@ -39,12 +38,11 @@ class Project {
     required this.name,
     this.code,
     this.currentParticipantId,
-    required int providerId,
-    String providerData = '',
+    required Instance instance,
     DateTime? lastSync,
     DateTime? lastUpdate,
   }) {
-    provider = Provider.initFromId(providerId, this, providerData);
+    provider = Provider.initFromInstance(this, instance);
     conn = LocalProject(this);
     AppData.projects.add(this);
     this.lastSync = lastSync ?? DateTime(1970);
@@ -81,8 +79,7 @@ class Project {
       ProjectFields.name: name,
       ProjectFields.code: code ?? getRandom(5),
       ProjectFields.currentParticipant: currentParticipant?.localId,
-      ProjectFields.providerId: provider.id,
-      ProjectFields.providerData: provider.data,
+      ProjectFields.instance: provider.instance.localId,
       ProjectFields.lastSync: lastSync.millisecondsSinceEpoch,
       ProjectFields.lastUpdate: lastUpdate.millisecondsSinceEpoch,
     };
@@ -95,8 +92,7 @@ class Project {
       name: json[ProjectFields.name] as String,
       code: json[ProjectFields.code] as String?,
       currentParticipantId: json[ProjectFields.currentParticipant] as int?,
-      providerId: json[ProjectFields.providerId] as int,
-      providerData: json[ProjectFields.providerData] as String,
+      instance: Instance.fromId(json[ProjectFields.instance] as int)!,
       lastSync: DateTime.fromMillisecondsSinceEpoch(
           json[ProjectFields.lastSync] as int),
       lastUpdate: DateTime.fromMillisecondsSinceEpoch(

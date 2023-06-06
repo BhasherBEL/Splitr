@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared/components/pages/project/balances/balancing_page_part.dart';
-import 'package:shared/model/app_data.dart';
+import 'package:shared/components/pages/projects_list/projects_list_page.dart';
 import 'package:shared/screens/new_project_screen.dart';
 
 import '../../../model/project.dart';
 import 'expenses/new_entry.dart';
-import 'expenses/item_list.dart';
+import 'item_list.dart';
 
 class ProjectPage extends StatefulWidget {
   const ProjectPage(this.project, {super.key});
@@ -64,12 +64,13 @@ class _ProjectPageState extends State<ProjectPage> {
           ],
         ),
         body: pages[pageIndex],
-        floatingActionButton: pageIndex == 0
-            ? MainFloatingActionButton(
-                widget.project,
-                onDone: () => setState(() {}),
-              )
-            : null,
+        floatingActionButton:
+            widget.project.participants.isNotEmpty && pageIndex == 0
+                ? MainFloatingActionButton(
+                    widget.project,
+                    onDone: () => setState(() {}),
+                  )
+                : null,
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: pageIndex,
           onTap: (value) => setState(() {
@@ -97,9 +98,9 @@ class _ProjectPageState extends State<ProjectPage> {
       onSelected: (value) async {
         switch (value) {
           case 0:
-            Share.share(
-              'Join my shared project with this link:\nhttps://shared.bhasher.com/join?type=${widget.project.provider.name}&instance=${Uri.encodeComponent(widget.project.provider.getInstance())}&code=${widget.project.code}',
-            );
+            // Share.share(
+            //   'Join my shared project with this link:\nhttps://shared.bhasher.com/join?type=${widget.project.provider.name}&instance=${Uri.encodeComponent(widget.project.provider.getInstance())}&code=${widget.project.code}',
+            // );
             break;
           case 1:
             await Navigator.push(
@@ -113,9 +114,17 @@ class _ProjectPageState extends State<ProjectPage> {
             setState(() {});
             break;
           case 3:
-            setState(() {
-              AppData.current = null;
-            });
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ProjectsListPage(),
+                ),
+                (route) => false,
+              );
+            }
             break;
         }
       },
@@ -187,22 +196,18 @@ class _MainFloatingActionButtonState extends State<MainFloatingActionButton> {
           child: const Icon(Icons.note_add_sharp),
           onTap: () async {},
         ),
-        // SpeedDialChild(
-        //   child: Icon(Icons.post_add),
-        // ),
-        if (widget.project.participants.isNotEmpty)
-          SpeedDialChild(
-            child: const Icon(Icons.add),
-            onTap: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => NewEntryPage(widget.project),
-                ),
-              );
-              if (widget.onDone != null) widget.onDone!();
-            },
-          ),
+        SpeedDialChild(
+          child: const Icon(Icons.add),
+          onTap: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => NewEntryPage(widget.project),
+              ),
+            );
+            if (widget.onDone != null) widget.onDone!();
+          },
+        ),
       ],
     );
   }

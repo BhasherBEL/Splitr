@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:shared/model/connectors/pocketbase/provider.dart';
 import 'package:shared/model/connectors/provider.dart';
+import 'package:shared/model/instance.dart';
 import 'package:shared/model/project_data.dart';
 import 'package:shared/screens/new_screen.dart';
 
@@ -16,7 +17,6 @@ class NewProjectScreen extends StatelessWidget {
   NewProjectScreen({
     this.first = false,
     this.project,
-    this.type,
     this.code,
     this.instance,
     super.key,
@@ -24,34 +24,25 @@ class NewProjectScreen extends StatelessWidget {
 
   final bool first;
   Project? project;
-  final String? type;
   final String? code;
-  final String? instance;
+  final Instance? instance;
 
   ProjectData setupData = ProjectData();
 
   @override
   Widget build(BuildContext context) {
-    switch (type?.toLowerCase()) {
-      case 'local':
-        setupData.providerId = 0;
-        break;
-      case 'pocketbase':
-        setupData.providerId = 1;
-        setupData.join = true;
-        setupData.projectName = code;
-        if (instance != null) setupData.providerDataMap[0] = instance!;
-        break;
-    }
+    setupData.instance = instance;
+    bool newProject = project == null;
+
     return NewScreen(
       title: first
           ? 'Create your first project!'
-          : project == null
+          : newProject
               ? 'New project'
               : 'Update project',
       buttonTitle: first
           ? 'Let\'s started'
-          : project == null
+          : newProject
               ? 'Create'
               : 'Update',
       child: NewProjectPage(
@@ -60,19 +51,17 @@ class NewProjectScreen extends StatelessWidget {
       ),
       onValidate: (context, formKey) async {
         if (formKey.currentState != null && formKey.currentState!.validate()) {
-          if (project == null) {
+          if (newProject) {
             project = Project(
               name: setupData.projectName!,
               code: setupData.join ? null : getRandom(5),
-              providerId: setupData.providerId!,
-              providerData: setupData.getProviderData(),
+              instance: setupData.instance!,
             );
           } else {
             project!.name = setupData.projectName!;
-            project!.provider = Provider.initFromId(
-              setupData.providerId!,
+            project!.provider = Provider.initFromInstance(
               project!,
-              setupData.getProviderData(),
+              setupData.instance!,
             );
           }
           try {
@@ -101,7 +90,18 @@ class NewProjectScreen extends StatelessWidget {
             runApp(const MainScreen());
           } else {
             if (context.mounted) {
-              Navigator.pop(context, true);
+              if (newProject) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NewProjectScreen(
+                      project: project,
+                    ),
+                  ),
+                );
+              } else {
+                Navigator.pop(context, true);
+              }
             }
           }
         }

@@ -24,7 +24,8 @@ class _ProjectsListPageState extends State<ProjectsListPage> {
           ),
         ),
       ),
-      body: const ProjectsList(),
+      // ignore: prefer_const_constructors
+      body: ProjectsList(),
       floatingActionButton: MainFloatingActionButton(
         onDone: () => setState(() {}),
       ),
@@ -50,7 +51,7 @@ class MainFloatingActionButton extends StatelessWidget {
             builder: (context) => NewProjectScreen(),
           ),
         );
-        if (onDone != null) onDone!();
+        if (onDone != null && context.mounted) onDone!();
       },
       tooltip: 'Add new project',
       child: const Icon(Icons.add),

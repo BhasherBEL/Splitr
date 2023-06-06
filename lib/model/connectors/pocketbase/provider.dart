@@ -11,19 +11,18 @@ import 'package:shared/model/item.dart';
 import 'package:shared/model/item_part.dart';
 import 'package:shared/model/participant.dart';
 
+import '../../instance.dart';
+import '../../project.dart';
+
 class PocketBaseProvider extends Provider {
-  PocketBaseProvider(project, data)
+  PocketBaseProvider(Project project, Instance instance)
       : super(
           project,
-          1,
-          'pocketbase',
-          data,
+          instance,
         ) {
-    dataList = super.data.split(';');
-    pb = PocketBase(dataList.elementAt(0));
+    pb = PocketBase(instance.data['instance']);
   }
 
-  late List<String> dataList;
   late PocketBase pb;
 
   @override
@@ -79,8 +78,8 @@ class PocketBaseProvider extends Provider {
   @override
   Future<bool> connect() async {
     await pb.collection('users').authWithPassword(
-          dataList.elementAt(1),
-          dataList.elementAt(2),
+          instance.data['username'],
+          instance.data['password'],
         );
 
     final bool isValid = pb.authStore.isValid;
@@ -95,11 +94,6 @@ class PocketBaseProvider extends Provider {
   @override
   Future<bool> joinWithTitle() async {
     return await PocketBaseProject(project, pb).join();
-  }
-
-  @override
-  String getInstance() {
-    return dataList.elementAt(0);
   }
 
   static void onClientException(ClientException e, BuildContext c) {
@@ -120,5 +114,23 @@ class PocketBaseProvider extends Provider {
         ),
       );
     }
+  }
+
+  static Future<bool> checkCredentials(Instance instance) async {
+    if (!instance.data.containsKey('instance') ||
+        !instance.data.containsKey('username') ||
+        !instance.data.containsKey('password')) {
+      return false;
+    }
+
+    PocketBase pb = PocketBase(instance.data['instance']);
+
+    await pb.collection('users').authWithPassword(
+          instance.data['username'],
+          instance.data['password'],
+        );
+
+    final bool isValid = pb.authStore.isValid;
+    return isValid;
   }
 }
