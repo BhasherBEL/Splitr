@@ -3,8 +3,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:shared/model/participant.dart';
 import 'package:shared/model/project.dart';
+import 'package:shared/utils/tiles/header_tile.dart';
 
-List<ListTile> getRefundPageTiles({
+List<Widget> getRefundPageTiles({
   required final Project project,
   required final Map<Participant, double> parts,
   required final List<Participant> sortedParticipants,
@@ -12,19 +13,9 @@ List<ListTile> getRefundPageTiles({
 }) {
   bool hasMe = project.currentParticipant != null;
 
-  List<ListTile> tiles = [];
+  List<Widget> tiles = [];
 
-  tiles.add(
-    ListTile(
-      title: const Padding(
-        padding: EdgeInsets.only(left: 8.0),
-        child: Text(
-          "How to refund ?",
-        ),
-      ),
-      tileColor: Theme.of(context).splashColor,
-    ),
-  );
+  tiles.add(const HeaderTile("How to refund ?"));
 
   if (hasMe) {
     tiles.add(
