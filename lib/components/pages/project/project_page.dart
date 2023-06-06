@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shared/components/pages/project/balances/balancing_page_part.dart';
 import 'package:shared/components/pages/projects_list/projects_list_page.dart';
 import 'package:shared/screens/new_project_screen.dart';
+import 'package:shared/utils/dialogs/confirm_box.dart';
 
 import '../../../model/project.dart';
 import 'expenses/new_entry.dart';
@@ -98,9 +99,32 @@ class _ProjectPageState extends State<ProjectPage> {
       onSelected: (value) async {
         switch (value) {
           case 0:
-            // Share.share(
-            //   'Join my shared project with this link:\nhttps://shared.bhasher.com/join?type=${widget.project.provider.name}&instance=${Uri.encodeComponent(widget.project.provider.getInstance())}&code=${widget.project.code}',
-            // );
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text("Share project"),
+                content: const Text(
+                    "You're about to share this project. Please note that in order to join, you must already be connected to the same instance."),
+                actions: [
+                  TextButton(
+                    onPressed: () => Share.share(
+                      'Join my shared project!\n\nInstance: ${Uri.encodeComponent(widget.project.provider.instance.name)}\nCode: ${widget.project.code}',
+                    ),
+                    child: const Text("Share code"),
+                  ),
+                  TextButton(
+                    onPressed: () => Share.share(
+                      'Join my shared project!\nhttps://shared.bhasher.com/join?instance=${Uri.encodeComponent(widget.project.provider.instance.name)}&code=${widget.project.code}',
+                    ),
+                    child: const Text("Share link"),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text("Cancel"),
+                  ),
+                ],
+              ),
+            );
             break;
           case 1:
             await Navigator.push(

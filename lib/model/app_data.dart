@@ -18,6 +18,7 @@ class AppData {
   static late Database db;
   static Project? _current;
   static Set<Instance> instances = {};
+  static bool hasBeenInit = false;
 
   static bool get firstRun {
     return _firstRun;
@@ -45,6 +46,7 @@ class AppData {
   }
 
   static init() async {
+    hasBeenInit = true;
     sharedPreferences = await SharedPreferences.getInstance();
     db = await SharedDatabase.instance.database;
 
@@ -67,44 +69,41 @@ class AppData {
       } catch (e) {}
     }
 
-    // final _appLinks = AppLinks();
+    final appLinks = AppLinks();
 
-    // _appLinks.allUriLinkStream.listen((uri) {
-    //   if (uri.queryParameters.containsKey('type')) {
-    //     runApp(
-    //       _NewProjectFromLink(
-    //         type: uri.queryParameters['type'],
-    //         code: uri.queryParameters['code'],
-    //         instance:
-    //             Uri.decodeComponent(uri.queryParameters['instance'] ?? ""),
-    //       ),
-    //     );
-    //   }
-    // });
+    appLinks.allUriLinkStream.listen((uri) {
+      if (uri.queryParameters.containsKey('code') &&
+          uri.queryParameters.containsKey('instance')) {
+        runApp(
+          _NewProjectFromLink(
+            code: uri.queryParameters['code']!,
+            instanceName: uri.queryParameters['instance']!,
+          ),
+        );
+      }
+    });
   }
 }
 
-// class _NewProjectFromLink extends StatelessWidget {
-//   const _NewProjectFromLink({this.type, this.code, this.instance});
+class _NewProjectFromLink extends StatelessWidget {
+  const _NewProjectFromLink({required this.code, required this.instanceName});
 
-//   final String? type;
-//   final String? code;
-//   final String? instance;
+  final String code;
+  final String instanceName;
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
-//       return MaterialApp(
-//         title: 'Shared',
-//         theme: defaultTheme,
-//         darkTheme: defaultDarkTheme,
-//         themeMode: ThemeMode.system,
-//         home: NewProjectScreen(
-//           type: type,
-//           code: code,
-//           instance: instance,
-//         ),
-//       );
-//     });
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
+      return MaterialApp(
+        title: 'Shared',
+        theme: defaultTheme,
+        darkTheme: defaultDarkTheme,
+        themeMode: ThemeMode.system,
+        home: NewProjectScreen(
+          instance: Instance.fromName(instanceName),
+          code: code,
+        ),
+      );
+    });
+  }
+}

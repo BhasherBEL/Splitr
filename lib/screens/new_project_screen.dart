@@ -34,6 +34,11 @@ class NewProjectScreen extends StatelessWidget {
     setupData.instance = instance;
     bool newProject = project == null;
 
+    if (newProject && code != null) {
+      setupData.projectName = code;
+      setupData.join = true;
+    }
+
     return NewScreen(
       title: first
           ? 'Create your first project!'
@@ -100,7 +105,11 @@ class NewProjectScreen extends StatelessWidget {
                   ),
                 );
               } else {
-                Navigator.pop(context, true);
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context, true);
+                } else {
+                  runApp(const MainScreen());
+                }
               }
             }
           }

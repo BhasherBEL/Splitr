@@ -1,4 +1,5 @@
 import 'package:shared/model/app_data.dart';
+import 'package:shared/model/connectors/local/deleted.dart';
 
 import '../../participant.dart';
 
@@ -39,5 +40,14 @@ class LocalParticipant {
       where: '${ParticipantFields.localId} = ?',
       whereArgs: [participant.localId],
     );
+
+    if (participant.remoteId != null) {
+      await LocalDeleted.add(
+        'participants',
+        participant.remoteId!,
+        participant.project,
+        DateTime.now(),
+      );
+    }
   }
 }

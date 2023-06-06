@@ -85,6 +85,12 @@ class LocalProject {
       for (Item item in project.items) {
         await item.conn.delete();
       }
+
+      await AppData.db.delete(
+        tableDeleted,
+        where: '${DeletedFields.projectId} = ?',
+        whereArgs: [project.remoteId],
+      );
     }
     return res;
   }
