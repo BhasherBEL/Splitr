@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:shared/components/pages/project/project_page.dart';
 import 'package:shared/screens/new_project_screen.dart';
+import 'package:shared/utils/navigator/navigator.dart';
 
-import '../model/app_data.dart';
-import '../model/project.dart';
+import '../../../model/app_data.dart';
+import '../../../model/project.dart';
 
 class ProjectsList extends StatefulWidget {
-  const ProjectsList(this.reload, {super.key});
-
-  final Function reload;
+  const ProjectsList({super.key});
 
   @override
   State<ProjectsList> createState() => _ProjectsListState();
@@ -61,7 +61,7 @@ class _ProjectsListState extends State<ProjectsList> {
                     AppData.current = project;
                     await project.conn.loadParticipants();
                     await project.conn.loadEntries();
-                    widget.reload();
+                    navigatorPush(context, () => ProjectPage(project));
                   },
                   title: Text(project.name),
                   subtitle: Text(

@@ -7,7 +7,7 @@ import 'package:shared/model/connectors/provider.dart';
 import 'package:shared/model/project_data.dart';
 import 'package:shared/screens/new_screen.dart';
 
-import '../components/pages/new_project_page.dart';
+import '../components/pages/new_project/new_project_page.dart';
 import '../model/app_data.dart';
 import '../model/project.dart';
 import 'main_screen.dart';

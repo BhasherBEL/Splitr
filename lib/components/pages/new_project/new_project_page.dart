@@ -5,12 +5,12 @@ import 'package:flutter/services.dart';
 import 'package:select_form_field/select_form_field.dart';
 import 'package:shared/model/participant.dart';
 
-import '../../model/project.dart';
-import '../../model/project_data.dart';
-import '../../utils/tiles/header_tile.dart';
-import '../../utils/tiles/participant_tile.dart';
-import 'new_project/local.dart';
-import 'new_project/pocketbase.dart';
+import '../../../model/project.dart';
+import '../../../model/project_data.dart';
+import '../../../utils/tiles/header_tile.dart';
+import '../../../utils/tiles/participant_tile.dart';
+import 'local.dart';
+import 'pocketbase.dart';
 
 class NewProjectPage extends StatefulWidget {
   const NewProjectPage({super.key, this.project, required this.projectData});
