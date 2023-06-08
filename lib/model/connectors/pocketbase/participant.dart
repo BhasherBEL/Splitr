@@ -104,7 +104,6 @@ class PocketBaseParticipant implements ExternalConnector {
       }
       await p.conn.save();
     }
-    ;
     return true;
   }
 }

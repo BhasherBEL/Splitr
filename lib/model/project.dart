@@ -50,6 +50,7 @@ class Project {
     try {
       currentParticipant = participants
           .firstWhere((element) => element.localId == currentParticipantId);
+      // ignore: empty_catches
     } on StateError {}
   }
 
@@ -144,7 +145,7 @@ class Project {
       DateTime st = DateTime.now();
       bool res = await provider.sync();
       notSyncCount = 0;
-      return Tuple2(true,
+      return Tuple2(res,
           (DateTime.now().difference(st).inMilliseconds / 1000).toString());
     } catch (e) {
       return Tuple2(false, e.toString());

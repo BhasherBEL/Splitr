@@ -27,7 +27,7 @@ class NewEntryPage extends StatelessWidget {
         if (key.currentState!.validate()) {
           Item item = await bill.toItemOf(project);
           await item.conn.saveRecursively();
-          Navigator.pop(context, true);
+          if (context.mounted) Navigator.pop(context, true);
         }
       },
       child: NewEntrySubPage(
@@ -141,6 +141,7 @@ class _NewEntrySubPageState extends State<NewEntrySubPage> {
                 setState(() {
                   widget.bill.amount = parsed;
                 });
+                // ignore: empty_catches
               } catch (e) {}
             },
           ),
@@ -357,6 +358,7 @@ class _NewEntrySubPageState extends State<NewEntrySubPage> {
             double.parse(fixedsController[participant]!.text) != price) {
           fixedsController[participant]!.text = price.toStringAsFixed(2);
         }
+        // ignore: empty_catches
       } catch (e) {}
 
       rows.add(TableRow(
@@ -412,6 +414,7 @@ class _NewEntrySubPageState extends State<NewEntrySubPage> {
                                   ? double.parse(value)
                                   : null);
                         });
+                        // ignore: empty_catches
                       } catch (e) {}
                     },
                     textAlign: TextAlign.center,
@@ -453,6 +456,7 @@ class _NewEntrySubPageState extends State<NewEntrySubPage> {
                         widget.bill.shares[participant] =
                             BillPart(fixed: double.parse(value));
                       });
+                      // ignore: empty_catches
                     } catch (e) {}
                   },
                   textAlign: TextAlign.center,

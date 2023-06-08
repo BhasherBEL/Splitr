@@ -32,11 +32,6 @@ class LocalProvider extends Provider {
     return true;
   }
 
-  @override
-  String getInstance() {
-    return "local";
-  }
-
   static Future<bool> checkCredentials(Instance instance) async {
     return true;
   }

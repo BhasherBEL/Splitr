@@ -33,7 +33,6 @@ class PocketBaseProject extends ExternalConnector<Project> {
     return false;
   }
 
-  @override
   Future<bool> sync() async {
     await project.provider.checkConnection();
     if (project.remoteId == null ||
@@ -77,7 +76,6 @@ class PocketBaseProject extends ExternalConnector<Project> {
     return true;
   }
 
-  @override
   Future<bool> checkUpdate() async {
     RecordModel record = await collection.getOne(project.remoteId!);
     DateTime updated = DateTime.parse(record.updated);

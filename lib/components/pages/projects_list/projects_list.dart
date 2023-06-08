@@ -61,7 +61,9 @@ class _ProjectsListState extends State<ProjectsList> {
                     AppData.current = project;
                     await project.conn.loadParticipants();
                     await project.conn.loadEntries();
-                    navigatorPush(context, () => ProjectPage(project));
+                    if (context.mounted) {
+                      navigatorPush(context, () => ProjectPage(project));
+                    }
                   },
                   title: Text(project.name),
                   subtitle: Text(
