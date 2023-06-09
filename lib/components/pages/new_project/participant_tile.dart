@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../model/participant.dart';
-import '../../model/project.dart';
-import '../dialogs/confirm_box.dart';
+import '../../../model/participant.dart';
+import '../../../model/project.dart';
+import '../../../utils/dialogs/confirm_box.dart';
 
 class ParticipantTile extends StatefulWidget {
   ParticipantTile({
@@ -33,12 +33,8 @@ class _ParticipantTileState extends State<ParticipantTile> {
     bool hasParticipant = widget.participant != null;
     if (!hasParticipant) edit = true;
 
-    bool isMe = widget.participant == widget.project.currentParticipant;
-
     controller = TextEditingController(
-      text: hasParticipant
-          ? widget.participant!.pseudo + (isMe && !edit ? ' (me)' : '')
-          : '',
+      text: hasParticipant ? widget.participant!.pseudo : '',
     );
 
     return ListTile(
@@ -57,9 +53,6 @@ class _ParticipantTileState extends State<ParticipantTile> {
           border: edit ? null : InputBorder.none,
         ),
         controller: controller,
-        style: TextStyle(
-          fontWeight: isMe ? FontWeight.bold : FontWeight.normal,
-        ),
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -82,7 +75,7 @@ class _ParticipantTileState extends State<ParticipantTile> {
                   return;
                 }
               }
-              setState(() {});
+              widget.onChange();
             },
             icon: Icon(edit ? Icons.done : Icons.edit),
           ),
@@ -98,6 +91,11 @@ class _ParticipantTileState extends State<ParticipantTile> {
                     onValidate: () async {
                       await widget.project
                           .deleteParticipant(widget.participant!);
+                      if (widget.project.currentParticipant ==
+                          widget.participant) {
+                        widget.project.currentParticipant = null;
+                        widget.project.currentParticipantId = null;
+                      }
                       widget.onChange();
                       if (context.mounted) Navigator.of(context).pop();
                     },

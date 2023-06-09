@@ -9,7 +9,7 @@ import '../../../model/project_data.dart';
 import '../../../utils/navigator/navigator.dart';
 import '../../../utils/switches/text_switch.dart';
 import '../../../utils/tiles/header_tile.dart';
-import '../../../utils/tiles/participant_tile.dart';
+import 'participant_tile.dart';
 import '../instances/instances_list_page.dart';
 
 class NewProjectPage extends StatefulWidget {
@@ -44,6 +44,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
           children: [
             Expanded(
               child: SelectFormField(
+                enabled: widget.project == null,
                 validator: (value) => value == null || value.isEmpty
                     ? 'You must select a project instance!'
                     : null,
@@ -62,17 +63,20 @@ class _NewProjectPageState extends State<NewProjectPage> {
                     widget.projectData.instance = Instance.fromName(v);
                   });
                 },
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: "Project instance",
-                  border: OutlineInputBorder(),
-                  suffixIcon: Icon(Icons.arrow_drop_down),
+                  border: const OutlineInputBorder(),
+                  suffixIcon: const Icon(Icons.arrow_drop_down),
+                  labelStyle:
+                      TextStyle(color: Theme.of(context).colorScheme.onPrimary),
                 ),
               ),
             ),
             const SizedBox(width: 5),
             IconButton(
-              onPressed: () {
-                navigatorPush(context, () => const InstancesListPage());
+              onPressed: () async {
+                await navigatorPush(context, () => const InstancesListPage());
+                setState(() {});
               },
               icon: const Icon(Icons.settings),
             ),
@@ -99,19 +103,58 @@ class _NewProjectPageState extends State<NewProjectPage> {
             border: const OutlineInputBorder(),
           ),
         ),
+        if (widget.project != null)
+          const SizedBox(
+            height: 12,
+          ),
+        if (widget.project != null)
+          SelectFormField(
+            type: SelectFormFieldType.dropdown,
+            initialValue:
+                widget.project!.currentParticipant?.pseudo ?? "anonymous",
+            items: [
+              ...widget.project!.participants.map<Map<String, dynamic>>((e) => {
+                    'value': e.pseudo,
+                  }),
+              const {'value': 'anonymous', 'label': 'Anonymous'},
+            ],
+            onChanged: (v) {
+              setState(() {
+                if (v == 'anonymous') {
+                  widget.project!.currentParticipant = null;
+                  widget.project!.currentParticipantId = null;
+                } else {
+                  widget.project!.currentParticipant =
+                      widget.project!.participantByPseudo(v);
+                  widget.project!.currentParticipantId =
+                      widget.project!.currentParticipant?.localId;
+                }
+              });
+            },
+            decoration: const InputDecoration(
+              labelText: "Who are you  ?",
+              border: OutlineInputBorder(),
+              suffixIcon: Icon(Icons.arrow_drop_down),
+            ),
+          ),
         const SizedBox(
           height: 12,
         ),
-        if (widget.project != null) ParticipantListWidget(widget.project!),
+        if (widget.project != null)
+          ParticipantListWidget(
+            widget.project!,
+            reloadParent: () => setState(() {}),
+          ),
       ]),
     );
   }
 }
 
 class ParticipantListWidget extends StatefulWidget {
-  const ParticipantListWidget(this.project, {super.key});
+  const ParticipantListWidget(this.project, {super.key, this.reloadParent});
 
   final Project project;
+  final Function()? reloadParent;
 
   @override
   State<ParticipantListWidget> createState() => _ParticipantListWidgetState();
@@ -140,7 +183,7 @@ class _ParticipantListWidgetState extends State<ParticipantListWidget> {
                 ? null
                 : widget.project.participants.elementAt(index),
             setHasNew: setHasNew,
-            onChange: () => setState(() {}),
+            onChange: widget.reloadParent ?? () => setState(() {}),
           ),
           itemCount: widget.project.participants.length + (hasNew ? 1 : 0),
         ),

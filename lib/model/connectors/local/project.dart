@@ -13,7 +13,7 @@ class LocalProject {
 
   final Project project;
 
-  Future loadEntries() async {
+  Future<int> loadEntries() async {
     final rawItems = await AppData.db.query(
       tableItems,
       where: '${ItemFields.project} = ?',
@@ -22,12 +22,18 @@ class LocalProject {
     );
 
     project.items.clear();
+    int err = 0;
 
     for (Map<String, Object?> e in rawItems) {
-      Item item = Item.fromJson(e, project: project);
-      project.items.add(item);
-      await item.conn.loadParts();
+      try {
+        Item item = Item.fromJson(e, project: project);
+        project.items.add(item);
+        await item.conn.loadParts();
+      } on StateError {
+        err++;
+      }
     }
+    return err;
   }
 
   Future loadParticipants() async {

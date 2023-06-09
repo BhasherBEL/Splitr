@@ -11,6 +11,7 @@ import '../../../../model/project.dart';
 import '../../../../screens/new_screen.dart';
 import '../../../../utils/formatter/decimal.dart';
 import '../../../../utils/time.dart';
+import 'entry_table.dart';
 
 class NewEntryPage extends StatelessWidget {
   const NewEntryPage(this.project, {super.key, this.item});
@@ -118,8 +119,14 @@ class _NewEntrySubPageState extends State<NewEntrySubPage> {
             autocorrect: false,
             validator: (value) {
               try {
-                if (double.parse(value!) > 0) return null;
-                return 'Amount can\'t be null';
+                double v = double.parse(value!);
+                if (v <= 0) {
+                  return 'Amount can\'t be null';
+                }
+                if (v + 0.001 < widget.bill.getTotalFixed()) {
+                  return 'Amount is smaller than fixed values';
+                }
+                return null;
               } catch (e) {
                 return 'Amount must be a valid value';
               }
@@ -217,106 +224,39 @@ class _NewEntrySubPageState extends State<NewEntrySubPage> {
           const Divider(),
           Padding(
             padding: const EdgeInsets.only(top: 25),
-            child: Table(
-              // border: const TableBorder(
-              //   horizontalInside: BorderSide(
-              //     width: 1,
-              //     color: Colors.blue,
-              //   ),
-              //   verticalInside: BorderSide(
-              //     width: 1,
-              //     color: Colors.blue,
-              //   ),
-              //   bottom: BorderSide(
-              //     width: 1,
-              //     color: Colors.blue,
-              //   ),
-              //   left: BorderSide(
-              //     width: 1,
-              //     color: Colors.blue,
-              //   ),
-              //   right: BorderSide(
-              //     width: 1,
-              //     color: Colors.blue,
-              //   ),
-              //   top: BorderSide(
-              //     width: 1,
-              //     color: Colors.blue,
-              //   ),
-              // ),
-              columnWidths: const {
-                0: FixedColumnWidth(50),
-                1: FlexColumnWidth(5),
-                2: FlexColumnWidth(2),
-                3: FlexColumnWidth(2),
-              },
-              children: <TableRow>[
-                    TableRow(
-                      children: [
-                        TableCell(
-                          verticalAlignment: TableCellVerticalAlignment.middle,
-                          child: Checkbox(
-                            value: widget.bill.shares.values
-                                        .where((e) =>
-                                            e.fixed != null || e.share != null)
-                                        .length !=
-                                    widget.bill.shares.length
-                                ? widget.bill.shares.values
-                                        .where((e) =>
-                                            e.fixed != null || e.share != null)
-                                        .isNotEmpty
-                                    ? null
-                                    : false
-                                : true,
-                            tristate: true,
-                            onChanged: (value) {
-                              value ??= false;
-                              setState(() {
-                                widget.bill.shares.updateAll(
-                                  (k, v) => BillPart(share: value! ? 1 : null),
-                                );
-                              });
-                            },
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(3),
-                            ),
-                          ),
-                        ),
-                        const TableCell(
-                          verticalAlignment: TableCellVerticalAlignment.middle,
-                          child: Text(
-                            "For whom ?",
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        const TableCell(
-                          verticalAlignment: TableCellVerticalAlignment.middle,
-                          child: Text(
-                            "Rate",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        const TableCell(
-                          verticalAlignment: TableCellVerticalAlignment.middle,
-                          child: Text(
-                            "Total",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
+            child: Table(columnWidths: const {
+              0: FixedColumnWidth(50),
+              1: FlexColumnWidth(5),
+              2: FlexColumnWidth(2),
+              3: FlexColumnWidth(2),
+            }, children: <TableRow>[
+              TableRow(
+                children: [
+                  TableCell(
+                    verticalAlignment: TableCellVerticalAlignment.middle,
+                    child: Checkbox(
+                      value: widget.bill.allParticipants(),
+                      tristate: true,
+                      onChanged: (value) {
+                        value ??= false;
+                        setState(() {
+                          widget.bill.shares.updateAll(
+                            (k, v) => BillPart(share: value! ? 1 : null),
+                          );
+                        });
+                      },
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(3),
+                      ),
                     ),
-                  ] +
-                  getRows(widget.bill, sharesController, fixedsController),
-            ),
+                  ),
+                  const TableHeaderCell(text: "For whom ?"),
+                  const TableHeaderCell(text: "Rate"),
+                  const TableHeaderCell(text: "Total"),
+                ],
+              ),
+              ...getRows(widget.bill, sharesController, fixedsController),
+            ]),
           ),
         ],
       ),
@@ -330,10 +270,11 @@ class _NewEntrySubPageState extends State<NewEntrySubPage> {
   ) {
     final List<TableRow> rows = [];
 
-    double total = widget.bill.totalShares;
+    double shareSize = widget.bill.getTotalShares();
+    double fixedValue = widget.bill.getTotalFixed();
 
-    double fixedBonus = widget.bill.totalFixed /
-        widget.bill.shares.values.where((e) => e.share != null).length;
+    // double fixedBonus = widget.bill.getTotalFixed() /
+    //     widget.bill.shares.values.where((e) => e.share != null).length;
 
     widget.bill.shares.forEach((participant, amount) {
       final newShareValue = amount.share == null
@@ -348,7 +289,9 @@ class _NewEntrySubPageState extends State<NewEntrySubPage> {
 
       double price = max(
           amount.fixed ??
-              widget.bill.amount * (amount.share ?? 0) / total - fixedBonus,
+              (widget.bill.amount - fixedValue) *
+                  (amount.share ?? 0) /
+                  shareSize,
           0);
 
       if (price.isNaN) price = 0;

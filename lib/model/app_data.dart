@@ -49,15 +49,15 @@ class AppData {
     sharedPreferences = await SharedPreferences.getInstance();
     db = await SplitrDatabase.instance.database;
 
-    if (!sharedPreferences.containsKey("firstRun")) {
-      firstRun = true;
-    } else {
-      firstRun = sharedPreferences.getBool("firstRun")!;
-    }
-
     AppData.instances = await Instance.getAllInstances();
 
     AppData.projects = await Project.getAllProjects();
+
+    if (!sharedPreferences.containsKey("firstRun")) {
+      firstRun = AppData.projects.isEmpty;
+    } else {
+      firstRun = sharedPreferences.getBool("firstRun")!;
+    }
 
     if (sharedPreferences.containsKey("lastProject")) {
       try {

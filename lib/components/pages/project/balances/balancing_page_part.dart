@@ -39,27 +39,19 @@ class _BalancingPagePartState extends State<BalancingPagePart> {
       double w = MediaQuery.of(context).size.width / 2;
       bool isMe = widget.project.currentParticipant == p;
       items.add(
-        GestureDetector(
-          onTap: () async {
-            widget.project.currentParticipant = p;
-            widget.project.currentParticipantId = p.localId;
-            widget.project.conn.save();
-            setState(() {});
-          },
-          child: Padding(
-            padding: isMe
-                ? const EdgeInsets.only(top: 5, bottom: 10)
-                : const EdgeInsets.symmetric(vertical: 5),
-            child: CustomPaint(
-              painter: SharePainter(
-                participant: p,
-                share: parts[p]!,
-                isMe: isMe,
-                maxShare: maxShare,
-                screenW: w,
-              ),
-              child: Container(height: 30),
+        Padding(
+          padding: isMe
+              ? const EdgeInsets.only(top: 5, bottom: 10)
+              : const EdgeInsets.symmetric(vertical: 5),
+          child: CustomPaint(
+            painter: SharePainter(
+              participant: p,
+              share: parts[p]!,
+              isMe: isMe,
+              maxShare: maxShare,
+              screenW: w,
             ),
+            child: Container(height: 30),
           ),
         ),
       );

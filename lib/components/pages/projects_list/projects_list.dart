@@ -60,8 +60,15 @@ class _ProjectsListState extends State<ProjectsList> {
                   onTap: () async {
                     AppData.current = project;
                     await project.conn.loadParticipants();
-                    await project.conn.loadEntries();
+                    int err = await project.conn.loadEntries();
                     if (context.mounted) {
+                      if (err > 0) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('$err errors when loading items.'),
+                          ),
+                        );
+                      }
                       navigatorPush(context, () => ProjectPage(project));
                     }
                   },

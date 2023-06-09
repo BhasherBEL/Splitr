@@ -20,16 +20,6 @@ class ProjectPage extends StatefulWidget {
 
 class _ProjectPageState extends State<ProjectPage> {
   int pageIndex = 0;
-  List<Widget> pages = [];
-
-  @override
-  void initState() {
-    super.initState();
-    pages = [
-      ItemList(widget.project),
-      BalancingPagePart(widget.project),
-    ];
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +53,9 @@ class _ProjectPageState extends State<ProjectPage> {
             actionMenu(),
           ],
         ),
-        body: pages[pageIndex],
+        body: pageIndex == 0
+            ? ItemList(widget.project)
+            : BalancingPagePart(widget.project),
         floatingActionButton:
             widget.project.participants.isNotEmpty && pageIndex == 0
                 ? MainFloatingActionButton(
@@ -228,7 +220,10 @@ class _MainFloatingActionButtonState extends State<MainFloatingActionButton> {
                 builder: (context) => NewEntryPage(widget.project),
               ),
             );
-            if (widget.onDone != null) widget.onDone!();
+            if (widget.onDone != null) {
+              widget.onDone!();
+              print('New item!');
+            }
           },
         ),
       ],

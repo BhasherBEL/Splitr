@@ -40,22 +40,25 @@ amount: $amount
 shares: ${shares.entries.map((e) => "${e.key.pseudo}:${e.value}").join(",")}""";
   }
 
-  double get totalShares {
-    return (shares.values
-                .where((element) => element.share != null)
-                .map((e) => e.share)
-                .toList() +
-            [0])
-        .reduce((a, b) => a! + b!)!;
+  bool? allParticipants() {
+    int n =
+        shares.values.where((e) => e.fixed != null || e.share != null).length;
+
+    if (n == 0) {
+      return false;
+    } else if (n == shares.length) {
+      return true;
+    } else {
+      return null;
+    }
   }
 
-  double get totalFixed {
-    return (shares.values
-                .where((element) => element.fixed != null)
-                .map((e) => e.fixed)
-                .toList() +
-            [0])
-        .reduce((a, b) => a! + b!)!;
+  double getTotalShares() {
+    return shares.values.map((e) => e.share ?? 0).fold(0, (a, b) => a + b);
+  }
+
+  double getTotalFixed() {
+    return shares.values.map((e) => e.fixed ?? 0).fold(0, (a, b) => a + b);
   }
 
   Future<Item> toItemOf(Project project) async {

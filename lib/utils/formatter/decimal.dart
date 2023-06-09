@@ -38,7 +38,7 @@ class DecimalTextInputFormatter extends TextInputFormatter {
     }
 
     if (truncated.isEmpty ||
-        RegExp(r'^[0-9]+(.[0-9]{0,2})?$').hasMatch(truncated)) {
+        RegExp(r'^[0-9]*(\.[0-9]{0,2})?$').hasMatch(truncated)) {
       return TextEditingValue(
         text: truncated,
         selection: newSelection,

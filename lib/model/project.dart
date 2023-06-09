@@ -160,6 +160,14 @@ class Project {
     }
   }
 
+  Participant? participantByPseudo(String pseudo) {
+    try {
+      return participants.firstWhere((element) => element.pseudo == pseudo);
+    } catch (e) {
+      return null;
+    }
+  }
+
   Item? itemByRemoteId(String id) {
     try {
       return items.firstWhere((element) => element.remoteId == id);
