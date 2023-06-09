@@ -26,6 +26,8 @@ dependencies:
   share_plus: ^6.3.1
   flutter_speed_dial: ^6.2.0
   app_links: ^3.4.3
+  objectbox: ^2.0.0
+  objectbox_flutter_libs: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -33,6 +35,8 @@ dev_dependencies:
 
   flutter_launcher_icons: ^0.13.1
   flutter_lints: ^2.0.0
+  objectbox_generator: ^2.0.0
+  build_runner: ^2.3.3
 
 flutter:
   uses-material-design: true
