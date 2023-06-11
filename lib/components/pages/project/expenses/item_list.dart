@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:splitr/model/item_part.dart';
+import 'package:splitr/utils/extenders/collections.dart';
 import 'package:tuple/tuple.dart';
 
-import '../../../../utils/string.dart';
+import '../../../../utils/extenders/string.dart';
 import '../../../../model/item.dart';
 import '../../../../model/project.dart';
 import '../../../../utils/colors.dart';
@@ -60,12 +62,13 @@ class _ItemListState extends State<ItemList> {
               onTap: sync,
             ),
           Expanded(
-            child: widget.project.items.isNotEmpty
+            child: widget.project.items.enabled().isNotEmpty
                 ? ScrollConfiguration(
                     behavior: NoGlow(),
                     child: ListView.builder(
                       itemBuilder: (context, index) {
-                        Item item = widget.project.items.elementAt(index);
+                        Item item =
+                            widget.project.items.enabled().elementAt(index);
                         Widget? header;
                         if (lastDate == null ||
                             item.date.day != lastDate!.day ||
@@ -108,8 +111,12 @@ class _ItemListState extends State<ItemList> {
                                 children: [
                                   SlidableAction(
                                     onPressed: (BuildContext? context) async {
-                                      widget.project.deleteItem(item);
-                                      await item.conn.delete();
+                                      item.deleted = true;
+                                      await item.conn.save();
+                                      for (ItemPart ip in item.itemParts) {
+                                        ip.deleted = true;
+                                        await ip.conn.save();
+                                      }
                                       setState(() {});
                                     },
                                     icon: Icons.delete,
@@ -170,7 +177,7 @@ class _ItemListState extends State<ItemList> {
                           ],
                         );
                       },
-                      itemCount: widget.project.items.length,
+                      itemCount: widget.project.items.enabled().length,
                     ),
                   )
                 : Center(

@@ -1,3 +1,5 @@
+import 'package:sqflite/sqflite.dart';
+
 import '../../app_data.dart';
 import '../../instance.dart';
 
@@ -9,25 +11,11 @@ class LocalInstance {
   final Instance instance;
 
   Future save() async {
-    if (instance.localId != null) {
-      final results = await AppData.db.query(
-        tableInstances,
-        where: '${InstanceFields.localId} = ?',
-        whereArgs: [instance.localId],
-      );
-      if (results.isNotEmpty) {
-        await AppData.db.update(
-          tableInstances,
-          instance.toJson(),
-          where: '${InstanceFields.localId} = ?',
-          whereArgs: [instance.localId],
-        );
-        return;
-      }
-    }
-
-    instance.localId =
-        await AppData.db.insert(tableInstances, instance.toJson());
+    instance.localId = await AppData.db.insert(
+      tableInstances,
+      instance.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   Future delete() async {

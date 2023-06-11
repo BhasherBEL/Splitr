@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:splitr/model/connectors/local/instance.dart';
 
 import '../../../model/app_data.dart';
 import '../../../model/instance.dart';

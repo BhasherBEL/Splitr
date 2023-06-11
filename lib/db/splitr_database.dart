@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../model/connectors/local/deleted.dart';
 import '../model/connectors/local/instance.dart';
 import '../model/connectors/local/item.dart';
 import '../model/connectors/local/item_part.dart';
@@ -52,7 +51,8 @@ CREATE TABLE $tableProjects (
   ${ProjectFields.currentParticipant} INTEGER,
   ${ProjectFields.instance} INTEGER NOT NULL,
   ${ProjectFields.lastSync} INTEGER,
-  ${ProjectFields.lastUpdate} INTEGER
+  ${ProjectFields.lastUpdate} INTEGER,
+  ${ProjectFields.deleted} INTEGER NOT NULL
 )
 ''');
 
@@ -64,7 +64,8 @@ CREATE TABLE $tableParticipants (
   ${ParticipantFields.pseudo} TEXT NOT NULL,
   ${ParticipantFields.lastname} TEXT,
   ${ParticipantFields.firstname} TEXT,
-  ${ParticipantFields.lastUpdate} INTEGER
+  ${ParticipantFields.lastUpdate} INTEGER,
+  ${ParticipantFields.deleted} INTEGER NOT NULL
 )
 ''');
 
@@ -77,7 +78,8 @@ CREATE TABLE $tableItems (
   ${ItemFields.emitter} INTEGER NOT NULL,
   ${ItemFields.amount} REAL NOT NULL,
   ${ItemFields.date} INTEGER NOT NULL,
-  ${ItemFields.lastUpdate} INTEGER
+  ${ItemFields.lastUpdate} INTEGER,
+  ${ItemFields.deleted} INTEGER NOT NULL
 )
 ''');
 
@@ -89,16 +91,8 @@ CREATE TABLE $tableItemParts (
   ${ItemPartFields.participantId} INTEGER NOT NULL,
   ${ItemPartFields.rate} REAL,
   ${ItemPartFields.amount} REAL,
-  ${ItemPartFields.lastUpdate} INTEGER
-)
-''');
-
-    await db.execute('''
-CREATE TABLE $tableDeleted (
-  ${DeletedFields.collection} TEXT NOT NULL,
-  ${DeletedFields.projectId} INTEGER NOT NULL,
-  ${DeletedFields.uid} TEXT NOT NULL,
-  ${DeletedFields.updated} INTEGER
+  ${ItemPartFields.lastUpdate} INTEGER,
+  ${ItemPartFields.deleted} INTEGER NOT NULL
 )
 ''');
 

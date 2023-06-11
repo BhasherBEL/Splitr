@@ -1,12 +1,14 @@
+import 'package:splitr/model/connectors/local/generic.dart';
+import 'package:sqflite/sqlite_api.dart';
+
 import '../../app_data.dart';
 import '../../item.dart';
 import '../../item_part.dart';
-import 'deleted.dart';
 import 'item_part.dart';
 
 const String tableItems = 'items';
 
-class LocalItem {
+class LocalItem extends LocalGeneric {
   LocalItem(this.item);
 
   final Item item;
@@ -22,47 +24,15 @@ class LocalItem {
         .toList();
   }
 
-  Future save() async {
-    if (item.localId != null) {
-      final results = await AppData.db.query(
-        tableItems,
-        where: '${ItemFields.localId} = ?',
-        whereArgs: [item.localId],
-      );
-      if (results.isNotEmpty) {
-        await AppData.db.update(
-          tableItems,
-          item.toJson(),
-          where: '${ItemFields.localId} = ?',
-          whereArgs: [item.localId],
-        );
-        item.project.notSyncCount++;
-        return;
-      }
-    }
-    item.localId = await AppData.db.insert(tableItems, item.toJson());
-    item.project.notSyncCount++;
-  }
-
-  Future delete() async {
-    await AppData.db.delete(
+  @override
+  Future<bool> save() async {
+    item.localId = await AppData.db.insert(
       tableItems,
-      where: '${ItemFields.localId} = ?',
-      whereArgs: [item.localId],
+      item.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
     );
-
-    if (item.remoteId != null) {
-      await LocalDeleted.add(
-        'items',
-        item.remoteId!,
-        item.project,
-        DateTime.now(),
-      );
-    }
-
-    for (final ItemPart ip in item.itemParts) {
-      await ip.conn.delete();
-    }
+    item.project.notSyncCount++;
+    return true;
   }
 
   Future saveRecursively() async {

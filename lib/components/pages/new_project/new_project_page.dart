@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:select_form_field/select_form_field.dart';
-import 'package:splitr/utils/string.dart';
+import 'package:splitr/utils/extenders/collections.dart';
+import 'package:splitr/utils/extenders/string.dart';
 
 import '../../../model/app_data.dart';
 import '../../../model/instance.dart';
@@ -179,13 +180,15 @@ class _ParticipantListWidgetState extends State<ParticipantListWidget> {
           physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) => ParticipantTile(
             project: widget.project,
-            participant: hasNew && index >= widget.project.participants.length
-                ? null
-                : widget.project.participants.elementAt(index),
+            participant:
+                hasNew && index >= widget.project.participants.enabled().length
+                    ? null
+                    : widget.project.participants.enabled().elementAt(index),
             setHasNew: setHasNew,
             onChange: widget.reloadParent ?? () => setState(() {}),
           ),
-          itemCount: widget.project.participants.length + (hasNew ? 1 : 0),
+          itemCount:
+              widget.project.participants.enabled().length + (hasNew ? 1 : 0),
         ),
         SizedBox(
           width: MediaQuery.of(context).size.width,

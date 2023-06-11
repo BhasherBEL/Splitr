@@ -1,3 +1,5 @@
+import 'package:splitr/utils/extenders/collections.dart';
+
 import 'item_part.dart';
 import 'participant.dart';
 import 'project.dart';
@@ -17,7 +19,9 @@ class BillData {
     amount = item?.amount ?? 0;
     if (item != null) {
       for (ItemPart ip in item!.itemParts) {
-        shares[ip.participant] = BillPart(share: ip.rate, fixed: ip.amount);
+        if (!ip.deleted) {
+          shares[ip.participant] = BillPart(share: ip.rate, fixed: ip.amount);
+        }
       }
     }
   }
@@ -76,20 +80,33 @@ shares: ${shares.entries.map((e) => "${e.key.pseudo}:${e.value}").join(",")}""";
       item!.date = date;
       item!.emitter = emitter;
       item!.title = title.isEmpty ? 'No title' : title;
-      for (var element in item!.itemParts) {
-        await element.conn.delete();
-      }
-      item!.itemParts = [];
+      // for (var element in item!.itemParts) {
+      //   await element.conn.delete();
+      // }
+      // item!.itemParts = [];
     }
     await item!.conn.save();
+
+    List<ItemPart> previous = item!.itemParts.toList();
+
     for (var a in shares.entries) {
       Participant p = a.key;
       BillPart s = a.value;
       if (s.fixed != null || s.share != null) {
-        ItemPart ip = ItemPart(
-            item: item!, participant: p, rate: s.share, amount: s.fixed);
-        item!.itemParts.add(ip);
+        ItemPart ip =
+            item!.partByParticipant(p) ?? ItemPart(item: item!, participant: p);
+        ip.rate = s.share;
+        ip.amount = s.fixed;
+        ip.deleted = false;
+        item!.itemParts.setPresence(true, ip);
         await ip.conn.save();
+      } else {
+        ItemPart? ip = item!.partByParticipant(p);
+        if (ip != null) {
+          ip.deleted = true;
+          await ip.conn.save();
+          // item!.itemParts.setPresence(false, ip);
+        }
       }
     }
 

@@ -1,10 +1,13 @@
 import 'package:pocketbase/pocketbase.dart';
+import 'package:splitr/utils/extenders/datetime.dart';
+import 'package:splitr/utils/extenders/collections.dart';
+import 'package:splitr/utils/extenders/pocketbase.dart';
+import 'package:tuple/tuple.dart';
 
 import '../../item.dart';
 import '../../item_part.dart';
+import '../../participant.dart';
 import '../../project.dart';
-import '../external_connector.dart';
-import 'deleted.dart';
 
 class PocketBaseItemPartsFields {
   static const String id = "id";
@@ -12,107 +15,85 @@ class PocketBaseItemPartsFields {
   static const String participantId = "participant_id";
   static const String rate = "rate";
   static const String amount = "amount";
+  static const String deleted = "deleted";
 }
 
-class PocketBaseItemPart implements ExternalConnector {
-  PocketBaseItemPart(this.project, this.itemPart, this.pb) {
-    collection = pb.collection("itemParts");
+class PocketBaseItemPart {
+  static Map<String, dynamic> toJson(ItemPart i) {
+    return {
+      PocketBaseItemPartsFields.itemId: i.item.remoteId,
+      PocketBaseItemPartsFields.participantId: i.participant.remoteId,
+      PocketBaseItemPartsFields.amount: i.amount,
+      PocketBaseItemPartsFields.rate: i.rate,
+      PocketBaseItemPartsFields.deleted: i.deleted,
+    };
   }
 
-  final PocketBase pb;
-  final ItemPart itemPart;
-  final Project project;
-  late final RecordService collection;
+  static Tuple2<bool, ItemPart> fromRecord(RecordModel e, Item item) {
+    ItemPart? i = item.partByRemoteId(e.id);
 
-  @override
-  Future<bool> delete() async {
-    if (itemPart.remoteId != null) {
-      await collection.delete(itemPart.remoteId!);
-      await PocketBaseDeleted.delete(
-        pb,
-        project,
-        "itemParts",
-        itemPart.remoteId!,
+    Participant participant = item.project.participantByRemoteId(
+        e.getStringValue(PocketBaseItemPartsFields.participantId))!;
+    double? amount = e.getDoubleOrNullValue(PocketBaseItemPartsFields.amount);
+    double? rate = e.getDoubleOrNullValue(PocketBaseItemPartsFields.rate);
+    DateTime lastUpdate = DateTime.parse(e.updated);
+    bool deleted = e.getBoolValue(PocketBaseItemPartsFields.deleted);
+
+    if (i == null) {
+      i = ItemPart(
+        item: item,
+        participant: participant,
+        amount: amount,
+        rate: rate,
+        lastUpdate: lastUpdate,
+        remoteId: e.id,
+        deleted: deleted,
       );
+      return Tuple2(true, i);
     }
-    return true;
-  }
-
-  @override
-  Future<bool> pushIfChange() async {
-    if (itemPart.remoteId == null) {
-      await create();
-    } else if (itemPart.lastUpdate.difference(project.lastSync).inMilliseconds >
-        0) {
-      await update();
+    if (lastUpdate > i.lastUpdate) {
+      i.participant = participant;
+      i.amount = amount;
+      i.rate = rate;
+      i.lastUpdate = lastUpdate;
+      i.deleted;
+      return Tuple2(true, i);
     }
-    return true;
+    return Tuple2(false, i);
   }
 
-  @override
-  Future<bool> create() async {
-    RecordModel recordModel = await collection.create(
-      body: <String, dynamic>{
-        PocketBaseItemPartsFields.itemId: itemPart.item.remoteId,
-        PocketBaseItemPartsFields.participantId: itemPart.participant.remoteId,
-        PocketBaseItemPartsFields.amount: itemPart.amount,
-        PocketBaseItemPartsFields.rate: itemPart.rate,
-      },
+  static Future<bool> sync(PocketBase pb, Item item) async {
+    RecordService collection = pb.collection("itemParts");
+
+    // Get new dist records
+    List<RecordModel> records = await collection.getFullList(
+      filter:
+          'updated > "${item.project.lastSync.toUtc()}" && ${PocketBaseItemPartsFields.itemId} = "${item.remoteId}"',
     );
-    itemPart.remoteId = recordModel.id;
-    await itemPart.conn.save();
-    return true;
-  }
 
-  @override
-  Future<bool> update() async {
-    await collection.update(
-      itemPart.remoteId!,
-      body: <String, dynamic>{
-        PocketBaseItemPartsFields.itemId: itemPart.item.remoteId,
-        PocketBaseItemPartsFields.participantId: itemPart.participant.remoteId,
-        PocketBaseItemPartsFields.amount: itemPart.amount,
-        PocketBaseItemPartsFields.rate: itemPart.rate,
-      },
-    );
-    return true;
-  }
-
-  static Future<bool> checkNews(
-    PocketBase pb,
-    Project project,
-    Item item,
-  ) async {
-    List<RecordModel> records = await pb.collection("itemParts").getFullList(
-          filter:
-              'updated > "${project.lastSync.toUtc()}" && ${PocketBaseItemPartsFields.itemId} = "${item.remoteId}"',
-        );
+    // Apply new dist records if newer
+    Set<ItemPart> distUpdated = {};
     for (RecordModel e in records) {
-      ItemPart? i = item.partByRemoteId(e.id);
-      if (i == null) {
-        i = ItemPart(
-          item: item,
-          participant: project.participantByRemoteId(
-              e.getStringValue(PocketBaseItemPartsFields.participantId))!,
-          amount: e.getStringValue(PocketBaseItemPartsFields.amount).isEmpty
-              ? null
-              : e.getDoubleValue(PocketBaseItemPartsFields.amount),
-          rate: e.getDoubleValue(PocketBaseItemPartsFields.rate),
-          lastUpdate: DateTime.parse(e.updated),
-          remoteId: e.id,
-        );
-        item.itemParts.add(i);
-      } else {
-        i.participant = project.participantByRemoteId(
-            e.getStringValue(PocketBaseItemPartsFields.participantId))!;
-        i.amount = e.getStringValue(PocketBaseItemPartsFields.amount).isEmpty
-            ? null
-            : e.getDoubleValue(PocketBaseItemPartsFields.amount);
-        i.rate = e.getDoubleValue(PocketBaseItemPartsFields.rate);
-        i.lastUpdate = DateTime.parse(e.updated);
+      Tuple2<bool, ItemPart> res = fromRecord(e, item);
+      if (res.item1) {
+        item.itemParts.setPresence(!res.item2.deleted, res.item2);
+        distUpdated.add(res.item2);
+        await res.item2.conn.save();
       }
-      await i.conn.save();
     }
+
+    // Send local new records
+    for (ItemPart ip in item.itemParts.toList()) {
+      if (distUpdated.contains(ip)) continue;
+
+      if (ip.lastUpdate > item.project.lastSync) {
+        RecordModel rm =
+            await collection.updateOrCreate(id: ip.remoteId, body: toJson(ip));
+        ip.remoteId = rm.id;
+        item.itemParts.setPresence(!ip.deleted, ip);
+      }
+    }
+
     return true;
   }
 }

@@ -1,3 +1,5 @@
+import 'package:splitr/model/data.dart';
+import 'package:splitr/utils/extenders/collections.dart';
 import 'package:tuple/tuple.dart';
 
 import '../screens/new_project_screen.dart';
@@ -19,6 +21,7 @@ class ProjectFields {
     instance,
     lastSync,
     lastUpdate,
+    deleted,
   ];
 
   static const String localId = 'local_id';
@@ -29,24 +32,27 @@ class ProjectFields {
   static const String instance = 'instance';
   static const String lastSync = 'last_sync';
   static const String lastUpdate = 'last_update';
+  static const String deleted = 'deleted';
 }
 
-class Project {
+class Project extends Data {
   Project({
-    this.localId,
-    this.remoteId,
-    required this.name,
-    this.code,
+    super.localId,
+    super.remoteId,
+    required String name,
+    String? code,
     this.currentParticipantId,
     required Instance instance,
     DateTime? lastSync,
-    DateTime? lastUpdate,
+    super.lastUpdate,
+    super.deleted,
   }) {
+    _name = name;
+    _code = code;
+    super.conn = LocalProject(this);
     provider = Provider.initFromInstance(this, instance);
-    conn = LocalProject(this);
     AppData.projects.add(this);
     this.lastSync = lastSync ?? DateTime(1970);
-    this.lastUpdate = lastUpdate ?? DateTime.now();
     try {
       currentParticipant = participants
           .firstWhere((element) => element.localId == currentParticipantId);
@@ -54,19 +60,30 @@ class Project {
     } on StateError {}
   }
 
-  int? localId;
-  String? remoteId;
-  String name;
-  String? code;
+  late String _name;
+
+  late String? _code;
+
   int? currentParticipantId;
   Participant? currentParticipant;
   late Provider provider;
-  late LocalProject conn;
   final List<Item> items = [];
   final List<Participant> participants = [];
   late DateTime lastSync;
-  late DateTime lastUpdate;
   int notSyncCount = 0;
+
+  String get name => _name;
+  String? get code => _code;
+
+  set name(String v) {
+    _name = v;
+    lastUpdate = DateTime.now();
+  }
+
+  set code(String? v) {
+    _code = v;
+    lastUpdate = DateTime.now();
+  }
 
   double shareOf(Participant participant) {
     return ([0.0] + items.map((e) => e.shareOf(participant)).toList())
@@ -83,6 +100,7 @@ class Project {
       ProjectFields.instance: provider.instance.localId,
       ProjectFields.lastSync: lastSync.millisecondsSinceEpoch,
       ProjectFields.lastUpdate: lastUpdate.millisecondsSinceEpoch,
+      ProjectFields.deleted: deleted ? 1 : 0,
     };
   }
 
@@ -100,11 +118,14 @@ class Project {
           json[ProjectFields.lastUpdate]
               as int //? ?? DateTime.now().millisecondsSinceEpoch
           ),
+      deleted: (json[ProjectFields.deleted] as int) == 1,
     );
   }
 
   static Project? fromId(int localId) {
-    return AppData.projects.firstWhere((element) => element.localId == localId);
+    return AppData.projects
+        .enabled()
+        .firstWhere((element) => element.localId == localId);
   }
 
   static Future<Set<Project>> getAllProjects() async {
@@ -135,21 +156,22 @@ class Project {
   }
 
   static Project? fromName(String s) {
-    return AppData.projects.isEmpty
+    return AppData.projects.enabled().isEmpty
         ? null
-        : AppData.projects.firstWhere((element) => element.name == s);
+        : AppData.projects.enabled().firstWhere((element) => element.name == s);
   }
 
   Future<Tuple2<bool, String>> sync() async {
-    try {
-      DateTime st = DateTime.now();
-      bool res = await provider.sync();
-      notSyncCount = 0;
-      return Tuple2(res,
-          (DateTime.now().difference(st).inMilliseconds / 1000).toString());
-    } catch (e) {
-      return Tuple2(false, e.toString());
-    }
+    // try {
+    DateTime st = DateTime.now();
+    bool res = await provider.sync();
+    notSyncCount = 0;
+    return Tuple2(
+        res, (DateTime.now().difference(st).inMilliseconds / 1000).toString());
+    // } catch (e) {
+    //   print(e);
+    //   return Tuple2(false, e.toString());
+    // }
   }
 
   Participant? participantByRemoteId(String id) {
@@ -177,6 +199,7 @@ class Project {
   }
 
   Future deleteParticipant(Participant participant) async {
+    participant.deleted = true;
     for (int i = 0; i < items.length; i++) {
       Item item = items[i];
       for (ItemPart ip in List.of(item.itemParts)) {
@@ -186,19 +209,20 @@ class Project {
           } else if (ip.rate != null) {
             item.amount += item.shareOf(participant);
           }
+          ip.deleted = true;
           item.itemParts.remove(ip);
-          await ip.conn.delete();
+          await ip.conn.save();
         }
       }
       if (item.emitter == participant || item.itemParts.isEmpty) {
+        item.deleted = true;
         items.remove(item);
-        await item.conn.delete();
+        await item.conn.save();
       } else {
         await item.conn.save();
       }
     }
 
-    participants.remove(participant);
-    await participant.conn.delete();
+    await participant.conn.save();
   }
 }

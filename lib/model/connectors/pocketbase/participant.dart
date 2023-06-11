@@ -1,109 +1,90 @@
 import 'package:pocketbase/pocketbase.dart';
+import 'package:splitr/utils/extenders/datetime.dart';
+import 'package:splitr/utils/extenders/collections.dart';
+import 'package:splitr/utils/extenders/pocketbase.dart';
+import 'package:tuple/tuple.dart';
 
 import '../../participant.dart';
 import '../../project.dart';
-import '../external_connector.dart';
-import 'deleted.dart';
 
 class PocketBaseParticipantFields {
   static const String id = "id";
   static const String pseudo = "pseudo";
-  static const String firstname = "firstname";
-  static const String lastname = "lastname";
   static const String projectId = "project_id";
+  static const String deleted = "deleted";
 }
 
-class PocketBaseParticipant implements ExternalConnector {
-  PocketBaseParticipant(this.project, this.participant, this.pb) {
-    collection = pb.collection("participants");
+class PocketBaseParticipant {
+  static Map<String, dynamic> toJson(Participant p) {
+    return {
+      PocketBaseParticipantFields.projectId: p.project.remoteId,
+      PocketBaseParticipantFields.pseudo: p.pseudo,
+      PocketBaseParticipantFields.deleted: p.deleted,
+    };
   }
 
-  final PocketBase pb;
-  final Participant participant;
-  final Project project;
-  late final RecordService collection;
+  static Tuple2<bool, Participant> fromRecord(RecordModel e, Project project) {
+    Participant? p = project.participantByRemoteId(e.id);
 
-  @override
-  Future<bool> delete() async {
-    if (participant.remoteId != null) {
-      await collection.delete(participant.remoteId!);
-      await PocketBaseDeleted.delete(
-        pb,
-        project,
-        "participants",
-        participant.remoteId!,
+    String pseudo = e.getStringValue(PocketBaseParticipantFields.pseudo);
+    DateTime lastUpdate = DateTime.parse(e.updated);
+    bool deleted = e.getBoolValue(PocketBaseParticipantFields.deleted);
+
+    if (p == null) {
+      p = Participant(
+        project: project,
+        pseudo: pseudo,
+        lastUpdate: lastUpdate,
+        remoteId: e.id,
+        deleted: deleted,
       );
+      return Tuple2(true, p);
     }
-    return true;
-  }
-
-  @override
-  Future<bool> pushIfChange() async {
-    if (participant.remoteId == null) {
-      await create();
-    } else if (participant.lastUpdate
-            .difference(project.lastSync)
-            .inMilliseconds >
-        0) {
-      await update();
+    if (lastUpdate > p.lastUpdate) {
+      p.pseudo = pseudo;
+      p.lastUpdate = lastUpdate;
+      p.deleted = deleted;
+      return Tuple2(true, p);
     }
-    return true;
+
+    return Tuple2(false, p);
   }
 
-  @override
-  Future<bool> create() async {
-    RecordModel recordModel = await collection.create(
-      body: <String, dynamic>{
-        PocketBaseParticipantFields.projectId: project.remoteId,
-        PocketBaseParticipantFields.pseudo: participant.pseudo,
-        PocketBaseParticipantFields.lastname: participant.lastname,
-        PocketBaseParticipantFields.firstname: participant.firstname,
-      },
+  static Future<bool> sync(PocketBase pb, Project project) async {
+    RecordService collection = pb.collection("participants");
+
+    // Get new dist records
+    List<RecordModel> records = await collection.getFullList(
+      filter:
+          'updated > "${project.lastSync.toUtc()}" && ${PocketBaseParticipantFields.projectId} = "${project.remoteId}"',
     );
-    participant.remoteId = recordModel.id;
-    await participant.conn.save();
-    return true;
-  }
 
-  @override
-  Future<bool> update() async {
-    await collection.update(
-      participant.remoteId!,
-      body: <String, dynamic>{
-        PocketBaseParticipantFields.projectId: project.remoteId,
-        PocketBaseParticipantFields.pseudo: participant.pseudo,
-        PocketBaseParticipantFields.lastname: participant.lastname,
-        PocketBaseParticipantFields.firstname: participant.firstname,
-      },
-    );
-    return true;
-  }
-
-  static Future<bool> checkNews(PocketBase pb, Project project) async {
-    List<RecordModel> records = await pb.collection("participants").getFullList(
-          filter:
-              'updated > "${project.lastSync.toUtc()}" && ${PocketBaseParticipantFields.projectId} = "${project.remoteId}"',
-        );
+    // Apply new dist records if newer
+    Set<Participant> distUpdated = {};
     for (RecordModel e in records) {
-      Participant? p = project.participantByRemoteId(e.id);
-      if (p == null) {
-        p = Participant(
-          project: project,
-          pseudo: e.getStringValue(PocketBaseParticipantFields.pseudo),
-          firstname: e.getStringValue(PocketBaseParticipantFields.firstname),
-          lastname: e.getStringValue(PocketBaseParticipantFields.lastname),
-          lastUpdate: DateTime.parse(e.updated),
-          remoteId: e.id,
-        );
-        project.participants.add(p);
-      } else {
-        p.pseudo = e.getStringValue(PocketBaseParticipantFields.pseudo);
-        p.firstname = e.getStringValue(PocketBaseParticipantFields.firstname);
-        p.lastname = e.getStringValue(PocketBaseParticipantFields.lastname);
-        p.lastUpdate = DateTime.parse(e.updated);
+      Tuple2<bool, Participant> res = fromRecord(e, project);
+      if (res.item1) {
+        project.participants.setPresence(!res.item2.deleted, res.item2);
+        distUpdated.add(res.item2);
+        await res.item2.conn.save();
       }
-      await p.conn.save();
     }
+
+    // Send local new records
+    for (Participant p in project.participants.toList()) {
+      if (distUpdated.contains(p)) continue;
+
+      if (p.lastUpdate > project.lastSync) {
+        RecordModel rm = await collection.updateOrCreate(
+          id: p.remoteId,
+          body: toJson(p),
+        );
+        p.remoteId = rm.id;
+        await p.conn.save();
+        project.participants.setPresence(!p.deleted, p);
+      }
+    }
+
     return true;
   }
 }

@@ -1,3 +1,5 @@
+import 'package:splitr/model/data.dart';
+
 import 'item_part.dart';
 import 'participant.dart';
 import 'project.dart';
@@ -14,6 +16,7 @@ class ItemFields {
     amount,
     date,
     lastUpdate,
+    deleted,
   ];
 
   static const String localId = 'local_id';
@@ -24,33 +27,59 @@ class ItemFields {
   static const String amount = 'amount';
   static const String date = 'date';
   static const String lastUpdate = 'last_update';
+  static const String deleted = 'deleted';
 }
 
-class Item {
+class Item extends Data {
   Item({
-    this.localId,
-    this.remoteId,
+    super.localId,
+    super.remoteId,
     required this.project,
-    required this.title,
-    required this.emitter,
-    required this.amount,
-    required this.date,
-    DateTime? lastUpdate,
+    required String title,
+    required Participant emitter,
+    required double amount,
+    required DateTime date,
+    super.lastUpdate,
+    super.deleted,
   }) {
-    conn = LocalItem(this);
-    this.lastUpdate = lastUpdate ?? DateTime.now();
+    _title = title;
+    _emitter = emitter;
+    _amount = amount;
+    _date = date;
+    super.conn = LocalItem(this);
   }
 
-  int? localId;
-  String? remoteId;
   Project project;
-  String title;
-  Participant emitter;
-  double amount;
-  DateTime date;
+  late String _title;
+  late Participant _emitter;
+  late double _amount;
+  late DateTime _date;
   List<ItemPart> itemParts = [];
-  late LocalItem conn;
-  late DateTime lastUpdate;
+
+  String get title => _title;
+  Participant get emitter => _emitter;
+  double get amount => _amount;
+  DateTime get date => _date;
+
+  set title(String title) {
+    _title = title;
+    lastUpdate = DateTime.now();
+  }
+
+  set emitter(Participant emitter) {
+    _emitter = emitter;
+    lastUpdate = DateTime.now();
+  }
+
+  set amount(double amount) {
+    _amount = amount;
+    lastUpdate = DateTime.now();
+  }
+
+  set date(DateTime date) {
+    _date = date;
+    lastUpdate = DateTime.now();
+  }
 
   Map<String, Object?> toJson() => {
         ItemFields.localId: localId,
@@ -61,6 +90,7 @@ class Item {
         ItemFields.amount: amount,
         ItemFields.date: date.millisecondsSinceEpoch,
         ItemFields.lastUpdate: DateTime.now().millisecondsSinceEpoch,
+        ItemFields.deleted: deleted ? 1 : 0,
       };
 
   double shareOf(Participant participant) {
@@ -120,12 +150,21 @@ class Item {
       date: DateTime.fromMillisecondsSinceEpoch(json[ItemFields.date] as int),
       lastUpdate: DateTime.fromMillisecondsSinceEpoch(
           json[ItemFields.lastUpdate] as int),
+      deleted: (json[ItemFields.deleted] as int) == 1,
     );
   }
 
   ItemPart? partByRemoteId(String id) {
     try {
       return itemParts.firstWhere((element) => element.remoteId == id);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  ItemPart? partByParticipant(Participant p) {
+    try {
+      return itemParts.firstWhere((element) => element.participant == p);
     } catch (e) {
       return null;
     }

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:select_form_field/select_form_field.dart';
+import 'package:splitr/model/connectors/local/item.dart';
 
 import '../../../../model/bill_data.dart';
 import '../../../../model/item.dart';
@@ -27,7 +28,7 @@ class NewEntryPage extends StatelessWidget {
       onValidate: (context, key) async {
         if (key.currentState!.validate()) {
           Item item = await bill.toItemOf(project);
-          await item.conn.saveRecursively();
+          await (item.conn as LocalItem).saveRecursively();
           if (context.mounted) Navigator.pop(context, true);
         }
       },
@@ -61,7 +62,6 @@ class _NewEntrySubPageState extends State<NewEntrySubPage> {
 
   @override
   void dispose() {
-    // Clean up the controller when the widget is removed
     dateController.dispose();
     super.dispose();
   }

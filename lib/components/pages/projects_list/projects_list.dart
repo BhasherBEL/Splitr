@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:splitr/model/connectors/local/project.dart';
+import 'package:splitr/utils/extenders/collections.dart';
 
 import '../../../model/app_data.dart';
 import '../../../model/project.dart';
@@ -17,10 +19,10 @@ class ProjectsList extends StatefulWidget {
 class _ProjectsListState extends State<ProjectsList> {
   @override
   Widget build(BuildContext context) {
-    return AppData.projects.isNotEmpty
+    return AppData.projects.enabled().isNotEmpty
         ? ListView.builder(
             itemBuilder: (context, index) {
-              Project project = AppData.projects.elementAt(index);
+              Project project = AppData.projects.enabled().elementAt(index);
               return Slidable(
                 endActionPane: ActionPane(
                   extentRatio: 0.4,
@@ -28,8 +30,8 @@ class _ProjectsListState extends State<ProjectsList> {
                   children: [
                     SlidableAction(
                       onPressed: (BuildContext? context) {
-                        AppData.projects.remove(project);
-                        project.conn.delete();
+                        project.deleted = true;
+                        project.conn.save();
                         setState(() {});
                       },
                       icon: Icons.delete,
@@ -59,8 +61,9 @@ class _ProjectsListState extends State<ProjectsList> {
                 child: ListTile(
                   onTap: () async {
                     AppData.current = project;
-                    await project.conn.loadParticipants();
-                    int err = await project.conn.loadEntries();
+                    await (project.conn as LocalProject).loadParticipants();
+                    int err =
+                        await (project.conn as LocalProject).loadEntries();
                     if (context.mounted) {
                       if (err > 0) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -82,7 +85,7 @@ class _ProjectsListState extends State<ProjectsList> {
                 ),
               );
             },
-            itemCount: AppData.projects.length,
+            itemCount: AppData.projects.enabled().length,
           )
         : const Center(
             child: Text("Create your first project!"),

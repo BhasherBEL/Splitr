@@ -1,11 +1,7 @@
-abstract class ExternalConnector<E> {
+abstract class ExternalConnector {
   ExternalConnector();
-
-  Future<bool> delete();
 
   Future<bool> pushIfChange();
 
-  Future<bool> create();
-
-  Future<bool> update();
+  Map<String, dynamic> toJson();
 }

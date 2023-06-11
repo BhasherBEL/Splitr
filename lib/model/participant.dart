@@ -1,3 +1,5 @@
+import 'package:splitr/model/data.dart';
+
 import 'connectors/local/participant.dart';
 import 'project.dart';
 
@@ -10,6 +12,7 @@ class ParticipantFields {
     lastname,
     firstname,
     lastUpdate,
+    deleted,
   ];
 
   static const String localId = 'local_id';
@@ -19,39 +22,39 @@ class ParticipantFields {
   static const String lastname = 'lastname';
   static const String firstname = 'firstname';
   static const String lastUpdate = 'last_update';
+  static const String deleted = 'deleted';
 }
 
-class Participant {
+class Participant extends Data {
   Participant({
-    this.localId,
-    this.remoteId,
+    super.localId,
+    super.remoteId,
     required this.project,
-    required this.pseudo,
-    this.lastname,
-    this.firstname,
-    DateTime? lastUpdate,
+    required String pseudo,
+    super.lastUpdate,
+    super.deleted,
   }) {
-    conn = LocalParticipant(this);
-    this.lastUpdate = lastUpdate ?? DateTime.now();
+    _pseudo = pseudo;
+    super.conn = LocalParticipant(this);
   }
 
-  int? localId;
-  String? remoteId;
   Project project;
-  String pseudo;
-  String? lastname;
-  String? firstname;
-  late LocalParticipant conn;
-  late DateTime lastUpdate;
+  late String _pseudo;
+
+  String get pseudo => _pseudo;
+
+  set pseudo(String v) {
+    _pseudo = v;
+    lastUpdate = DateTime.now();
+  }
 
   Map<String, Object?> toJson() => {
         ParticipantFields.localId: localId,
         ParticipantFields.remoteId: remoteId,
         ParticipantFields.projectId: project.localId,
         ParticipantFields.pseudo: pseudo,
-        ParticipantFields.lastname: lastname,
-        ParticipantFields.firstname: firstname,
         ParticipantFields.lastUpdate: DateTime.now().millisecondsSinceEpoch,
+        ParticipantFields.deleted: deleted ? 1 : 0,
       };
 
   static Participant fromJson(Project p, Map<String, Object?> json) {
@@ -60,10 +63,9 @@ class Participant {
       remoteId: json[ParticipantFields.remoteId] as String?,
       project: p,
       pseudo: json[ParticipantFields.pseudo] as String,
-      lastname: json[ParticipantFields.lastname] as String?,
-      firstname: json[ParticipantFields.firstname] as String?,
       lastUpdate: DateTime.fromMillisecondsSinceEpoch(
           json[ParticipantFields.lastUpdate] as int),
+      deleted: (json[ParticipantFields.deleted] as int) == 1,
     );
   }
 

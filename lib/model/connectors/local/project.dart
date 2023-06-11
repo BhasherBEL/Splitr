@@ -1,14 +1,16 @@
+import 'package:splitr/model/connectors/local/generic.dart';
+import 'package:sqflite/sqflite.dart';
+
 import '../../app_data.dart';
 import '../../item.dart';
 import '../../participant.dart';
 import '../../project.dart';
-import 'deleted.dart';
 import 'item.dart';
 import 'participant.dart';
 
 const String tableProjects = 'projects';
 
-class LocalProject {
+class LocalProject extends LocalGeneric {
   LocalProject(this.project);
 
   final Project project;
@@ -16,8 +18,9 @@ class LocalProject {
   Future<int> loadEntries() async {
     final rawItems = await AppData.db.query(
       tableItems,
-      where: '${ItemFields.project} = ?',
-      whereArgs: [project.localId],
+      where:
+          '${ItemFields.project} = ? AND (${ItemFields.deleted} == 0 OR ${ItemFields.lastUpdate} > ?)',
+      whereArgs: [project.localId, project.lastSync.millisecondsSinceEpoch],
       orderBy: '${ItemFields.date} DESC',
     );
 
@@ -28,7 +31,7 @@ class LocalProject {
       try {
         Item item = Item.fromJson(e, project: project);
         project.items.add(item);
-        await item.conn.loadParts();
+        await (item.conn as LocalItem).loadParts();
       } on StateError {
         err++;
       }
@@ -40,7 +43,9 @@ class LocalProject {
     final rawParticipants = await AppData.db.query(
       tableParticipants,
       columns: ParticipantFields.values,
-      where: '${ParticipantFields.projectId} = ${project.localId}',
+      where:
+          '${ParticipantFields.projectId} = ? AND (${ParticipantFields.deleted} == 0 OR ${ParticipantFields.lastUpdate} > ?)',
+      whereArgs: [project.localId, project.lastSync.millisecondsSinceEpoch],
     );
 
     project.participants.clear();
@@ -55,48 +60,15 @@ class LocalProject {
     }
   }
 
-  Future save() async {
+  @override
+  Future<bool> save() async {
     project.lastUpdate = DateTime.now();
-    if (project.localId != null) {
-      final results = await AppData.db.query(
-        tableProjects,
-        where: '${ProjectFields.localId} = ?',
-        whereArgs: [project.localId],
-      );
-      if (results.isNotEmpty) {
-        await AppData.db.update(
-          tableProjects,
-          project.toJson(),
-          where: '${ProjectFields.localId} = ?',
-          whereArgs: [project.localId],
-        );
-        project.notSyncCount++;
-        return;
-      }
-    }
-
-    project.localId = await AppData.db.insert(tableProjects, project.toJson());
+    project.localId = await AppData.db.insert(
+      tableProjects,
+      project.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
     project.notSyncCount++;
-  }
-
-  Future delete() async {
-    bool res = await AppData.db.delete(
-          tableProjects,
-          where: '${ProjectFields.localId} = ?',
-          whereArgs: [project.localId],
-        ) >
-        0;
-    if (res) {
-      for (Item item in project.items) {
-        await item.conn.delete();
-      }
-
-      await AppData.db.delete(
-        tableDeleted,
-        where: '${DeletedFields.projectId} = ?',
-        whereArgs: [project.remoteId],
-      );
-    }
-    return res;
+    return true;
   }
 }

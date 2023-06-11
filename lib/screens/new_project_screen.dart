@@ -70,13 +70,13 @@ class NewProjectScreen extends StatelessWidget {
             );
           }
           try {
-            await project!.provider.connect();
+            // await project!.provider.connect();
             AppData.current = project;
             await project!.conn.save();
             if (setupData.join) {
               await project!.provider.joinWithTitle();
+              await project!.sync();
             }
-            await project!.sync();
           } on ClientException catch (e) {
             PocketBaseProvider.onClientException(e, context);
             return;

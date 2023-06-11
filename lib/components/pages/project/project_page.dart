@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:splitr/utils/extenders/collections.dart';
 
 import '../../../model/project.dart';
 import '../../../screens/new_project_screen.dart';
@@ -37,11 +38,12 @@ class _ProjectPageState extends State<ProjectPage> {
                 ),
               ),
               Text(
-                widget.project.participants.length <= 4
+                widget.project.participants.enabled().length <= 4
                     ? widget.project.participants
+                        .enabled()
                         .map((e) => e.pseudo)
                         .join(', ')
-                    : '${widget.project.participants.length} participants',
+                    : '${widget.project.participants.enabled().length} participants',
                 style: const TextStyle(
                   fontSize: 14,
                   fontStyle: FontStyle.italic,
@@ -222,7 +224,6 @@ class _MainFloatingActionButtonState extends State<MainFloatingActionButton> {
             );
             if (widget.onDone != null) {
               widget.onDone!();
-              print('New item!');
             }
           },
         ),

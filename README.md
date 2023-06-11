@@ -8,6 +8,7 @@ Splitr is a free and open-source app that lets you create multiple projects, add
 
 This is currently a beta version. To get the app, you have to build it yourself with flutter or download the latest beta version [here](https://github.com/BhasherBEL/Splitr/releases).
 
+:warning: Upgrading from version 0.x to 0.y does not guarantee compatibility, and backward compatibility is not assured. Proceed with caution.
 
 ## Screenshots
 

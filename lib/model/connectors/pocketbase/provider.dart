@@ -4,11 +4,8 @@ import 'package:pocketbase/pocketbase.dart';
 import '../../instance.dart';
 import '../../item.dart';
 import '../../item_part.dart';
-import '../../participant.dart';
 import '../../project.dart';
-import '../local/deleted.dart';
 import '../provider.dart';
-import 'deleted.dart';
 import 'item.dart';
 import 'item_part.dart';
 import 'participant.dart';
@@ -33,42 +30,15 @@ class PocketBaseProvider extends Provider {
 
   @override
   Future<bool> sync() async {
-    final Map<String, List<String>> deleted =
-        await PocketBaseDeleted.checkNewDeleted(pb, project);
+    if (!await checkConnection()) return false;
+    await connect();
 
-    (await LocalDeleted.getSince(project, project.lastSync)).forEach(
-      (collection, uids) async {
-        for (String uid in uids) {
-          await PocketBaseDeleted.delete(pb, project, collection, uid);
-          await pb.collection(collection).delete(uid);
-        }
-      },
-    );
-
-    await PocketBaseProject(project, pb).sync();
-    for (Participant participant in project.participants) {
-      if (participant.remoteId != null &&
-          deleted['participants']!.contains(participant.remoteId)) {
-        project.participants.remove(participant);
-        await participant.conn.delete();
-      } else {
-        await PocketBaseParticipant(project, participant, pb).pushIfChange();
-      }
-    }
-    await PocketBaseParticipant.checkNews(pb, project);
-
+    await PocketBaseProject.sync(pb, project);
+    await PocketBaseParticipant.sync(pb, project);
+    await PocketBaseItem.sync(pb, project);
     for (Item item in project.items) {
-      if (item.remoteId != null && deleted['items']!.contains(item.remoteId)) {
-        project.items.remove(item);
-        await item.conn.delete();
-      } else {
-        await PocketBaseItem(project, item, pb).pushIfChange();
-        for (ItemPart ip in item.itemParts) {
-          await PocketBaseItemPart(project, ip, pb).pushIfChange();
-        }
-      }
+      await PocketBaseItemPart.sync(pb, item);
     }
-    await PocketBaseItem.checkNews(pb, project);
 
     project.lastSync = DateTime.now();
     await project.conn.save();
@@ -93,7 +63,7 @@ class PocketBaseProvider extends Provider {
 
   @override
   Future<bool> joinWithTitle() async {
-    return await PocketBaseProject(project, pb).join();
+    return await PocketBaseProject.join(pb, project);
   }
 
   static void onClientException(ClientException e, BuildContext c) {

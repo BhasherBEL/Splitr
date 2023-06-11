@@ -1,52 +1,24 @@
+import 'package:splitr/model/connectors/local/generic.dart';
+import 'package:sqflite/sqflite.dart';
+
 import '../../app_data.dart';
 import '../../participant.dart';
-import 'deleted.dart';
 
 const String tableParticipants = 'participants';
 
-class LocalParticipant {
+class LocalParticipant extends LocalGeneric {
   LocalParticipant(this.participant);
 
   final Participant participant;
 
-  Future save() async {
-    if (participant.localId != null) {
-      final results = await AppData.db.query(
-        tableParticipants,
-        where: '${ParticipantFields.localId} = ?',
-        whereArgs: [participant.localId],
-      );
-      if (results.isNotEmpty) {
-        await AppData.db.update(
-          tableParticipants,
-          participant.toJson(),
-          where: '${ParticipantFields.localId} = ?',
-          whereArgs: [participant.localId],
-        );
-        participant.project.notSyncCount++;
-        return;
-      }
-    }
-
-    participant.localId =
-        await AppData.db.insert(tableParticipants, participant.toJson());
-    participant.project.notSyncCount++;
-  }
-
-  Future delete() async {
-    await AppData.db.delete(
+  @override
+  Future<bool> save() async {
+    participant.localId = await AppData.db.insert(
       tableParticipants,
-      where: '${ParticipantFields.localId} = ?',
-      whereArgs: [participant.localId],
+      participant.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
     );
-
-    if (participant.remoteId != null) {
-      await LocalDeleted.add(
-        'participants',
-        participant.remoteId!,
-        participant.project,
-        DateTime.now(),
-      );
-    }
+    participant.project.notSyncCount++;
+    return true;
   }
 }

@@ -1,3 +1,4 @@
+import 'data.dart';
 import 'participant.dart';
 import 'item.dart';
 
@@ -12,6 +13,7 @@ class ItemPartFields {
     rate,
     amount,
     lastUpdate,
+    deleted,
   ];
 
   static const String localId = 'local_id';
@@ -21,30 +23,42 @@ class ItemPartFields {
   static const String rate = 'rate';
   static const String amount = 'amount';
   static const String lastUpdate = 'last_update';
+  static const String deleted = 'deleted';
 }
 
-class ItemPart {
+class ItemPart extends Data {
   ItemPart({
-    this.localId,
-    this.remoteId,
+    super.localId,
+    super.remoteId,
     required this.item,
     required this.participant,
-    this.rate,
-    this.amount,
-    DateTime? lastUpdate,
+    double? rate,
+    double? amount,
+    super.lastUpdate,
+    super.deleted,
   }) {
-    conn = LocalItemPart(this);
-    this.lastUpdate = lastUpdate ?? DateTime.now();
+    _rate = rate;
+    _amount = amount;
+    super.conn = LocalItemPart(this);
   }
 
-  int? localId;
-  String? remoteId;
   Item item;
   Participant participant;
-  double? rate;
-  double? amount;
-  late LocalItemPart conn;
-  late DateTime lastUpdate;
+  double? _rate;
+  double? _amount;
+
+  double? get rate => _rate;
+  double? get amount => _amount;
+
+  set rate(double? rate) {
+    _rate = rate;
+    lastUpdate = DateTime.now();
+  }
+
+  set amount(double? amount) {
+    _amount = amount;
+    lastUpdate = DateTime.now();
+  }
 
   Map<String, Object?> toJson() => {
         ItemPartFields.localId: localId,
@@ -54,6 +68,7 @@ class ItemPart {
         ItemPartFields.rate: rate,
         ItemPartFields.amount: amount,
         ItemPartFields.lastUpdate: DateTime.now().millisecondsSinceEpoch,
+        ItemPartFields.deleted: deleted ? 1 : 0,
       };
 
   static ItemPart fromJson(Map<String, Object?> json, Item item) {
@@ -67,6 +82,7 @@ class ItemPart {
       amount: json[ItemPartFields.amount] as double?,
       lastUpdate: DateTime.fromMillisecondsSinceEpoch(
           json[ItemPartFields.lastUpdate] as int),
+      deleted: (json[ItemPartFields.deleted] as int) == 1,
     );
   }
 }
