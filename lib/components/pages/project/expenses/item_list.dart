@@ -148,7 +148,7 @@ class _ItemListState extends State<ItemList> {
                                 title: Row(children: [
                                   Expanded(
                                       child: Text(item.title.capitalize())),
-                                  Text('${item.amount} €'),
+                                  Text('${item.amount.toStringAsFixed(2)} €'),
                                 ]),
                                 subtitle: Row(
                                   children: [
@@ -160,7 +160,7 @@ class _ItemListState extends State<ItemList> {
                                       ),
                                     ),
                                     Text(
-                                      '$share €',
+                                      '${share.toStringAsFixed(2)} €',
                                       style: TextStyle(
                                         fontStyle: FontStyle.italic,
                                         color: share > 0

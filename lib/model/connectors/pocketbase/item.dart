@@ -90,7 +90,7 @@ class PocketBaseItem {
     }
 
     // Send local new records
-    for (Item i in project.items) {
+    for (Item i in project.items.toList()) {
       if (distUpdated.contains(i)) continue;
 
       if (i.lastUpdate > project.lastSync) {
@@ -100,6 +100,8 @@ class PocketBaseItem {
         project.items.setPresence(!i.deleted, i);
       }
     }
+
+    project.items.sort((a, b) => -a.date.compareTo(b.date));
 
     return true;
   }

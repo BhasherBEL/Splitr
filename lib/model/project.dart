@@ -133,12 +133,14 @@ class Project extends Data {
       tableProjects,
       columns: ProjectFields.values,
     );
+    print(res);
     return res.map((e) => fromJson(e)).toSet();
   }
 
   @override
   bool operator ==(Object other) {
-    return other is Project && name == other.name;
+    return other is Project &&
+        (localId != null ? localId == other.localId : name == other.name);
   }
 
   @override
