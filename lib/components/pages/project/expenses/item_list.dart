@@ -47,20 +47,7 @@ class _ItemListState extends State<ItemList> {
       child: Column(
         children: [
           if (widget.project.provider.hasSync())
-            ListTile(
-              // tileColor: Theme.of(context).splashColor,
-              subtitle: Text(
-                "${widget.project.notSyncCount} changes to push",
-                style: const TextStyle(fontStyle: FontStyle.italic),
-              ),
-              trailing: Icon(
-                Icons.sync,
-                color: Theme.of(context).textTheme.bodyMedium?.color,
-              ),
-              title: DynamicSync(time: widget.project.lastSync),
-              dense: true,
-              onTap: sync,
-            ),
+            SyncTile(project: widget.project, onTap: sync),
           Expanded(
             child: widget.project.items.enabled().isNotEmpty
                 ? ScrollConfiguration(
@@ -232,5 +219,61 @@ class NoGlow extends ScrollBehavior {
   Widget buildOverscrollIndicator(
       BuildContext context, Widget child, ScrollableDetails details) {
     return child;
+  }
+}
+
+class SyncTile extends StatefulWidget {
+  const SyncTile({super.key, required this.project, this.onTap});
+
+  final Project project;
+  final Future<void> Function()? onTap;
+
+  @override
+  State<SyncTile> createState() => _SyncTileState();
+}
+
+class _SyncTileState extends State<SyncTile> {
+  bool isSyncing = false;
+
+  Future<void> onTap() async {
+    setState(() {
+      isSyncing = true;
+    });
+
+    if (widget.onTap != null) await widget.onTap!();
+
+    setState(() {
+      isSyncing = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    print(isSyncing);
+    return ListTile(
+      subtitle: Text(
+        "${widget.project.notSyncCount} changes to push",
+        style: const TextStyle(fontStyle: FontStyle.italic),
+      ),
+      trailing: isSyncing
+          ? Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: SizedBox(
+                width: 15,
+                height: 15,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                ),
+              ),
+            )
+          : Icon(
+              Icons.sync,
+              color: Theme.of(context).textTheme.bodyMedium?.color,
+            ),
+      title: DynamicSync(time: widget.project.lastSync),
+      dense: true,
+      onTap: onTap,
+    );
   }
 }

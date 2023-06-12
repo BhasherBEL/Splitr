@@ -55,8 +55,6 @@ class AppData {
 
     AppData.projects = await Project.getAllProjects();
 
-    print(AppData.projects);
-
     if (!sharedPreferences.containsKey("firstRun")) {
       firstRun = AppData.projects.enabled().isEmpty;
     } else {

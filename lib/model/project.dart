@@ -133,7 +133,6 @@ class Project extends Data {
       tableProjects,
       columns: ProjectFields.values,
     );
-    print(res);
     return res.map((e) => fromJson(e)).toSet();
   }
 
@@ -164,16 +163,16 @@ class Project extends Data {
   }
 
   Future<Tuple2<bool, String>> sync() async {
-    // try {
-    DateTime st = DateTime.now();
-    bool res = await provider.sync();
-    notSyncCount = 0;
-    return Tuple2(
-        res, (DateTime.now().difference(st).inMilliseconds / 1000).toString());
-    // } catch (e) {
-    //   print(e);
-    //   return Tuple2(false, e.toString());
-    // }
+    try {
+      DateTime st = DateTime.now();
+      bool res = await provider.sync();
+      notSyncCount = 0;
+      return Tuple2(res,
+          (DateTime.now().difference(st).inMilliseconds / 1000).toString());
+    } catch (e) {
+      print(e);
+      return Tuple2(false, e.toString());
+    }
   }
 
   Participant? participantByRemoteId(String id) {

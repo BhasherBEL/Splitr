@@ -76,21 +76,20 @@ class PocketBaseItemPart {
     for (RecordModel e in records) {
       Tuple2<bool, ItemPart> res = fromRecord(e, item);
       if (res.item1) {
-        item.itemParts.setPresence(!res.item2.deleted, res.item2);
+        if (!item.itemParts.contains(res.item2)) item.itemParts.add(res.item2);
         distUpdated.add(res.item2);
         await res.item2.conn.save();
       }
     }
 
     // Send local new records
-    for (ItemPart ip in item.itemParts.toList()) {
+    for (ItemPart ip in item.itemParts) {
       if (distUpdated.contains(ip)) continue;
 
       if (ip.lastUpdate > item.project.lastSync) {
         RecordModel rm =
             await collection.updateOrCreate(id: ip.remoteId, body: toJson(ip));
         ip.remoteId = rm.id;
-        item.itemParts.setPresence(!ip.deleted, ip);
       }
     }
 

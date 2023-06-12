@@ -1,4 +1,5 @@
 import 'package:splitr/model/data.dart';
+import 'package:splitr/utils/extenders/collections.dart';
 
 import 'item_part.dart';
 import 'participant.dart';
@@ -98,12 +99,15 @@ class Item extends Data {
     ItemPart? pip;
     double fixedTotal = 0;
     if (itemParts.isNotEmpty) {
-      for (ItemPart ip in itemParts) {
+      for (ItemPart ip in itemParts.enabled()) {
         if (ip.participant == participant) pip = ip;
+        // print("${ip.participant.pseudo} ${ip.rate}");
         totalRate += ip.rate ?? 0;
         fixedTotal += ip.amount ?? 0;
       }
     }
+
+    // print('$title - ${pip?.participant.pseudo}: $amount ${pip?.amount} ${pip?.rate} $totalRate $fixedTotal');
 
     if (pip == null || pip.amount == null && pip.rate == null) {
       return emitter == participant ? amount : 0;
@@ -114,15 +118,15 @@ class Item extends Data {
 
   String toParticipantsString() {
     List<Participant> participants =
-        itemParts.map((e) => e.participant).toList();
+        itemParts.enabled().map((e) => e.participant).toList();
 
-    if (itemParts.length < 4) {
-      return itemParts.map((e) => e.participant.pseudo).join(", ");
+    if (participants.length < 4) {
+      return participants.map((e) => e.pseudo).join(", ");
     }
-    if (itemParts.length == project.participants.length) return 'All';
+    if (participants.length == project.participants.length) return 'All';
 
     List<String> possibilites = [
-      itemParts.map((e) => e.participant.pseudo).join(", "),
+      participants.map((e) => e.pseudo).join(", "),
       'All except ${project.participants.where((element) => !participants.contains(element)).map((e) => e.pseudo).join(', ')}',
     ];
 
