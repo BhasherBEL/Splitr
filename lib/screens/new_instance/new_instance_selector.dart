@@ -27,12 +27,12 @@ class _NewInstanceSelectorState extends State<NewInstanceSelector> {
             initialValue: widget.instanceData.name,
             onChanged: (value) => widget.instanceData.name = value,
             decoration: const InputDecoration(
-              labelText: "Friendly name",
+              labelText: 'Friendly name',
               border: OutlineInputBorder(),
             ),
           ),
         ),
-        const HeaderTile("Instance type"),
+        const HeaderTile('Instance type'),
         ListTile(
           leading: Radio<String>(
             value: 'pocketbase',
@@ -43,10 +43,10 @@ class _NewInstanceSelectorState extends State<NewInstanceSelector> {
               });
             },
           ),
-          title: const Text("Pocketbase"),
+          title: const Text('Pocketbase'),
         ),
-        const HeaderTile("Instance parameters"),
-        if (widget.instanceData.type == "pocketbase")
+        const HeaderTile('Instance parameters'),
+        if (widget.instanceData.type == 'pocketbase')
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: NewInstancePocketbase(widget.instanceData),

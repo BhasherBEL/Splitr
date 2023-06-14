@@ -14,7 +14,7 @@ This is currently a beta version. To get the app, you have to build it yourself 
 
 | | | |
 |:-------------------------:|:-------------------------:|:-------------------------:|
-![Project](https://raw.githubusercontent.com/BhasherBEL/Splitr/master/metadata/en-US/images/phoneScreenshots/1.png) | ![Refund](https://raw.githubusercontent.com/BhasherBEL/Splitr/master/metadata/en-US/images/phoneScreenshots/2.png) | ![New project](https://raw.githubusercontent.com/BhasherBEL/Splitr/master/metadata/en-US/images/phoneScreenshots/3.png) |
+![Project](metadata/en-US/images/phoneScreenshots/1.png) | ![Refund](metadata/en-US/images/phoneScreenshots/2.png) | ![New project](metadata/en-US/images/phoneScreenshots/3.png) |
 
 ## Features
 

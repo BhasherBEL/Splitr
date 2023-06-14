@@ -30,8 +30,8 @@ class _ItemListState extends State<ItemList> {
         SnackBar(
           content: Text(
             res.item1
-                ? "Project synced in ${res.item2} seconds"
-                : "Error: ${res.item2}",
+                ? 'Project synced in ${res.item2} seconds'
+                : 'Error: ${res.item2}',
           ),
         ),
       );
@@ -141,7 +141,7 @@ class _ItemListState extends State<ItemList> {
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        "${item.emitter.pseudo} ➝ ${item.toParticipantsString()}",
+                                        '${item.emitter.pseudo} ➝ ${item.toParticipantsString()}',
                                         style: const TextStyle(
                                             fontStyle: FontStyle.italic),
                                       ),
@@ -169,8 +169,8 @@ class _ItemListState extends State<ItemList> {
                   )
                 : Center(
                     child: Text(widget.project.participants.isEmpty
-                        ? "Add your first participant!"
-                        : "Add your first item!"),
+                        ? 'Add your first participant!'
+                        : 'Add your first item!'),
                   ),
           ),
         ],
@@ -210,7 +210,7 @@ class _DynamicSyncState extends State<DynamicSync> {
 
   @override
   Widget build(BuildContext context) {
-    return Text("Last sync ${widget.time.timeElapsed()}");
+    return Text('Last sync ${widget.time.timeElapsed()}');
   }
 }
 
@@ -251,7 +251,7 @@ class _SyncTileState extends State<SyncTile> {
   Widget build(BuildContext context) {
     return ListTile(
       subtitle: Text(
-        "${widget.project.notSyncCount} changes to push",
+        '${widget.project.notSyncCount} changes to push',
         style: const TextStyle(fontStyle: FontStyle.italic),
       ),
       trailing: isSyncing

@@ -29,7 +29,7 @@ class NewInstancePage extends StatelessWidget {
         centerTitle: true,
         elevation: 4,
         title: const Text(
-          "New instance",
+          'New instance',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -68,7 +68,7 @@ class NewInstancePage extends StatelessWidget {
                       }
                       try {
                         if (!await Provider.checkCredentials(newInstance)) {
-                          throw Exception("Failed to connect");
+                          throw Exception('Failed to connect');
                         }
                       } on ClientException catch (e) {
                         PocketBaseProvider.onClientException(e, context);
@@ -104,8 +104,8 @@ class NewInstancePage extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(15.0),
                     child: Text(instance == null
-                        ? "Create instance"
-                        : "Update instance"),
+                        ? 'Create instance'
+                        : 'Update instance'),
                   ),
                 ),
               ),

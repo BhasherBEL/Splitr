@@ -6,7 +6,7 @@ import 'package:splitr/data/local/project.dart';
 import 'package:splitr/utils/ext/set.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../screens/project/new_project.dart';
+import '../screens/new_project/new_project.dart';
 import '../services/database.dart';
 import '../utils/helper/theme.dart';
 import 'instance.dart';
@@ -27,7 +27,7 @@ class AppData {
 
   static set firstRun(bool v) {
     _firstRun = v;
-    sharedPreferences.setBool("firstRun", v);
+    sharedPreferences.setBool('firstRun', v);
   }
 
   static Project? get current {
@@ -36,10 +36,10 @@ class AppData {
 
   static set current(Project? project) {
     if (project == null) {
-      sharedPreferences.remove("lastProject");
+      sharedPreferences.remove('lastProject');
     } else {
       sharedPreferences.setString(
-        "lastProject",
+        'lastProject',
         project.name,
       );
     }
@@ -55,20 +55,20 @@ class AppData {
 
     AppData.projects = await Project.getAllProjects();
 
-    if (!sharedPreferences.containsKey("firstRun")) {
+    if (!sharedPreferences.containsKey('firstRun')) {
       firstRun = AppData.projects.enabled().isEmpty;
     } else {
-      firstRun = sharedPreferences.getBool("firstRun")!;
+      firstRun = sharedPreferences.getBool('firstRun')!;
     }
 
-    if (sharedPreferences.containsKey("lastProject")) {
+    if (sharedPreferences.containsKey('lastProject')) {
       try {
         _current =
-            Project.fromName(sharedPreferences.getString("lastProject")!);
+            Project.fromName(sharedPreferences.getString('lastProject')!);
         await (_current!.conn as LocalProject).loadParticipants();
         await (_current!.conn as LocalProject).loadEntries();
       } catch (e) {
-        sharedPreferences.remove("lastProject");
+        sharedPreferences.remove('lastProject');
       }
     }
 

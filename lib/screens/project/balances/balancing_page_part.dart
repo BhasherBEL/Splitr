@@ -107,7 +107,7 @@ class SharePainter extends CustomPainter {
 
     var pseudoPainter = TextPainter(
       text: TextSpan(
-        text: participant.pseudo + (isMe ? " (Me)" : ""),
+        text: participant.pseudo + (isMe ? ' (Me)' : ''),
         style: TextStyle(
           fontWeight: isMe ? FontWeight.bold : FontWeight.normal,
         ),
@@ -117,7 +117,7 @@ class SharePainter extends CustomPainter {
 
     var valuePainter = TextPainter(
       text: TextSpan(
-        text: "${share.toStringAsFixed(2)}€",
+        text: '${share.toStringAsFixed(2)}€',
         style: TextStyle(
           fontWeight: isMe ? FontWeight.bold : FontWeight.normal,
         ),

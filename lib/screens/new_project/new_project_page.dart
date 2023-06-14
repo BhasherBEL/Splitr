@@ -65,7 +65,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
                   });
                 },
                 decoration: InputDecoration(
-                  labelText: "Project instance",
+                  labelText: 'Project instance',
                   border: const OutlineInputBorder(),
                   suffixIcon: const Icon(Icons.arrow_drop_down),
                   labelStyle:
@@ -84,13 +84,13 @@ class _NewProjectPageState extends State<NewProjectPage> {
           ],
         ),
         const SizedBox(height: 12),
-        const HeaderTile("Configuration"),
+        const HeaderTile('Configuration'),
         const SizedBox(height: 12),
         if (widget.project == null)
           TextSwitch(
             state: widget.projectData.join,
-            leftText: "Create",
-            rightText: "Join",
+            leftText: 'Create',
+            rightText: 'Join',
             onChanged: (v) => setState(() => widget.projectData.join = v),
           ),
         TextFormField(
@@ -100,7 +100,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
           onChanged: (value) => widget.projectData.projectName = value,
           decoration: InputDecoration(
             labelText:
-                widget.projectData.join ? "Project code" : "Project title",
+                widget.projectData.join ? 'Project code' : 'Project title',
             border: const OutlineInputBorder(),
           ),
         ),
@@ -112,7 +112,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
           SelectFormField(
             type: SelectFormFieldType.dropdown,
             initialValue:
-                widget.project!.currentParticipant?.pseudo ?? "anonymous",
+                widget.project!.currentParticipant?.pseudo ?? 'anonymous',
             items: [
               ...widget.project!.participants.map<Map<String, dynamic>>((e) => {
                     'value': e.pseudo,
@@ -133,7 +133,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
               });
             },
             decoration: const InputDecoration(
-              labelText: "Who are you  ?",
+              labelText: 'Who are you  ?',
               border: OutlineInputBorder(),
               suffixIcon: Icon(Icons.arrow_drop_down),
             ),
@@ -174,7 +174,7 @@ class _ParticipantListWidgetState extends State<ParticipantListWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const HeaderTile("Participants"),
+        const HeaderTile('Participants'),
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),

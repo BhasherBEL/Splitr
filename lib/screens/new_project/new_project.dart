@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pocketbase/pocketbase.dart';
 
-import '../new_project/new_project_page.dart';
+import 'new_project_page.dart';
 import '../../main.dart';
 import '../../models/app_data.dart';
 import '../../data/pocketbase/provider.dart';
@@ -22,35 +22,37 @@ class NewProjectScreen extends StatelessWidget {
   });
 
   final bool first;
-  Project? project;
+  final Project? project;
   final String? code;
   final Instance? instance;
 
-  ProjectData setupData = ProjectData();
+  final ProjectData setupData = ProjectData();
 
   Future onValidate(context, formKey) async {
-    bool newProject = project == null;
+    bool isNew = project == null;
 
     if (formKey.currentState != null && formKey.currentState!.validate()) {
-      if (newProject) {
-        project = Project(
+      Project updatedProject;
+      if (isNew) {
+        updatedProject = Project(
           name: setupData.projectName!,
           code: setupData.join ? null : getRandom(5),
           instance: setupData.instance!,
         );
       } else {
-        project!.name = setupData.projectName!;
-        project!.provider = Provider.initFromInstance(
-          project!,
+        updatedProject = project!;
+        updatedProject.name = setupData.projectName!;
+        updatedProject.provider = Provider.initFromInstance(
+          updatedProject,
           setupData.instance!,
         );
       }
       try {
-        AppData.current = project;
-        await project!.conn.save();
+        AppData.current = updatedProject;
+        await updatedProject.conn.save();
         if (setupData.join) {
-          await project!.provider.joinWithTitle();
-          await project!.sync();
+          await updatedProject.provider.joinWithTitle();
+          await updatedProject.sync();
         }
       } on ClientException catch (e) {
         PocketBaseProvider.onClientException(e, context);
@@ -70,12 +72,12 @@ class NewProjectScreen extends StatelessWidget {
         runApp(const MainScreen());
       } else {
         if (context.mounted) {
-          if (newProject) {
+          if (isNew) {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (context) => NewProjectScreen(
-                  project: project,
+                  project: updatedProject,
                 ),
               ),
             );
@@ -94,9 +96,9 @@ class NewProjectScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     setupData.instance = instance;
-    bool newProject = project == null;
+    bool isNew = project == null;
 
-    if (newProject && code != null) {
+    if (isNew && code != null) {
       setupData.projectName = code;
       setupData.join = true;
     }
@@ -104,19 +106,19 @@ class NewProjectScreen extends StatelessWidget {
     return NewScreen(
       title: first
           ? 'Create your first project!'
-          : newProject
+          : isNew
               ? 'New project'
               : 'Update project',
       buttonTitle: first
           ? 'Let\'s started'
-          : newProject
+          : isNew
               ? 'Create'
               : 'Update',
+      onValidate: onValidate,
       child: NewProjectPage(
         projectData: setupData,
         project: project,
       ),
-      onValidate: onValidate,
     );
   }
 }

@@ -5,14 +5,14 @@ import 'package:splitr/utils/ext/record_service.dart';
 import '../../models/project.dart';
 
 class PocketBaseProjectFields {
-  static const String name = "name";
-  static const String code = "code";
-  static const String deleted = "deleted";
+  static const String name = 'name';
+  static const String code = 'code';
+  static const String deleted = 'deleted';
 }
 
 class PocketBaseProject {
   static Future<bool> sync(PocketBase pb, Project project) async {
-    RecordService collection = pb.collection("projects");
+    RecordService collection = pb.collection('projects');
 
     if (project.remoteId != null) {
       RecordModel record = await collection.getOne(project.remoteId!);
@@ -49,9 +49,9 @@ class PocketBaseProject {
   }
 
   static Future<bool> join(PocketBase pb, Project project) async {
-    RecordService collection = pb.collection("projects");
+    RecordService collection = pb.collection('projects');
     RecordModel record =
-        await collection.getFirstListItem("code = \"${project.name}\"");
+        await collection.getFirstListItem('code = "${project.name}"');
     project.code = project.name;
     project.name = record.getStringValue(PocketBaseProjectFields.name);
     project.remoteId = record.id;

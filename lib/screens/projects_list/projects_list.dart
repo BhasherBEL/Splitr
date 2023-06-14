@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:splitr/data/local/project.dart';
-import 'package:splitr/utils/ext/list.dart';
 import 'package:splitr/utils/ext/set.dart';
 
 import '../../models/app_data.dart';
 import '../../models/project.dart';
-import '../project/new_project.dart';
+import '../new_project/new_project.dart';
 import '../../utils/helper/navigator.dart';
 import '../project/project_page.dart';
 
@@ -78,7 +77,7 @@ class _ProjectsListState extends State<ProjectsList> {
                   },
                   title: Text(project.name),
                   subtitle: Text(
-                    "${project.provider.instance.name} (${project.provider.instance.type})",
+                    '${project.provider.instance.name} (${project.provider.instance.type})',
                     style: const TextStyle(
                       fontStyle: FontStyle.italic,
                     ),
@@ -89,7 +88,7 @@ class _ProjectsListState extends State<ProjectsList> {
             itemCount: AppData.projects.enabled().length,
           )
         : const Center(
-            child: Text("Create your first project!"),
+            child: Text('Create your first project!'),
           );
   }
 }

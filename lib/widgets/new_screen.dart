@@ -9,12 +9,12 @@ class NewScreen extends StatelessWidget {
     this.buttonTitle,
   });
 
-  String? title;
-  Widget child;
-  Future Function(BuildContext context, GlobalKey<FormState> formKey)?
+  final String? title;
+  final Widget child;
+  final Future Function(BuildContext context, GlobalKey<FormState> formKey)?
       onValidate;
   final GlobalKey<FormState> formKey = GlobalKey();
-  String? buttonTitle;
+  final String? buttonTitle;
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +53,7 @@ class NewScreen extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.all(15.0),
                           child: Text(
-                              buttonTitle == null ? "Finish" : buttonTitle!),
+                              buttonTitle == null ? 'Finish' : buttonTitle!),
                         ),
                       ),
                     ),

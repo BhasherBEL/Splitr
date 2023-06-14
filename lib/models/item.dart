@@ -121,12 +121,12 @@ class Item extends Data {
         itemParts.enabled().map((e) => e.participant).toList();
 
     if (participants.length < 4) {
-      return participants.map((e) => e.pseudo).join(", ");
+      return participants.map((e) => e.pseudo).join(', ');
     }
     if (participants.length == project.participants.length) return 'All';
 
     List<String> possibilites = [
-      participants.map((e) => e.pseudo).join(", "),
+      participants.map((e) => e.pseudo).join(', '),
       'All except ${project.participants.where((element) => !participants.contains(element)).map((e) => e.pseudo).join(', ')}',
     ];
 

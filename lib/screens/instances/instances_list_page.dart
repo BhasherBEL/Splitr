@@ -21,7 +21,7 @@ class _InstancesListPageState extends State<InstancesListPage> {
         centerTitle: true,
         elevation: 4,
         title: const Text(
-          "Instances",
+          'Instances',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,

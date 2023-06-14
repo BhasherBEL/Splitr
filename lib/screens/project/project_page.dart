@@ -4,7 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:splitr/utils/ext/list.dart';
 
 import '../../models/project.dart';
-import 'new_project.dart';
+import '../new_project/new_project.dart';
 import '../projects_list/projects_list_page.dart';
 import 'balances/balancing_page_part.dart';
 import 'expenses/new_entry.dart';
@@ -77,11 +77,11 @@ class _ProjectPageState extends State<ProjectPage> {
             // ),
             BottomNavigationBarItem(
               icon: Icon(Icons.list),
-              label: "Expenses",
+              label: 'Expenses',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.compare_arrows),
-              label: "Balances",
+              label: 'Balances',
             ),
           ],
         ));
@@ -95,7 +95,7 @@ class _ProjectPageState extends State<ProjectPage> {
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
-                title: const Text("Share project"),
+                title: const Text('Share project'),
                 content: const Text(
                     "You're about to share this project. Please note that in order to join, you must already be connected to the same instance."),
                 actions: [
@@ -103,17 +103,17 @@ class _ProjectPageState extends State<ProjectPage> {
                     onPressed: () => Share.share(
                       'Join my Splitr project!\n\nInstance: ${Uri.encodeComponent(widget.project.provider.instance.name)}\nCode: ${widget.project.code}',
                     ),
-                    child: const Text("Share code"),
+                    child: const Text('Share code'),
                   ),
                   TextButton(
                     onPressed: () => Share.share(
                       'Join my Splitr project!\nhttps://splitr.bhasher.com/join?instance=${Uri.encodeComponent(widget.project.provider.instance.name)}&code=${widget.project.code}',
                     ),
-                    child: const Text("Share link"),
+                    child: const Text('Share link'),
                   ),
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text("Cancel"),
+                    child: const Text('Cancel'),
                   ),
                 ],
               ),
@@ -146,10 +146,10 @@ class _ProjectPageState extends State<ProjectPage> {
         }
       },
       itemBuilder: (context) => [
-        buildMenuItem(value: 0, text: "Share", icon: Icons.share),
-        buildMenuItem(value: 1, text: "Edit project", icon: Icons.edit),
+        buildMenuItem(value: 0, text: 'Share', icon: Icons.share),
+        buildMenuItem(value: 1, text: 'Edit project', icon: Icons.edit),
         // buildMenuItem(value: 2, text: "Settings", icon: Icons.settings),
-        buildMenuItem(value: 3, text: "Close", icon: Icons.close),
+        buildMenuItem(value: 3, text: 'Close', icon: Icons.close),
       ],
     );
   }

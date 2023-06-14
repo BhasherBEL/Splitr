@@ -49,7 +49,7 @@ class _ParticipantTileState extends State<ParticipantTile> {
         maxLength: 30,
         maxLengthEnforcement: MaxLengthEnforcement.enforced,
         decoration: InputDecoration(
-          counterText: "",
+          counterText: '',
           border: edit ? null : InputBorder.none,
         ),
         controller: controller,
@@ -85,9 +85,9 @@ class _ParticipantTileState extends State<ParticipantTile> {
                 if (hasParticipant) {
                   await confirmBox(
                     context: context,
-                    title: "Remove ${widget.participant!.pseudo}",
+                    title: 'Remove ${widget.participant!.pseudo}',
                     content:
-                        "Are you sure you want to remove ${widget.participant!.pseudo}? You will not be able to undo it.",
+                        'Are you sure you want to remove ${widget.participant!.pseudo}? You will not be able to undo it.',
                     onValidate: () async {
                       await widget.project
                           .deleteParticipant(widget.participant!);

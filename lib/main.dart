@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'screens/project/project_page.dart';
 import 'screens/projects_list/projects_list_page.dart';
 import 'models/app_data.dart';
-import 'screens/project/new_project.dart';
+import 'screens/new_project/new_project.dart';
 import 'utils/helper/theme.dart';
 
 void main() async {
@@ -27,7 +27,7 @@ class SplashScreen extends StatelessWidget {
         darkTheme: defaultDarkTheme,
         home: const Scaffold(
           body: Center(
-            child: Text("Starting up Splitr ..."),
+            child: Text('Starting up Splitr ...'),
           ),
         ),
       );

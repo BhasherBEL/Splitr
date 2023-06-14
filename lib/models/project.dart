@@ -170,7 +170,6 @@ class Project extends Data {
       return Tuple2(res,
           (DateTime.now().difference(st).inMilliseconds / 1000).toString());
     } catch (e) {
-      print(e);
       return Tuple2(false, e.toString());
     }
   }

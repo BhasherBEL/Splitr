@@ -14,11 +14,11 @@ Future<dynamic> confirmBox({
       actions: [
         TextButton(
           onPressed: onValidate,
-          child: const Text("Yes"),
+          child: const Text('Yes'),
         ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text("No"),
+          child: const Text('No'),
         ),
       ],
     ),

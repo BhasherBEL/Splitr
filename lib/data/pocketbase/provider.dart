@@ -3,7 +3,6 @@ import 'package:pocketbase/pocketbase.dart';
 
 import '../../models/instance.dart';
 import '../../models/item.dart';
-import '../../models/item_part.dart';
 import '../../models/project.dart';
 import '../provider.dart';
 import 'item.dart';

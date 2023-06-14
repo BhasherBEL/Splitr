@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../project/new_project.dart';
+import '../new_project/new_project.dart';
 import 'projects_list.dart';
 
 class ProjectsListPage extends StatefulWidget {
@@ -18,7 +18,7 @@ class _ProjectsListPageState extends State<ProjectsListPage> {
         centerTitle: true,
         elevation: 4,
         title: const Text(
-          "Splitr",
+          'Splitr',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,

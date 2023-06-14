@@ -106,8 +106,8 @@ CREATE TABLE $tableInstances (
 ''');
 
     await db.insert(tableInstances, {
-      InstanceFields.type: "local",
-      InstanceFields.name: "local",
+      InstanceFields.type: 'local',
+      InstanceFields.name: 'local',
       InstanceFields.data: json.encode({}),
     });
   }
@@ -130,8 +130,8 @@ CREATE TABLE $tableInstances (
 ''');
 
       await db.insert(tableInstances, {
-        InstanceFields.type: "local",
-        InstanceFields.name: "local",
+        InstanceFields.type: 'local',
+        InstanceFields.name: 'local',
         InstanceFields.data: json.encode({}),
       });
     }

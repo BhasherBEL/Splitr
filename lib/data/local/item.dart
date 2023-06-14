@@ -17,7 +17,7 @@ class LocalItem extends LocalGeneric {
     item.itemParts = (await AppData.db.query(
       tableItemParts,
       columns: ItemPartFields.values,
-      where: "${ItemPartFields.itemId} = ?",
+      where: '${ItemPartFields.itemId} = ?',
       whereArgs: [item.localId],
     ))
         .map((e) => ItemPart.fromJson(e, item))

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:splitr/data/local/instance.dart';
 
 import '../../models/app_data.dart';
 import '../../models/instance.dart';
@@ -47,9 +46,9 @@ class _InstanceTileState extends State<InstanceTile> {
                     onPressed: () async {
                       await confirmBox(
                         context: context,
-                        title: "Remove ${widget.instance.name}",
+                        title: 'Remove ${widget.instance.name}',
                         content:
-                            "Are you sure you want to remove ${widget.instance.name}? You will not be able to sync or create projects with it.",
+                            'Are you sure you want to remove ${widget.instance.name}? You will not be able to sync or create projects with it.',
                         onValidate: () async {
                           await widget.instance.conn.delete();
                           AppData.instances.remove(widget.instance);

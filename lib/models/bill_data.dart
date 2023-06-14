@@ -11,7 +11,7 @@ class BillData {
     this.item,
     required this.project,
   }) {
-    title = item?.title ?? "";
+    title = item?.title ?? '';
     date = item?.date ?? DateTime.now();
     emitter = item?.emitter ??
         project.currentParticipant ??
@@ -29,7 +29,7 @@ class BillData {
   Item? item;
   Project project;
 
-  String title = "";
+  String title = '';
   DateTime date = DateTime.now();
   late Participant emitter;
   double amount = 0;
@@ -86,8 +86,6 @@ shares: ${shares.entries.map((e) => "${e.key.pseudo}:${e.value}").join(",")}""";
       // item!.itemParts = [];
     }
     await item!.conn.save();
-
-    List<ItemPart> previous = item!.itemParts.toList();
 
     for (var a in shares.entries) {
       Participant p = a.key;

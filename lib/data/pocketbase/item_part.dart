@@ -9,12 +9,12 @@ import '../../models/item_part.dart';
 import '../../models/participant.dart';
 
 class PocketBaseItemPartsFields {
-  static const String id = "id";
-  static const String itemId = "item_id";
-  static const String participantId = "participant_id";
-  static const String rate = "rate";
-  static const String amount = "amount";
-  static const String deleted = "deleted";
+  static const String id = 'id';
+  static const String itemId = 'item_id';
+  static const String participantId = 'participant_id';
+  static const String rate = 'rate';
+  static const String amount = 'amount';
+  static const String deleted = 'deleted';
 }
 
 class PocketBaseItemPart {
@@ -62,7 +62,7 @@ class PocketBaseItemPart {
   }
 
   static Future<bool> sync(PocketBase pb, Item item) async {
-    RecordService collection = pb.collection("itemParts");
+    RecordService collection = pb.collection('itemParts');
 
     // Get new dist records
     List<RecordModel> records = await collection.getFullList(

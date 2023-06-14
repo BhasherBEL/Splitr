@@ -29,7 +29,7 @@ class DecimalTextInputFormatter extends TextInputFormatter {
     //   );
     // }
 
-    if (truncated == ".") {
+    if (truncated == '.') {
       truncated = '0.';
       newSelection = newValue.selection.copyWith(
         baseOffset: min(truncated.length, truncated.length + 1),

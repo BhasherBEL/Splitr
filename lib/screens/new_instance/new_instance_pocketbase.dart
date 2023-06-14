@@ -26,7 +26,7 @@ class _NewInstancePocketbaseState extends State<NewInstancePocketbase> {
               onChanged: (value) =>
                   widget.instanceData.data['instance'] = value,
               decoration: const InputDecoration(
-                labelText: "Instance URL",
+                labelText: 'Instance URL',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -44,7 +44,7 @@ class _NewInstancePocketbaseState extends State<NewInstancePocketbase> {
                         ? 'Username can\'t be empty'
                         : null,
                     decoration: const InputDecoration(
-                      labelText: "Username",
+                      labelText: 'Username',
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -62,7 +62,7 @@ class _NewInstancePocketbaseState extends State<NewInstancePocketbase> {
                         : null,
                     obscureText: true,
                     decoration: const InputDecoration(
-                      labelText: "Password",
+                      labelText: 'Password',
                       border: OutlineInputBorder(),
                     ),
                   ),

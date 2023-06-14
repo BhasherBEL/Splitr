@@ -77,12 +77,12 @@ class _NewEntrySubPageState extends State<NewEntrySubPage> {
     for (Participant participant in widget.project.participants) {
       if (widget.item == null) {
         widget.bill.shares[participant] = BillPart(share: 1);
-        sharesController[participant] = TextEditingController(text: "1");
+        sharesController[participant] = TextEditingController(text: '1');
         fixedsController[participant] = TextEditingController();
       } else if (widget.bill.shares[participant] == null) {
         widget.bill.shares[participant] = BillPart();
-        sharesController[participant] = TextEditingController(text: "0");
-        fixedsController[participant] = TextEditingController(text: "0.00");
+        sharesController[participant] = TextEditingController(text: '0');
+        fixedsController[participant] = TextEditingController(text: '0.00');
       } else {
         sharesController[participant] = TextEditingController();
         fixedsController[participant] = TextEditingController();
@@ -107,7 +107,7 @@ class _NewEntrySubPageState extends State<NewEntrySubPage> {
             autocorrect: true,
             decoration: const InputDecoration(
               contentPadding: EdgeInsets.symmetric(horizontal: 10),
-              labelText: "What",
+              labelText: 'What',
               border: OutlineInputBorder(),
             ),
             onChanged: (value) => widget.bill.title = value,
@@ -138,7 +138,7 @@ class _NewEntrySubPageState extends State<NewEntrySubPage> {
             decoration: const InputDecoration(
               suffixText: ' €',
               contentPadding: EdgeInsets.symmetric(horizontal: 10),
-              labelText: "How much",
+              labelText: 'How much',
               border: OutlineInputBorder(),
             ),
             controller: amountController,
@@ -166,7 +166,7 @@ class _NewEntrySubPageState extends State<NewEntrySubPage> {
                         type: SelectFormFieldType.dropdown,
                         decoration: const InputDecoration(
                           contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                          labelText: "Who paid",
+                          labelText: 'Who paid',
                           border: OutlineInputBorder(),
                         ),
                         items: widget.project.participants
@@ -195,7 +195,7 @@ class _NewEntrySubPageState extends State<NewEntrySubPage> {
                         controller: dateController,
                         decoration: const InputDecoration(
                           contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                          labelText: "When",
+                          labelText: 'When',
                           border: OutlineInputBorder(),
                           hintText: 'Pick your Date',
                         ),
@@ -250,9 +250,9 @@ class _NewEntrySubPageState extends State<NewEntrySubPage> {
                       ),
                     ),
                   ),
-                  const TableHeaderCell(text: "For whom ?"),
-                  const TableHeaderCell(text: "Rate"),
-                  const TableHeaderCell(text: "Total"),
+                  const TableHeaderCell(text: 'For whom ?'),
+                  const TableHeaderCell(text: 'Rate'),
+                  const TableHeaderCell(text: 'Total'),
                 ],
               ),
               ...getRows(widget.bill, sharesController, fixedsController),
@@ -279,8 +279,8 @@ class _NewEntrySubPageState extends State<NewEntrySubPage> {
     widget.bill.shares.forEach((participant, amount) {
       final newShareValue = amount.share == null
           ? amount.fixed == null
-              ? "0"
-              : ""
+              ? '0'
+              : ''
           : amount.share!.toInt().toString();
 
       if (newShareValue != sharesController[participant]!.text) {
@@ -297,7 +297,7 @@ class _NewEntrySubPageState extends State<NewEntrySubPage> {
       if (price.isNaN) price = 0;
 
       try {
-        if (fixedsController[participant]!.text == "" ||
+        if (fixedsController[participant]!.text == '' ||
             double.parse(fixedsController[participant]!.text) != price) {
           fixedsController[participant]!.text = price.toStringAsFixed(2);
         }

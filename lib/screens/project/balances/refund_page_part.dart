@@ -16,7 +16,7 @@ List<Widget> getRefundPageTiles({
 
   List<Widget> tiles = [];
 
-  tiles.add(const HeaderTile("How to refund ?"));
+  tiles.add(const HeaderTile('How to refund ?'));
 
   if (hasMe) {
     tiles.add(
@@ -24,7 +24,7 @@ List<Widget> getRefundPageTiles({
         title: Padding(
           padding: EdgeInsets.only(left: 8.0),
           child: Text(
-            "Best for me",
+            'Best for me',
           ),
         ),
       ),
@@ -44,7 +44,7 @@ List<Widget> getRefundPageTiles({
       title: Padding(
         padding: EdgeInsets.only(left: 8.0),
         child: Text(
-          "Best for everybody",
+          'Best for everybody',
         ),
       ),
     ),
@@ -76,7 +76,7 @@ List<ListTile> getRefundsOf({
   if (share >= 0) {
     tiles.add(
       const ListTile(
-        title: Text("Nothing to refund!"),
+        title: Text('Nothing to refund!'),
         dense: true,
       ),
     );
@@ -95,7 +95,7 @@ List<ListTile> getRefundsOf({
 
     tiles.add(
       ListTile(
-        title: Text("${participant.pseudo} -> ${p.pseudo}"),
+        title: Text('${participant.pseudo} -> ${p.pseudo}'),
         trailing: Text('${part.toStringAsFixed(2)} €'),
         dense: true,
       ),
@@ -141,7 +141,7 @@ List<ListTile> getRefundsOfEverybody({
 
       tiles.add(
         ListTile(
-          title: Text("${participant.pseudo} -> ${p.pseudo}"),
+          title: Text('${participant.pseudo} -> ${p.pseudo}'),
           trailing: Text('${part.toStringAsFixed(2)} €'),
           dense: true,
         ),
@@ -154,7 +154,7 @@ List<ListTile> getRefundsOfEverybody({
   if (tiles.isEmpty) {
     tiles.add(
       const ListTile(
-        title: Text("Nothing to refund!"),
+        title: Text('Nothing to refund!'),
         dense: true,
       ),
     );
