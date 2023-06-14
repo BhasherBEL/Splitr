@@ -1,0 +1,25 @@
+import 'package:splitr/data/local/generic.dart';
+import 'package:sqflite/sqflite.dart';
+
+import '../../models/app_data.dart';
+import '../../models/item_part.dart';
+
+const String tableItemParts = 'itemParts';
+
+class LocalItemPart extends LocalGeneric {
+  LocalItemPart(this.itemPart);
+
+  final ItemPart itemPart;
+
+  @override
+  Future<bool> save() async {
+    itemPart.localId = await AppData.db.insert(
+      tableItemParts,
+      itemPart.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+
+    itemPart.item.project.notSyncCount++;
+    return true;
+  }
+}
