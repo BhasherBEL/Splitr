@@ -1,3 +1,4 @@
+
 import 'dart:math';
 
 import 'package:flutter/services.dart';
@@ -14,20 +15,6 @@ class DecimalTextInputFormatter extends TextInputFormatter {
   ) {
     TextSelection newSelection = newValue.selection;
     String truncated = newValue.text;
-
-    // try {
-    //   return TextEditingValue(
-    //     text: double.parse(newValue.text).toStringAsPrecision(2),
-    //     selection: newSelection,
-    //     composing: TextRange.empty,
-    //   );
-    // } catch (e) {
-    //   return TextEditingValue(
-    //     text: oldValue.text,
-    //     selection: oldValue.selection,
-    //     composing: oldValue.composing,
-    //   );
-    // }
 
     if (truncated == '.') {
       truncated = '0.';

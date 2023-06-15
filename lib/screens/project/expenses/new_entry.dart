@@ -10,7 +10,7 @@ import '../../../models/item.dart';
 import '../../../models/participant.dart';
 import '../../../models/project.dart';
 import '../../../widgets/new_screen.dart';
-import '../../../utils/ext/text_input_formatter.dart';
+import '../../../utils/helper/text_input_formatter.dart';
 import '../../../utils/ext/time.dart';
 import 'entry_table.dart';
 

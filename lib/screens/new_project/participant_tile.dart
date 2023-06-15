@@ -5,6 +5,8 @@ import '../../models/participant.dart';
 import '../../models/project.dart';
 import '../../utils/helper/confirm_box.dart';
 
+// TODO: make immutable
+// ignore: must_be_immutable
 class ParticipantTile extends StatefulWidget {
   ParticipantTile({
     super.key,
