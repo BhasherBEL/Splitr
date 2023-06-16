@@ -1,2 +1,19 @@
+#!/bin/sh
+
+set -e
+
+cleanup() {
+  git stash pop --index
+}
+
+trap cleanup EXIT
+
+git stash push --keep-index
+
+dart format .
+
 flutter analyze
+
 flutter test
+
+exit 0

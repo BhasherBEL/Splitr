@@ -1,9 +1,11 @@
 import 'package:app_links/app_links.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splitr/data/local/project.dart';
 import 'package:splitr/utils/ext/set.dart';
+import 'package:splitr/utils/helper/release_version.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../screens/new_project/new_project.dart';
@@ -49,6 +51,7 @@ class AppData {
   static init() async {
     hasBeenInit = true;
     sharedPreferences = await SharedPreferences.getInstance();
+
     db = await SplitrDatabase.instance.database;
 
     AppData.instances = await Instance.getAllInstances();
@@ -85,6 +88,13 @@ class AppData {
         );
       }
     });
+
+    String currentVersion = (await PackageInfo.fromPlatform()).version;
+
+    if (!sharedPreferences.containsKey('last_version') ||
+        isNewer(sharedPreferences.getString('last_version')!, currentVersion)) {
+      await sharedPreferences.setString('last_version', currentVersion);
+    }
   }
 }
 
