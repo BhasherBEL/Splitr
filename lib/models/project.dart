@@ -1,8 +1,8 @@
 import 'package:splitr/models/data.dart';
+import 'package:splitr/models/group.dart';
 import 'package:splitr/utils/ext/set.dart';
 import 'package:tuple/tuple.dart';
 
-import '../utils/helper/random.dart';
 import 'app_data.dart';
 import '../data/local/project.dart';
 import '../data/provider.dart';
@@ -10,30 +10,6 @@ import 'instance.dart';
 import 'item.dart';
 import 'item_part.dart';
 import 'participant.dart';
-
-class ProjectFields {
-  static const values = [
-    localId,
-    remoteId,
-    name,
-    code,
-    currentParticipant,
-    instance,
-    lastSync,
-    lastUpdate,
-    deleted,
-  ];
-
-  static const String localId = 'local_id';
-  static const String remoteId = 'remote_id';
-  static const String name = 'name';
-  static const String code = 'code';
-  static const String currentParticipant = 'current_participant';
-  static const String instance = 'instance';
-  static const String lastSync = 'last_sync';
-  static const String lastUpdate = 'last_update';
-  static const String deleted = 'deleted';
-}
 
 class Project extends Data {
   Project({
@@ -69,6 +45,7 @@ class Project extends Data {
   late Provider provider;
   final List<Item> items = [];
   final List<Participant> participants = [];
+  final List<Group> groups = [];
   late DateTime lastSync;
   int notSyncCount = 0;
 
@@ -90,50 +67,10 @@ class Project extends Data {
         .reduce((a, b) => a + b);
   }
 
-  Map<String, Object?> toJson() {
-    return {
-      ProjectFields.localId: localId,
-      ProjectFields.remoteId: remoteId,
-      ProjectFields.name: name,
-      ProjectFields.code: code ?? getRandom(5),
-      ProjectFields.currentParticipant: currentParticipant?.localId,
-      ProjectFields.instance: provider.instance.localId,
-      ProjectFields.lastSync: lastSync.millisecondsSinceEpoch,
-      ProjectFields.lastUpdate: lastUpdate.millisecondsSinceEpoch,
-      ProjectFields.deleted: deleted ? 1 : 0,
-    };
-  }
-
-  static Project fromJson(Map<String, Object?> json) {
-    return Project(
-      localId: json[ProjectFields.localId] as int?,
-      remoteId: json[ProjectFields.remoteId] as String?,
-      name: json[ProjectFields.name] as String,
-      code: json[ProjectFields.code] as String?,
-      currentParticipantId: json[ProjectFields.currentParticipant] as int?,
-      instance: Instance.fromId(json[ProjectFields.instance] as int)!,
-      lastSync: DateTime.fromMillisecondsSinceEpoch(
-          json[ProjectFields.lastSync] as int),
-      lastUpdate: DateTime.fromMillisecondsSinceEpoch(
-          json[ProjectFields.lastUpdate]
-              as int //? ?? DateTime.now().millisecondsSinceEpoch
-          ),
-      deleted: (json[ProjectFields.deleted] as int) == 1,
-    );
-  }
-
   static Project? fromId(int localId) {
     return AppData.projects
         .enabled()
         .firstWhere((element) => element.localId == localId);
-  }
-
-  static Future<Set<Project>> getAllProjects() async {
-    final res = await AppData.db.query(
-      tableProjects,
-      columns: ProjectFields.values,
-    );
-    return res.map((e) => fromJson(e)).toSet();
   }
 
   @override
@@ -224,5 +161,13 @@ class Project extends Data {
     }
 
     await participant.conn.save();
+  }
+
+  Group? groupByRemoteId(String id) {
+    try {
+      return groups.firstWhere((element) => element.remoteId == id);
+    } catch (e) {
+      return null;
+    }
   }
 }

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pocketbase/pocketbase.dart';
+import 'package:splitr/data/pocketbase/group.dart';
+import 'package:splitr/data/pocketbase/group_membership.dart';
+import 'package:splitr/models/group.dart';
 
 import '../../models/instance.dart';
 import '../../models/item.dart';
@@ -34,6 +37,10 @@ class PocketBaseProvider extends Provider {
 
     await PocketBaseProject.sync(pb, project);
     await PocketBaseParticipant.sync(pb, project);
+    await PocketBaseGroup.sync(pb, project);
+    for (Group group in project.groups) {
+      await PocketBaseGroupMembership.sync(pb, group);
+    }
     await PocketBaseItem.sync(pb, project);
     for (Item item in project.items) {
       await PocketBaseItemPart.sync(pb, item);

@@ -3,6 +3,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:splitr/data/local/instance.dart';
 import 'package:splitr/data/local/project.dart';
 import 'package:splitr/utils/ext/set.dart';
 import 'package:splitr/utils/helper/release_version.dart';
@@ -54,9 +55,9 @@ class AppData {
 
     db = await SplitrDatabase.instance.database;
 
-    AppData.instances = await Instance.getAllInstances();
+    AppData.instances = await LocalInstance.getAllInstances();
 
-    AppData.projects = await Project.getAllProjects();
+    AppData.projects = await LocalProject.getAllProjects();
 
     if (!sharedPreferences.containsKey('firstRun')) {
       firstRun = AppData.projects.enabled().isEmpty;
@@ -69,6 +70,7 @@ class AppData {
         _current =
             Project.fromName(sharedPreferences.getString('lastProject')!);
         await (_current!.conn as LocalProject).loadParticipants();
+        await (_current!.conn as LocalProject).loadGroups();
         await (_current!.conn as LocalProject).loadEntries();
       } catch (e) {
         sharedPreferences.remove('lastProject');

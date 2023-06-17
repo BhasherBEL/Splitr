@@ -62,6 +62,7 @@ class _ProjectsListState extends State<ProjectsList> {
                   onTap: () async {
                     AppData.current = project;
                     await (project.conn as LocalProject).loadParticipants();
+                    await (project.conn as LocalProject).loadGroups();
                     int err =
                         await (project.conn as LocalProject).loadEntries();
                     if (context.mounted) {

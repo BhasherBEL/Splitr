@@ -7,30 +7,6 @@ import 'project.dart';
 
 import '../data/local/item.dart';
 
-class ItemFields {
-  static const values = [
-    localId,
-    remoteId,
-    project,
-    title,
-    emitter,
-    amount,
-    date,
-    lastUpdate,
-    deleted,
-  ];
-
-  static const String localId = 'local_id';
-  static const String remoteId = 'remote_id';
-  static const String project = 'project';
-  static const String title = 'title';
-  static const String emitter = 'emitter';
-  static const String amount = 'amount';
-  static const String date = 'date';
-  static const String lastUpdate = 'last_update';
-  static const String deleted = 'deleted';
-}
-
 class Item extends Data {
   Item({
     super.localId,
@@ -82,18 +58,6 @@ class Item extends Data {
     lastUpdate = DateTime.now();
   }
 
-  Map<String, Object?> toJson() => {
-        ItemFields.localId: localId,
-        ItemFields.remoteId: remoteId,
-        ItemFields.project: project.localId,
-        ItemFields.title: title,
-        ItemFields.emitter: emitter.localId,
-        ItemFields.amount: amount,
-        ItemFields.date: date.millisecondsSinceEpoch,
-        ItemFields.lastUpdate: DateTime.now().millisecondsSinceEpoch,
-        ItemFields.deleted: deleted ? 1 : 0,
-      };
-
   double shareOf(Participant participant) {
     double totalRate = 0;
     ItemPart? pip;
@@ -133,29 +97,6 @@ class Item extends Data {
     possibilites.sort((a, b) => a.length - b.length);
 
     return possibilites.first;
-  }
-
-  static Item fromJson(Map<String, Object?> json, {Project? project}) {
-    Project p;
-    if (project != null) {
-      p = project;
-    } else {
-      p = Project.fromId(json[ItemFields.project] as int)!;
-    }
-
-    return Item(
-      localId: json[ItemFields.localId] as int?,
-      remoteId: json[ItemFields.remoteId] as String?,
-      project: p,
-      title: json[ItemFields.title] as String,
-      emitter: p.participants.firstWhere((participant) =>
-          participant.localId == json[ItemFields.emitter] as int),
-      amount: json[ItemFields.amount] as double,
-      date: DateTime.fromMillisecondsSinceEpoch(json[ItemFields.date] as int),
-      lastUpdate: DateTime.fromMillisecondsSinceEpoch(
-          json[ItemFields.lastUpdate] as int),
-      deleted: (json[ItemFields.deleted] as int) == 1,
-    );
   }
 
   ItemPart? partByRemoteId(String id) {
