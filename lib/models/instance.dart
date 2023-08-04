@@ -18,8 +18,12 @@ class Instance {
   late LocalInstance conn;
 
   static Instance? fromId(int localId) {
-    return AppData.instances
-        .firstWhere((element) => element.localId == localId);
+    try {
+      return AppData.instances
+          .firstWhere((element) => element.localId == localId);
+    } catch (e) {
+      return null;
+    }
   }
 
   static Instance? fromName(String s) {

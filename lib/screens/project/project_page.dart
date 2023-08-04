@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:splitr/data/local/project.dart';
 import 'package:splitr/utils/ext/list.dart';
+import 'package:splitr/utils/helper/confirm_box.dart';
 
 import '../../models/project.dart';
 import '../new_project/new_project.dart';
@@ -28,28 +30,37 @@ class _ProjectPageState extends State<ProjectPage> {
         appBar: AppBar(
           centerTitle: true,
           elevation: 4,
-          title: Column(
-            children: [
-              Text(
-                widget.project.name,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+          title: Padding(
+            padding: const EdgeInsets.only(left: 40),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 10, right: 10),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      widget.project.name,
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              Text(
-                widget.project.participants.enabled().length <= 4
-                    ? widget.project.participants
-                        .enabled()
-                        .map((e) => e.pseudo)
-                        .join(', ')
-                    : '${widget.project.participants.enabled().length} participants',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontStyle: FontStyle.italic,
+                Text(
+                  widget.project.participants.enabled().length <= 4
+                      ? widget.project.participants
+                          .enabled()
+                          .map((e) => e.pseudo)
+                          .join(', ')
+                      : '${widget.project.participants.enabled().length} participants',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           actions: [
             actionMenu(),
@@ -129,6 +140,18 @@ class _ProjectPageState extends State<ProjectPage> {
               ),
             );
             setState(() {});
+            break;
+          case 4:
+            await confirmBox(
+                context: context,
+                title: 'Are you sure you want to recreate this project ?',
+                content: 'You will NOT be able to undi this action!',
+                onValidate: () async {
+                  await (widget.project.conn as LocalProject).delete();
+                  widget.project.clear();
+                  await widget.project.provider.sync();
+                  if (mounted) setState(() {});
+                });
             break;
           case 3:
             if (Navigator.canPop(context)) {

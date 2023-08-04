@@ -41,15 +41,15 @@ class SplitrDatabase {
   Future _createDB(Database db, int version) async {
     await db.execute('''
 CREATE TABLE $tableProjects (
-  ${ProjectFields.localId} INTEGER PRIMARY KEY AUTOINCREMENT,
-  ${ProjectFields.remoteId} TEXT,
-  ${ProjectFields.name} TEXT NOT NULL,
-  ${ProjectFields.code} TEXT NOT NULL,
-  ${ProjectFields.currentParticipant} INTEGER,
-  ${ProjectFields.instance} INTEGER NOT NULL,
-  ${ProjectFields.lastSync} INTEGER,
-  ${ProjectFields.lastUpdate} INTEGER,
-  ${ProjectFields.deleted} INTEGER NOT NULL
+  ${LocalProjectFields.localId} INTEGER PRIMARY KEY AUTOINCREMENT,
+  ${LocalProjectFields.remoteId} TEXT,
+  ${LocalProjectFields.name} TEXT NOT NULL,
+  ${LocalProjectFields.code} TEXT NOT NULL,
+  ${LocalProjectFields.currentParticipant} INTEGER,
+  ${LocalProjectFields.instance} INTEGER NOT NULL,
+  ${LocalProjectFields.lastSync} INTEGER,
+  ${LocalProjectFields.lastUpdate} INTEGER,
+  ${LocalProjectFields.deleted} INTEGER NOT NULL
 )
 ''');
 
@@ -70,7 +70,7 @@ CREATE TABLE $tableParticipants (
 CREATE TABLE $tableItems (
   ${LocalItemFields.localId} INTEGER PRIMARY KEY AUTOINCREMENT,
   ${LocalItemFields.remoteId} TEXT,
-  ${LocalItemFields.project} INTEGER NOT NULL,
+  ${LocalItemFields.projectId} INTEGER NOT NULL,
   ${LocalItemFields.title} TEXT NOT NULL,
   ${LocalItemFields.emitter} INTEGER NOT NULL,
   ${LocalItemFields.amount} REAL NOT NULL,

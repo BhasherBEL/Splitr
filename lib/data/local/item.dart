@@ -13,7 +13,7 @@ class LocalItemFields {
   static const values = [
     localId,
     remoteId,
-    project,
+    projectId,
     title,
     emitter,
     amount,
@@ -24,7 +24,7 @@ class LocalItemFields {
 
   static const String localId = 'local_id';
   static const String remoteId = 'remote_id';
-  static const String project = 'project';
+  static const String projectId = 'project';
   static const String title = 'title';
   static const String emitter = 'emitter';
   static const String amount = 'amount';
@@ -70,7 +70,7 @@ class LocalItem extends LocalGeneric {
   Map<String, Object?> toJson() => {
         LocalItemFields.localId: item.localId,
         LocalItemFields.remoteId: item.remoteId,
-        LocalItemFields.project: item.project.localId,
+        LocalItemFields.projectId: item.project.localId,
         LocalItemFields.title: item.title,
         LocalItemFields.emitter: item.emitter.localId,
         LocalItemFields.amount: item.amount,
@@ -84,7 +84,7 @@ class LocalItem extends LocalGeneric {
     if (project != null) {
       p = project;
     } else {
-      p = Project.fromId(json[LocalItemFields.project] as int)!;
+      p = Project.fromId(json[LocalItemFields.projectId] as int)!;
     }
 
     return Item(

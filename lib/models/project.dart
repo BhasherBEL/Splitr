@@ -170,4 +170,14 @@ class Project extends Data {
       return null;
     }
   }
+
+  void clear() {
+    currentParticipant = null;
+    participants.clear();
+    items.clear();
+    name = '';
+    groups.clear();
+    lastSync = DateTime(1970);
+    notSyncCount = 0;
+  }
 }

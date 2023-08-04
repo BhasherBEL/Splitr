@@ -14,7 +14,7 @@ import 'participant.dart';
 
 const String tableProjects = 'projects';
 
-class ProjectFields {
+class LocalProjectFields {
   static const values = [
     localId,
     remoteId,
@@ -46,7 +46,7 @@ class LocalProject extends LocalGeneric {
   static Future<Set<Project>> getAllProjects() async {
     final res = await AppData.db.query(
       tableProjects,
-      columns: ProjectFields.values,
+      columns: LocalProjectFields.values,
     );
     return res.map((e) => fromJson(e)).toSet();
   }
@@ -76,7 +76,7 @@ class LocalProject extends LocalGeneric {
     final rawItems = await AppData.db.query(
       tableItems,
       where:
-          '${LocalItemFields.project} = ? AND (${LocalItemFields.deleted} == 0 OR ${LocalItemFields.lastUpdate} > ?)',
+          '${LocalItemFields.projectId} = ? AND (${LocalItemFields.deleted} == 0 OR ${LocalItemFields.lastUpdate} > ?)',
       whereArgs: [project.localId, project.lastSync.millisecondsSinceEpoch],
       orderBy: '${LocalItemFields.date} DESC',
     );
@@ -127,33 +127,53 @@ class LocalProject extends LocalGeneric {
 
   Map<String, Object?> toJson() {
     return {
-      ProjectFields.localId: project.localId,
-      ProjectFields.remoteId: project.remoteId,
-      ProjectFields.name: project.name,
-      ProjectFields.code: project.code ?? getRandom(5),
-      ProjectFields.currentParticipant: project.currentParticipant?.localId,
-      ProjectFields.instance: project.provider.instance.localId,
-      ProjectFields.lastSync: project.lastSync.millisecondsSinceEpoch,
-      ProjectFields.lastUpdate: project.lastUpdate.millisecondsSinceEpoch,
-      ProjectFields.deleted: project.deleted ? 1 : 0,
+      LocalProjectFields.localId: project.localId,
+      LocalProjectFields.remoteId: project.remoteId,
+      LocalProjectFields.name: project.name,
+      LocalProjectFields.code: project.code ?? getRandom(5),
+      LocalProjectFields.currentParticipant:
+          project.currentParticipant?.localId,
+      LocalProjectFields.instance: project.provider.instance.localId,
+      LocalProjectFields.lastSync: project.lastSync.millisecondsSinceEpoch,
+      LocalProjectFields.lastUpdate: project.lastUpdate.millisecondsSinceEpoch,
+      LocalProjectFields.deleted: project.deleted ? 1 : 0,
     };
   }
 
   static Project fromJson(Map<String, Object?> json) {
     return Project(
-      localId: json[ProjectFields.localId] as int?,
-      remoteId: json[ProjectFields.remoteId] as String?,
-      name: json[ProjectFields.name] as String,
-      code: json[ProjectFields.code] as String?,
-      currentParticipantId: json[ProjectFields.currentParticipant] as int?,
-      instance: Instance.fromId(json[ProjectFields.instance] as int)!,
+      localId: json[LocalProjectFields.localId] as int?,
+      remoteId: json[LocalProjectFields.remoteId] as String?,
+      name: json[LocalProjectFields.name] as String,
+      code: json[LocalProjectFields.code] as String?,
+      currentParticipantId: json[LocalProjectFields.currentParticipant] as int?,
+      instance: Instance.fromId(json[LocalProjectFields.instance] as int) ??
+          Instance.fromName('local')!,
       lastSync: DateTime.fromMillisecondsSinceEpoch(
-          json[ProjectFields.lastSync] as int),
+          json[LocalProjectFields.lastSync] as int),
       lastUpdate: DateTime.fromMillisecondsSinceEpoch(
-          json[ProjectFields.lastUpdate]
+          json[LocalProjectFields.lastUpdate]
               as int //? ?? DateTime.now().millisecondsSinceEpoch
           ),
-      deleted: (json[ProjectFields.deleted] as int) == 1,
+      deleted: (json[LocalProjectFields.deleted] as int) == 1,
     );
+  }
+
+  Future<bool> delete() async {
+    int a = await AppData.db.delete(tableProjects,
+        where: '${LocalProjectFields.localId} = ?',
+        whereArgs: [project.localId]);
+    a += await AppData.db.delete(tableParticipants,
+        where: '${LocalParticipantFields.projectId} = ?',
+        whereArgs: [project.localId]);
+    a += await AppData.db.delete(tableItems,
+        where: '${LocalItemFields.projectId} = ?',
+        whereArgs: [project.localId]);
+    // await AppData.db.query(tableItemParts, where: '${LocalItemPartFields.itemId} = ?', whereArgs: [project.localId]);
+    a += await AppData.db.delete(tableGroup,
+        where: '${LocalGroupFields.projectId} = ?',
+        whereArgs: [project.localId]);
+    // await AppData.db.query(tableGroupMembership, where: '${LocalGroupMembershipFields.groupId} = ?', whereArgs: [project.localId]);
+    return a > 0;
   }
 }

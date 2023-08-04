@@ -48,7 +48,12 @@ class NewScreen extends StatelessWidget {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: onValidate == null
-                            ? null
+                            ? () async =>
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Please check your entries'),
+                                  ),
+                                )
                             : () async => await onValidate!(context, formKey),
                         child: Padding(
                           padding: const EdgeInsets.all(15.0),

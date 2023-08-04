@@ -69,7 +69,13 @@ class NewProjectScreen extends StatelessWidget {
       }
       if (first) {
         AppData.firstRun = false;
-        runApp(const MainScreen());
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const MainScreen(),
+          ),
+          (Route<dynamic> route) => false,
+        );
       } else {
         if (context.mounted) {
           if (isNew) {
